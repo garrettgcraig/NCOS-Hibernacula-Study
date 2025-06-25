@@ -140,7 +140,8 @@ merged_sequences_and_deployment_data <- sequences_data_clean |>
   full_join(deployments_data_clean, by = "deployment_id") |> 
   filter(class != "No CV Result") |> 
   filter(is.na(genus) | genus != "Homo") |>  
-  mutate(genus_species = paste(genus, species, sep = " "))
+  mutate(genus_species = paste(genus, species, sep = " ")) |> 
+  filter(class!= "Insecta")
 
 merged_sequences_and_deployment_data$start_time <- ymd_hms(merged_sequences_and_deployment_data$start_time)
 merged_sequences_and_deployment_data$feature_type_methodology = as.factor(merged_sequences_and_deployment_data$feature_type_methodology)
@@ -150,14 +151,65 @@ merged_sequences_and_deployment_data$end_date <- as.Date(merged_sequences_and_de
 
 write.csv(merged_sequences_and_deployment_data,here("data","merged.csv"))
 
-deployment_summary <- merged_sequences_and_deployment_data %>%
-  group_by(deployment_id, placename, feature_type_methodology, latitude, longitude, start_date, end_date, deployment_duration) %>%
+
+## split observation start date/time into two columns
+merged_sequences_and_deployment_data <- merged_sequences_and_deployment_data %>%
+  mutate(
+    obs_start_date = as.Date(start_time),
+    obs_start_time = hms::as_hms(start_time)
+  )
+```
+
+```{r}
+### This whole section removes overlapping sequences of the same species at the same place on the same date, but different cameras.
+
+library(fuzzyjoin)
+library(IRanges)  # required for interval_inner_join
+
+# Step 1: Add row_id based on existing sequence_id
+data_intervals <- merged_sequences_and_deployment_data %>%
+  mutate(row_id = sequence_id)
+
+# Step 2: Self-join to find overlapping intervals (same species, place, date; different cameras)
+overlap_pairs <- interval_inner_join(
+  data_intervals, data_intervals,
+  by = c("start_time", "end_time"),
+  maxgap = 0,
+  type = "any"
+) %>%
+  filter(
+    wi_taxon_id.x == wi_taxon_id.y,
+    placename.x == placename.y,
+    obs_start_date.x == obs_start_date.y,
+    camera_name.x != camera_name.y,
+    row_id.x != row_id.y  # Avoid self-matches
+  )
+
+# Step 3: Decide which rows to remove (keep higher group_size; if tied, keep later end_time)
+rows_to_remove <- overlap_pairs %>%
+  mutate(
+    keep_x = if_else(group_size.x > group_size.y, TRUE,
+              if_else(group_size.x < group_size.y, FALSE,
+                end_time.x > end_time.y))  # If tie, later end_time wins
+  ) %>%
+  filter(!keep_x) %>%
+  pull(row_id.x) %>%
+  unique()
+
+# Step 4: Remove the lower-priority overlaps
+merged_data_with_combined_observations <- merged_sequences_and_deployment_data %>%
+  filter(!sequence_id %in% rows_to_remove)
+```
+
+```{r}
+deployment_summary <- merged_data_with_combined_observations %>%
+  group_by(deployment_id, placename, feature_type_methodology, latitude, longitude, start_date, end_date, deployment_duration, habitat_type) %>%
   summarize(
-    total_observations = n(),
+    total_observations = sum(group_size, na.rm = TRUE),  # Sum group_size instead of counting rows
     .groups = 'drop'
   ) %>%
   mutate(
-    avg_daily_observations = total_observations / deployment_duration  # Compute avg daily observations
+    avg_daily_observations = total_observations / deployment_duration
   )
 
 site_summary <- deployment_summary %>%
@@ -170,18 +222,14 @@ site_summary <- deployment_summary %>%
   mutate(
     avg_daily_observations = total_observations / total_deployment_duration
   )
+```
 
-## split observation start date/time into two columns
-merged_sequences_and_deployment_data <- merged_sequences_and_deployment_data %>%
-  mutate(
-    obs_start_date = as.Date(start_time),
-    obs_start_time = hms::as_hms(start_time)
-  )
 
+```{r}
 write.csv(site_summary, file = here("data", "site_summary.csv"), row.names = FALSE)
 
 # Select and reorder columns for Alistair's comparison to previous experiment, then output the file
-obs_summary_for_alistair <- merged_sequences_and_deployment_data %>%
+obs_summary_for_alistair <- merged_data_with_combined_observations %>%
   select(placename, camera_name, identified_by, obs_start_date, obs_start_time, common_name)
 
 write.csv(obs_summary_for_alistair, here("data", "observations_summary_for_alistair.csv"), row.names = FALSE)
@@ -196,22 +244,30 @@ deployment_summary_recoded <- deployment_summary %>%
     feature_type_methodology %in% c("Log", "Boulder") ~ "Log/Boulder",
     TRUE ~ feature_type_methodology
   ))
+
+# Recode feature_type_methodology to combine "Log" and "Boulder" into "Log/Boulder"
+site_summary_recoded <- site_summary %>%
+  mutate(feature_type_methodology = case_when(
+    feature_type_methodology %in% c("Log", "Boulder") ~ "Log/Boulder",
+    TRUE ~ feature_type_methodology
+  ))
+
 ```
 
 Since this analysis intended to analyze the effect on wildlife presence of constructed hibernacula relative to natural features like logs and boulders, we performed a two-category analysis comparing wildlife observations at constructed hibernacula against observations at all of the boulder/log sites combined.
 
 ```{r fig-boxplot-daily-obs}
 #| label: fig-boxplot-daily-obs
-#| fig-cap: "Average daily observations per camera trap deployment across different feature types. Points represent individual deployments, while the white diamonds indicate mean values. 95% confidence intervals are shown around the mean values."
+#| fig-cap: "Average daily observations per camera trap site across different feature types. Points represent individual sites, while the white diamonds indicate mean values. 95% confidence intervals are shown around the mean values."
 
 # Box plot for avg daily observations by recoded feature type methodology with consistent colors
-ggplot(deployment_summary_recoded, aes(x = feature_type_methodology, y = avg_daily_observations, fill = feature_type_methodology)) +
+ggplot(site_summary_recoded, aes(x = feature_type_methodology, y = avg_daily_observations, fill = feature_type_methodology)) +
   geom_boxplot() +
   geom_jitter(width = 0.3, color = "black", alpha = 0.5) +  # Add individual points
-  stat_summary(fun = "mean", geom = "point", shape = 18, size = 3, color = "white") +  # Mean as white diamonds
+  stat_summary(fun = "mean", geom = "point", shape = 18, size = 5, color = "white") +  # Mean as white diamonds
   stat_summary(fun.data = mean_cl_normal, geom = "errorbar", width = 0.2, color = "darkred") +  # Confidence intervals
   labs(
-    title = "Avg. Daily Observations per Camera Trap Deployment by Feature Type",
+    title = "Avg. Daily Observations per Camera Trap Site by Feature Type",
     x = "Feature Type",
     y = "Avg Daily Observations",
     fill = "Feature Type"
@@ -221,6 +277,44 @@ ggplot(deployment_summary_recoded, aes(x = feature_type_methodology, y = avg_dai
   scale_fill_manual(values = c("Log/Boulder" = "#2992a5", "Constructed Hibernacula" = "#fc8d62"))  # Custom colors for consistency
 
 ```
+```{r fig-daily-obs-mean-ci}
+#| label: fig-daily-obs-mean-ci
+#| fig-cap: "Average daily observations per camera trap site across different feature types. Points represent individual sites, white diamonds indicate mean values, and vertical lines show 95% confidence intervals."
+
+library(dplyr)
+
+# Step 1: Compute summary stats
+summary_stats <- site_summary_recoded %>%
+  group_by(feature_type_methodology) %>%
+  summarise(
+    mean = mean(avg_daily_observations),
+    se = sd(avg_daily_observations) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    lower = mean - qt(0.975, df = n - 1) * se,
+    upper = mean + qt(0.975, df = n - 1) * se
+  )
+
+# Step 2: Plot
+ggplot(site_summary_recoded, aes(x = feature_type_methodology, y = avg_daily_observations)) +
+  geom_jitter(aes(color = feature_type_methodology), width = 0.25, alpha = 0.6, size = 2, show.legend = FALSE) +
+  geom_errorbar(data = summary_stats, aes(y = mean, ymin = lower, ymax = upper),
+                width = 0.15, color = "black", linewidth = 0.7) +
+  geom_point(data = summary_stats, aes(y = mean), shape = 23, size = 4,
+             fill = "white", color = "black", stroke = 1.2) +
+  scale_color_manual(values = c("Log/Boulder" = "#2992a5", "Constructed Hibernacula" = "#fc8d62")) +
+  labs(
+    title = "Avg. Daily Observations per Camera Trap Site by Feature Type",
+    x = "Feature Type",
+    y = "Avg Daily Observations"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(vjust = 1))
+
+```
+
 
 ## T-Test
 
@@ -232,7 +326,7 @@ Since the goal is to determine whether the mean visit rate differs significantly
 #| tbl-cap: Welch two sample T-test comparing average daily observations between feature types
 
 # Perform the t-test
-t_test_result <- t.test(avg_daily_observations ~ feature_type_methodology, data = deployment_summary_recoded)
+t_test_result <- t.test(avg_daily_observations ~ feature_type_methodology, data = site_summary_recoded)
 
 # Extract key components from the t-test result
 t_test_df <- data.frame(
@@ -259,7 +353,7 @@ knitr::kable(t_test_df)
 #| tbl-cap: Cohen's d - effect size for average daily observations between feature types
 
 # Calculate Cohen's d
-cohen_d_result <- cohen.d(avg_daily_observations ~ feature_type_methodology, data = deployment_summary_recoded)
+cohen_d_result <- cohen.d(avg_daily_observations ~ feature_type_methodology, data = site_summary_recoded)
 
 # Extract key components from the Cohen's d result
 cohen_d_df <- data.frame(
@@ -285,7 +379,7 @@ knitr::kable(cohen_d_df)
 #| tbl-cap: Shapiro-Wilk normality test for average daily observations by feature type
 
 # Perform the Shapiro-Wilk normality test
-normality_test <- deployment_summary_recoded %>%
+normality_test <- site_summary_recoded %>%
   group_by(feature_type_methodology) %>%
   summarise(shapiro_result = list(shapiro.test(avg_daily_observations))) %>%
   mutate(shapiro_p_value = sapply(shapiro_result, function(x) x$p.value)) %>%
@@ -293,17 +387,20 @@ normality_test <- deployment_summary_recoded %>%
 
 # Print the formatted table
 knitr::kable(normality_test)
+
+# OLD NOTES FOR P-VALUES FROM WHEN I USED DEPLOYMENT SUMMARY
+# Constructed Hibernacula: p-value = 0.0006307
+# 
+# The p-value is less than 0.05, so we reject the null hypothesis that the data is normally distributed.
+# Therefore, the data for Constructed Hibernacula is not normally distributed.
+# 
+# Log/Boulder: p-value = 0.0685879
+# 
+# The p-value is greater than 0.05, suggesting that the data for Log/Boulder is not significantly different from normal.
+# We do not reject the null hypothesis, so it appears Log/Boulder data may follow a normal distribution.
 ```
 
-Constructed Hibernacula: p-value = 0.0006307
-
-The p-value is less than 0.05, so we reject the null hypothesis that the data is normally distributed.
-Therefore, the data for Constructed Hibernacula is not normally distributed.
-
-Log/Boulder: p-value = 0.0685879
-
-The p-value is greater than 0.05, suggesting that the data for Log/Boulder is not significantly different from normal.
-We do not reject the null hypothesis, so it appears Log/Boulder data may follow a normal distribution.
+The p-values are greater than 0.05, so we do not reject the null hypothesis that the data is normally distributed for Log/Boulder sites nor for hibernacula.
 
 #### Levene's Test for Homogeneity of Variances
 
@@ -312,7 +409,7 @@ We do not reject the null hypothesis, so it appears Log/Boulder data may follow 
 #| tbl-cap: Levene's Test for Homogeneity of Variance for Average Daily Observations by Feature Type
 
 # Perform the Levene's test
-levene_test <- leveneTest(avg_daily_observations ~ feature_type_methodology, data = deployment_summary_recoded)
+levene_test <- leveneTest(avg_daily_observations ~ feature_type_methodology, data = site_summary_recoded)
 
 # Extract key components from the Levene's test result
 levene_test_df <- data.frame(
@@ -332,21 +429,25 @@ knitr::kable(levene_test_df)
 
 Variances between the two groups are not equal (i.e., there is heteroscedasticity, or unequal variances).
 
-Even given the violation of normality (in the Constructed Hibernacula group) and unequal variances, the Welch Two Sample t-test is still appropriate because it does not assume equal variances and is robust to non-normality when sample sizes are not too small.
+Even given unequal variances, the Welch Two Sample t-test is still appropriate because it does not assume equal variances and is robust to non-normality when sample sizes are not too small.
 
 ## Results
 
-The Welch two-sample t-test comparing average daily wildlife observations between Constructed Hibernacula and Log/Boulder features revealed a statistically significant difference (p = 0.04594).
-On average, Constructed Hibernacula had 8.75 daily observations, while each Log/Boulder had 4.92, resulting in a mean difference of 3.83 more observations per day on Constructed Hibernacula.
-The 95% confidence interval for this difference ranged from 0.07 to 7.60, indicating that the true effect is unlikely to be zero.
-Since the p-value is below the 0.05 threshold, we reject the null hypothesis and conclude that wildlife visitation rates differ significantly between these habitat features.
+The Welch two-sample t-test comparing average daily wildlife observations between Constructed Hibernacula and Log/Boulder features does not reveal a statistically significant difference (p = 0.12706).
 
-The calculated Cohen’s d value of 0.58 suggests a medium effect size, meaning that the difference in wildlife observations between Constructed Hibernacula and Log/Boulder is moderate in magnitude.
-A medium effect size implies that the higher observation rates on Constructed Hibernacula are meaningful but not overwhelmingly strong.
-The 95% confidence interval (-0.02 to 1.18) includes 0, so it is suggestive of but not conclusively a positive effect.
+On average, Constructed Hibernacula had 7.94 daily observations, while each Log/Boulder had 4.76, resulting in a mean difference of 3.18 more observations per day on Constructed Hibernacula.
+The 95% confidence interval for this difference ranged from 0.07 to 7.60, indicating that the true effect is unlikely to be zero.
+
+Since the p-value isn't below the 0.05 threshold, we can't conclude that wildlife visitation rates differ significantly between these habitat features.
+
+The calculated Cohen’s d value of 0.60 suggests a moderate effect size, meaning that the difference in wildlife observations between Constructed Hibernacula and Log/Boulder is moderate in magnitude.
+
+A moderate effect size implies that the higher observation rates on Constructed Hibernacula are meaningful but not overwhelmingly strong.
+
+The 95% confidence interval (-0.21 to 1.41) includes 0, so it is suggestive of but not conclusively a positive effect.
 A larger sample size might be needed to confirm the true magnitude of the effect with more confidence.
 
-While statistical significance suggests a real difference, the medium effect size indicates that Constructed Hibernacula may provide a somewhat better habitat for wildlife, but other ecological or behavioral factors should also be considered.
+Though this comparison lacks statistical significance, the medium effect size indicates that Constructed Hibernacula may provide a somewhat better habitat for wildlife. Other ecological or behavioral factors should also be considered.
 Further investigation into species composition, habitat preferences, and potential confounding factors could strengthen conclusions.
 
 # Data Visualization
@@ -358,13 +459,13 @@ Further investigation into species composition, habitat preferences, and potenti
 #| fig-cap: "Distribution of wildlife observations by taxonomic class across different feature types. Numbers inside bars indicate total observations for each class."
 
 # Create a consistent class color palette
-class_levels <- c("Mammalia", "Aves", "Reptilia", "Amphibia", "Insecta")
+class_levels <- c("Mammalia", "Aves", "Reptilia", "Amphibia")
 class_palette <- setNames(
   RColorBrewer::brewer.pal(n = length(class_levels), name = "Set1"),
   class_levels
 )
 
-merged_sequences_and_deployment_data |> 
+merged_data_with_combined_observations |> 
   group_by(feature_type_methodology, class) |> 
   summarise(abundance = n(), .groups = 'drop') |> 
   ggplot(aes(x = feature_type_methodology, y = abundance, fill = class)) +
@@ -376,7 +477,7 @@ merged_sequences_and_deployment_data |>
   labs(
     title = "Observations Across Feature Types",
     x = "Feature Type",
-    y = "Abundance",
+    y = "Observations",
     fill = "Class"
   ) +
   theme_minimal() +
@@ -390,7 +491,7 @@ merged_sequences_and_deployment_data |>
 #| label: fig-species-count
 #| fig-cap: "Number of unique species observed at each feature type, grouped by taxonomic class. Numbers inside bars indicate the count of unique species."
 
-merged_sequences_and_deployment_data |> 
+merged_data_with_combined_observations |> 
   filter(!is.na(species)) |> 
   group_by(feature_type_methodology, class) |> 
   summarise(unique_species = n_distinct(species), .groups = 'drop') |> 
@@ -416,7 +517,7 @@ Note that the figure above excludes observations for which species-level ID was 
 
 ```{r fig-site-observations}
 #| label: fig-site-observations
-#| fig-cap: "Average daily wildlife observations at each deployment site. Sites are grouped by feature type with color-coding to distinguish between feature categories."
+#| fig-cap: "Average daily wildlife observations at each feature site. Sites are grouped by feature type with color-coding to distinguish between feature categories."
 #| fig-pos: 'H'
 
 
@@ -442,10 +543,10 @@ ggplot(site_summary, aes(x = placename, y = avg_daily_observations, fill = featu
 #| fig-pos: 'H'
 
 # Convert hour to 12-hour format with AM/PM
-merged_sequences_and_deployment_data$hour_am_pm <- format(merged_sequences_and_deployment_data$start_time, "%I %p")
+merged_data_with_combined_observations$hour_am_pm <- format(merged_data_with_combined_observations$start_time, "%I %p")
 
 # Summarize data to get raw counts for each feature type per hour
-hourly_summary <- merged_sequences_and_deployment_data %>%
+hourly_summary <- merged_data_with_combined_observations %>%
   group_by(hour_am_pm, feature_type_methodology) %>%
   summarize(count = n(), .groups = "drop")  # Get raw count
 
@@ -480,7 +581,7 @@ ggplot(hourly_summary, aes(x = hour_am_pm, y = count, fill = feature_type_method
 #| fig-pos: 'H'
 
 # Build the palette using all unique species across the entire dataset
-all_species <- merged_sequences_and_deployment_data %>%
+all_species <- merged_data_with_combined_observations %>%
   filter(!is.na(common_name)) %>%
   distinct(common_name) %>%
   arrange(common_name) %>%
@@ -493,7 +594,7 @@ species_palette <- setNames(
 )
 
 # Prepare and aggregate all data by hour and species
-hourly_all_sites <- merged_sequences_and_deployment_data %>%
+hourly_all_sites <- merged_data_with_combined_observations %>%
   filter(!is.na(common_name)) %>%
   mutate(
     hour_am_pm = format(start_time, "%I %p"),
@@ -528,7 +629,7 @@ ggplot(hourly_all_sites, aes(x = hour_am_pm, y = count, fill = common_name)) +
 #| fig-pos: 'H'
 
 # Filter for Boulder only
-hourly_boulder <- merged_sequences_and_deployment_data %>%
+hourly_boulder <- merged_data_with_combined_observations %>%
   filter(feature_type_methodology == "Boulder", !is.na(common_name)) %>%
   mutate(hour_am_pm = format(start_time, "%I %p")) %>%
   mutate(hour_am_pm = factor(hour_am_pm, levels = c("12 AM", sprintf("%02d AM", 1:11),
@@ -555,7 +656,7 @@ ggplot(hourly_boulder, aes(x = hour_am_pm, y = count, fill = common_name)) +
 #| fig-pos: 'H'
 
 # Filter for Constructed Hibernacula
-hourly_hib <- merged_sequences_and_deployment_data %>%
+hourly_hib <- merged_data_with_combined_observations %>%
   filter(feature_type_methodology == "Constructed Hibernacula", !is.na(common_name)) %>%
   mutate(hour_am_pm = format(start_time, "%I %p")) %>%
   mutate(hour_am_pm = factor(hour_am_pm, levels = c("12 AM", sprintf("%02d AM", 1:11),
@@ -583,7 +684,7 @@ ggplot(hourly_hib, aes(x = hour_am_pm, y = count, fill = common_name)) +
 #| fig-pos: 'H'
 
 # Filter for Log only
-hourly_log <- merged_sequences_and_deployment_data %>%
+hourly_log <- merged_data_with_combined_observations %>%
   filter(feature_type_methodology == "Log", !is.na(common_name)) %>%
   mutate(hour_am_pm = format(start_time, "%I %p")) %>%
   mutate(hour_am_pm = factor(hour_am_pm, levels = c("12 AM", sprintf("%02d AM", 1:11),
@@ -613,12 +714,12 @@ ggplot(hourly_log, aes(x = hour_am_pm, y = count, fill = common_name)) +
 #| fig-pos: 'H'
 
 # Prepare data for plot: exclude NA habitat, calculate normalized obs/hour
-species_by_habitat <- merged_sequences_and_deployment_data %>%
+species_by_habitat <- merged_data_with_combined_observations %>%
   filter(!is.na(habitat_type), !is.na(common_name)) %>%
   group_by(habitat_type, common_name, deployment_id) %>%
   summarise(
     observations = n(),
-    deployment_duration_days = first(deployment_duration),
+    deployment_duration_days = dplyr::first(deployment_duration),
     .groups = "drop"
   ) %>%
   mutate(observations_per_hour = observations / (deployment_duration_days * 24)) %>%
@@ -651,7 +752,7 @@ ggplot(species_by_habitat, aes(x = habitat_type, y = observations_per_hour, fill
 #| fig-pos: 'H'
 
 # Summarize species counts by feature_type_methodology, filtering out "NA NA" genus_species
-species_abundance <- merged_sequences_and_deployment_data |> 
+species_abundance <- merged_data_with_combined_observations |> 
   group_by(feature_type_methodology, class, family, genus_species, common_name) |> 
   summarise(abundance = n(), .groups = 'drop')
 

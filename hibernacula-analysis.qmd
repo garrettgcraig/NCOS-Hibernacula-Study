@@ -151,7 +151,7 @@ merged_sequences_and_deployment_data$end_date <- as.Date(merged_sequences_and_de
 write.csv(merged_sequences_and_deployment_data,here("data","merged.csv"))
 
 deployment_summary <- merged_sequences_and_deployment_data %>%
-  group_by(deployment_id, placename, feature_type_methodology, latitude, longitude, start_date, end_date, deployment_duration) %>%
+  group_by(deployment_id, placename, feature_type_methodology, latitude, longitude, start_date, end_date, deployment_duration,habitat_type) %>%
   summarize(
     total_observations = n(),
     .groups = 'drop'
@@ -208,7 +208,7 @@ Since this analysis intended to analyze the effect on wildlife presence of const
 ggplot(deployment_summary_recoded, aes(x = feature_type_methodology, y = avg_daily_observations, fill = feature_type_methodology)) +
   geom_boxplot() +
   geom_jitter(width = 0.3, color = "black", alpha = 0.5) +  # Add individual points
-  stat_summary(fun = "mean", geom = "point", shape = 18, size = 3, color = "white") +  # Mean as white diamonds
+  stat_summary(fun = "mean", geom = "point", shape = 18, size = 5, color = "white") +  # Mean as white diamonds
   stat_summary(fun.data = mean_cl_normal, geom = "errorbar", width = 0.2, color = "darkred") +  # Confidence intervals
   labs(
     title = "Avg. Daily Observations per Camera Trap Deployment by Feature Type",
@@ -221,6 +221,44 @@ ggplot(deployment_summary_recoded, aes(x = feature_type_methodology, y = avg_dai
   scale_fill_manual(values = c("Log/Boulder" = "#2992a5", "Constructed Hibernacula" = "#fc8d62"))  # Custom colors for consistency
 
 ```
+```{r fig-daily-obs-mean-ci}
+#| label: fig-daily-obs-mean-ci
+#| fig-cap: "Average daily observations per camera trap deployment across different feature types. Points represent individual deployments, white diamonds indicate mean values, and vertical lines show 95% confidence intervals."
+
+library(dplyr)
+
+# Step 1: Compute summary stats
+summary_stats <- deployment_summary_recoded %>%
+  group_by(feature_type_methodology) %>%
+  summarise(
+    mean = mean(avg_daily_observations),
+    se = sd(avg_daily_observations) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    lower = mean - qt(0.975, df = n - 1) * se,
+    upper = mean + qt(0.975, df = n - 1) * se
+  )
+
+# Step 2: Plot
+ggplot(deployment_summary_recoded, aes(x = feature_type_methodology, y = avg_daily_observations)) +
+  geom_jitter(aes(color = feature_type_methodology), width = 0.25, alpha = 0.6, size = 2, show.legend = FALSE) +
+  geom_errorbar(data = summary_stats, aes(y = mean, ymin = lower, ymax = upper),
+                width = 0.15, color = "black", linewidth = 0.7) +
+  geom_point(data = summary_stats, aes(y = mean), shape = 23, size = 4,
+             fill = "white", color = "black", stroke = 1.2) +
+  scale_color_manual(values = c("Log/Boulder" = "#2992a5", "Constructed Hibernacula" = "#fc8d62")) +
+  labs(
+    title = "Avg. Daily Observations per Camera Trap Deployment by Feature Type",
+    x = "Feature Type",
+    y = "Avg Daily Observations"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(vjust = 1))
+
+```
+
 
 ## T-Test
 
