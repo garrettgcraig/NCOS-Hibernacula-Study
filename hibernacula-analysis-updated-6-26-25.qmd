@@ -618,7 +618,6 @@ ggplot(hourly_all_sites, aes(x = hour_am_pm, y = count, fill = common_name)) +
     axis.text.x = element_text(angle = 45, hjust = 1),
     legend.position = "right"
   )
-
 ```
 
 ## Hourly Breakdown per Feature Type
