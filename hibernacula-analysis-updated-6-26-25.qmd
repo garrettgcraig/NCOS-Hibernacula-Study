@@ -59,11 +59,12 @@ library(broom)
 library(lubridate)
 library(leaflet)
 library(RColorBrewer)
+library(readxl)
 ```
 
 # Overview
 
-This project is a follow-up to earlier work (see [here](https://escholarship.org/uc/item/4qb9s50f)) at the North Campus Open Space (NCOS) restoration project, where habitat features like large rocks, logs, and hibernacula (buried multi-rock refugia) were created to assess wildlife usage.
+This project is a continuation of earlier work (see [here](https://escholarship.org/uc/item/4qb9s50f)) at the North Campus Open Space (NCOS) restoration project, where habitat features like large rocks, logs, and hibernacula (buried multi-rock refugia) were created to assess wildlife usage.
 This follow-up project, conducted in the spring of 2021, aims to assess not just the frequency of wildlife use of each feature type but also the ecological function that different habitat structures may play in restored landscapes.
 
 For this project, motion-sensor camera traps were installed at 5 boulder locations, 8 log locations, and 14 constructed hibernacula.
@@ -81,6 +82,9 @@ Reviewers categorized any wildlife present to the lowest possible taxonomic leve
 sequences_data_raw = read_csv(here("data","sequences.csv"))
 deployments_data_raw=read_csv(here("data","deployments.csv"))
 cameras_data_raw=read_csv(here("data","cameras.csv"))
+
+##load Alistair's first study's data
+february_study_observations <- read_excel(here("data","originalMasterHibernaculaAnalysis.xlsx"), sheet = "Master.Data.Cleaned")
 ```
 
 ## Clean and merge data files
@@ -158,6 +162,30 @@ merged_sequences_and_deployment_data <- merged_sequences_and_deployment_data %>%
     obs_start_date = as.Date(start_time),
     obs_start_time = hms::as_hms(start_time)
   )
+
+##clean February data
+february_study_observations$obs_start_time <- hms::as_hms(february_study_observations$obs_start_time)
+february_study_observations <- february_study_observations %>% 
+   filter(!is.na(common_name)) |> 
+  mutate(common_name = str_replace_all(common_name, "Racoon", "Raccoon") |> 
+           str_replace_all("California Towee", "California Towhee") |> 
+           str_replace_all("Says Phoebe", "Say's Phoebe") |> 
+           str_replace_all("Coopers Hawk", "Cooper's Hawk") |> 
+           str_replace_all("Hermit thrush", "Hermit Thrush"))  
+# Join with habitat types
+february_study_observations <- february_study_observations %>%
+  left_join(site_to_habitat, by = c("placename" = "site"))
+
+# Find common columns
+common_cols <- intersect(names(february_study_observations), names(merged_sequences_and_deployment_data))
+
+# Perform join by only the shared columns
+combined_studies <- full_join(february_study_observations, 
+                        merged_sequences_and_deployment_data, 
+                        by = common_cols) |> 
+  mutate(obs_datetime = obs_start_date + as.numeric(obs_start_time))
+
+         
 ```
 
 ```{r}
@@ -618,7 +646,6 @@ ggplot(hourly_all_sites, aes(x = hour_am_pm, y = count, fill = common_name)) +
     axis.text.x = element_text(angle = 45, hjust = 1),
     legend.position = "right"
   )
-
 ```
 
 ## Hourly Breakdown per Feature Type
