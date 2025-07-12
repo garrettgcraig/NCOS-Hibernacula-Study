@@ -396,35 +396,6 @@ knitr::kable(t_test_df)
 
 ```
 
-
-## Linear Regression
-```{r}
-lm_model <- lm(total_observations ~ feature_type_methodology + trail,
-               data = daily_site_summary_recoded)
-
-summary(lm_model)
-```
-
-## Poisson and Quasipoisson GLM
-```{r}
-poisson_model <- glm(total_observations ~ feature_type_methodology + trail,
-                   data = daily_site_summary_recoded,
-                   family = poisson())
-summary(poisson_model)
-
-dispersion_ratio <- summary(poisson_model)$deviance / summary(poisson_model)$df.residual
-
-dispersion_ratio
-```
-```{r}
-quasi_model <- glm(total_observations ~ feature_type_methodology + trail ,
-                   data = daily_site_summary_recoded,
-                   family = quasipoisson())
-
-summary(quasi_model)
-```
-
-
 ### Calculate Cohen's d
 
 ```{r tbl-cohen-d-results}
@@ -509,6 +480,38 @@ knitr::kable(levene_test_df)
 Variances between the two groups are not equal (i.e., there is heteroscedasticity, or unequal variances).
 
 Even given unequal variances, the Welch Two Sample t-test is still appropriate because it does not assume equal variances and is robust to non-normality when sample sizes are not too small.
+
+## Linear Regression
+```{r}
+lm_model <- lm(total_observations ~ feature_type_methodology + trail,
+               data = daily_site_summary_recoded)
+
+summary(lm_model)
+```
+
+## Poisson and Quasipoisson GLM
+```{r}
+poisson_model <- glm(total_observations ~ feature_type_methodology + trail,
+                   data = daily_site_summary_recoded,
+                   family = poisson())
+summary(poisson_model)
+
+dispersion_ratio <- summary(poisson_model)$deviance / summary(poisson_model)$df.residual
+
+if (dispersion_ratio > 1) {
+  cat("Dispersion ratio indicates overdispersion:", dispersion_ratio, "\n")
+} else {
+  cat("Dispersion ratio is acceptable:", dispersion_ratio, "\n")
+}
+```
+
+```{r}
+quasi_model <- glm(total_observations ~ feature_type_methodology + trail ,
+                   data = daily_site_summary_recoded,
+                   family = quasipoisson())
+
+summary(quasi_model)
+```
 
 ## Results
 
@@ -666,6 +669,80 @@ ggplot(hourly_summary, aes(x = hour_am_pm, y = total_count_per_deployment_hour, 
 
 ```
 
+```{r}
+### Species Lumping
+#| include: false
+# Set detection threshold
+detection_threshold <- 50
+
+# Count total observations by species
+species_counts <- merged_data_with_combined_observations %>%
+  filter(!is.na(common_name)) %>%
+  count(common_name, name = "total_count")
+
+# Recode species names based on detection threshold or name content
+merged_data_lumped <- merged_data_with_combined_observations %>%
+  left_join(species_counts, by = "common_name") %>%
+  mutate(
+    common_name_lumped = case_when(
+      total_count < detection_threshold & !is.na(class) ~ paste0("Other (", class, ")"),
+      grepl("other|unidentified", tolower(common_name)) & !is.na(class) ~ paste0("Other (", class, ")"),
+      TRUE ~ common_name
+    )
+  )
+
+# Build species palette
+lumped_species <- merged_data_lumped %>%
+  filter(!is.na(common_name_lumped)) %>%
+  distinct(common_name_lumped) %>%
+  arrange(common_name_lumped) %>%
+  pull(common_name_lumped)
+
+species_palette <- setNames(
+  colorRampPalette(RColorBrewer::brewer.pal(8, "Set3"))(length(lumped_species)),
+  lumped_species
+)
+```
+
+
+## Species by Habitat Type
+
+```{r fig-species-by-habitat-type}
+#| label: fig-species-by-habitat-type
+#| fig-cap: "Species observed at hibernacula by habitat type, normalized by camera days."
+#| fig-pos: 'H'
+
+# Prepare data for plot: exclude NA habitat, calculate normalized obs/hour
+species_by_habitat <- merged_data_lumped %>%
+  filter(!is.na(habitat_type), !is.na(common_name)) %>%
+  group_by(habitat_type, common_name_lumped, deployment_id) %>%
+  summarise(
+    observations = n(),
+    deployment_duration_days = dplyr::first(deployment_duration),
+    .groups = "drop"
+  ) %>%
+  mutate(observations_per_camera_day = observations / (deployment_duration_days)) %>%
+  group_by(habitat_type, common_name_lumped) %>%
+  summarise(observations_per_camera_day = sum(observations_per_camera_day), .groups = "drop")
+
+
+# Plot stacked bar chart
+ggplot(species_by_habitat, aes(x = habitat_type, y = observations_per_camera_day, fill = common_name_lumped)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = species_palette, name = "Species") +
+  labs(
+    title = "Species Observed at Hibernacula by Habitat Type",
+    x = NULL,
+    y = "Observations per Camera Trap Day"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = "right",
+    axis.text.x = element_text(size = 12)
+  )
+
+```
+
 ## Hourly Breakdown by Common Name
 
 ```{r fig-hourly-all-sites-by-species}
@@ -673,32 +750,19 @@ ggplot(hourly_summary, aes(x = hour_am_pm, y = total_count_per_deployment_hour, 
 #| fig-cap: "Hourly wildlife observations across all habitat features, stacked by species. This view highlights daily activity patterns regardless of feature type."
 #| fig-pos: 'H'
 
-# Build the palette using all unique species across the entire dataset
-all_species <- merged_data_with_combined_observations %>%
-  filter(!is.na(common_name)) %>%
-  distinct(common_name) %>%
-  arrange(common_name) %>%
-  pull(common_name)
-
-# Generate named vector of colors
-species_palette <- setNames(
-  colorRampPalette(RColorBrewer::brewer.pal(8, "Set3"))(length(all_species)),
-  all_species
-)
-
 # Prepare and aggregate all data by hour and species
-hourly_all_sites <- merged_data_with_combined_observations %>%
+hourly_all_sites <- merged_data_lumped %>%
   filter(!is.na(common_name)) %>%
   mutate(
     hour_am_pm = format(start_time, "%I %p"),
     hour_am_pm = factor(hour_am_pm, levels = c("12 AM", sprintf("%02d AM", 1:11), 
                                                "12 PM", sprintf("%02d PM", 1:11)))
   ) %>%
-  group_by(hour_am_pm, common_name) %>%
+  group_by(hour_am_pm, common_name_lumped) %>%
   summarise(count = n(), .groups = "drop")
 
 # Plot aggregated hourly counts across all habitats
-ggplot(hourly_all_sites, aes(x = hour_am_pm, y = count, fill = common_name)) +
+ggplot(hourly_all_sites, aes(x = hour_am_pm, y = count, fill = common_name_lumped)) +
   geom_bar(stat = "identity", position = "stack") +
   scale_fill_manual(values = species_palette, name = "Species") +
   labs(
@@ -715,22 +779,25 @@ ggplot(hourly_all_sites, aes(x = hour_am_pm, y = count, fill = common_name)) +
 
 ## Hourly Breakdown per Feature Type
 
-```{r fig-hourly-by-species-boulder}
+```{r}
 #| label: fig-hourly-by-species-boulder
-#| fig-cap: "Hourly distribution of wildlife observations at Boulder sites, stacked by species. Species coloring is consistent across all feature type figures."
-#| fig-pos: 'H'
+#| fig-cap: Hourly distribution of wildlife observations at Boulder sites, stacked by species. Species coloring is consistent across all feature type figures.
+#| fig-pos: H
+#| include: false
 
 # Filter for Boulder only
-hourly_boulder <- merged_data_with_combined_observations %>%
+hourly_boulder <-  merged_data_lumped %>%
   filter(feature_type_methodology == "Boulder", !is.na(common_name)) %>%
   mutate(hour_am_pm = format(start_time, "%I %p")) %>%
   mutate(hour_am_pm = factor(hour_am_pm, levels = c("12 AM", sprintf("%02d AM", 1:11),
                                                     "12 PM", sprintf("%02d PM", 1:11)))) %>%
-  group_by(hour_am_pm, common_name) %>%
+  group_by(hour_am_pm, common_name_lumped) %>%
   summarise(count = n(), .groups = "drop")
+hourly_boulder$common_name_lumped <- factor(hourly_boulder$common_name_lumped, levels = lumped_species)
+
 
 # Plot Boulder
-ggplot(hourly_boulder, aes(x = hour_am_pm, y = count, fill = common_name)) +
+ggplot(hourly_boulder, aes(x = hour_am_pm, y = count, fill = common_name_lumped)) +
   geom_bar(stat = "identity", position = "stack") +
   scale_fill_manual(values = species_palette, name = "Species") +
   labs(
@@ -742,22 +809,25 @@ ggplot(hourly_boulder, aes(x = hour_am_pm, y = count, fill = common_name)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-```{r fig-hourly-by-species-hibernacula}
+```{r}
 #| label: fig-hourly-by-species-hibernacula
-#| fig-cap: "Hourly distribution of wildlife observations at Constructed Hibernacula, stacked by species."
-#| fig-pos: 'H'
+#| fig-cap: Hourly distribution of wildlife observations at Constructed Hibernacula, stacked by species.
+#| fig-pos: H
+#| include: false
 
 # Filter for Constructed Hibernacula
-hourly_hib <- merged_data_with_combined_observations %>%
+hourly_hib <-  merged_data_lumped %>%
   filter(feature_type_methodology == "Constructed Hibernacula", !is.na(common_name)) %>%
   mutate(hour_am_pm = format(start_time, "%I %p")) %>%
   mutate(hour_am_pm = factor(hour_am_pm, levels = c("12 AM", sprintf("%02d AM", 1:11),
                                                     "12 PM", sprintf("%02d PM", 1:11)))) %>%
-  group_by(hour_am_pm, common_name) %>%
+  group_by(hour_am_pm, common_name_lumped) %>%
   summarise(count = n(), .groups = "drop")
+hourly_hib$common_name_lumped <- factor(hourly_hib$common_name_lumped, levels = lumped_species)
+
 
 # Plot Hibernacula
-ggplot(hourly_hib, aes(x = hour_am_pm, y = count, fill = common_name)) +
+ggplot(hourly_hib, aes(x = hour_am_pm, y = count, fill = common_name_lumped)) +
   geom_bar(stat = "identity", position = "stack") +
   scale_fill_manual(values = species_palette, name = "Species") +
   labs(
@@ -770,22 +840,24 @@ ggplot(hourly_hib, aes(x = hour_am_pm, y = count, fill = common_name)) +
 
 ```
 
-```{r fig-hourly-by-species-log}
+```{r}
 #| label: fig-hourly-by-species-log
-#| fig-cap: "Hourly distribution of wildlife observations at Log sites, stacked by species."
-#| fig-pos: 'H'
+#| fig-cap: Hourly distribution of wildlife observations at Log sites, stacked by species.
+#| fig-pos: H
+#| include: false
 
 # Filter for Log only
-hourly_log <- merged_data_with_combined_observations %>%
+hourly_log <- merged_data_lumped %>%
   filter(feature_type_methodology == "Log", !is.na(common_name)) %>%
   mutate(hour_am_pm = format(start_time, "%I %p")) %>%
   mutate(hour_am_pm = factor(hour_am_pm, levels = c("12 AM", sprintf("%02d AM", 1:11),
                                                     "12 PM", sprintf("%02d PM", 1:11)))) %>%
-  group_by(hour_am_pm, common_name) %>%
-  summarise(count = n(), .groups = "drop")
+  group_by(hour_am_pm, common_name_lumped) %>%
+  summarise(count = n(), .groups = "drop") 
+hourly_log$common_name_lumped <- factor(hourly_log$common_name_lumped, levels = lumped_species)
 
 # Plot Log
-ggplot(hourly_log, aes(x = hour_am_pm, y = count, fill = common_name)) +
+ggplot(hourly_log, aes(x = hour_am_pm, y = count, fill = common_name_lumped)) +
   geom_bar(stat = "identity", position = "stack") +
   scale_fill_manual(values = species_palette, name = "Species") +
   labs(
@@ -798,42 +870,85 @@ ggplot(hourly_log, aes(x = hour_am_pm, y = count, fill = common_name)) +
 
 ```
 
-## Species by Habitat Type
-
-```{r fig-species-by-habitat-type}
-#| label: fig-species-by-habitat-type
-#| fig-cap: "Species observed at hibernacula by habitat type, normalized by camera trap hours. Note: As of 5/19/25, only 6 place names were categorized into habitat types."
+```{r fig-hourly-by-species-combined}
+#| label: fig-hourly-by-species-combined
+#| fig-cap: "Hourly wildlife observations by species across three habitat features. These plots highlight differences in diel activity patterns across Boulder, Log, and Constructed Hibernacula sites."
 #| fig-pos: 'H'
 
-# Prepare data for plot: exclude NA habitat, calculate normalized obs/hour
-species_by_habitat <- merged_data_with_combined_observations %>%
-  filter(!is.na(habitat_type), !is.na(common_name)) %>%
-  group_by(habitat_type, common_name, deployment_id) %>%
-  summarise(
-    observations = n(),
-    deployment_duration_days = dplyr::first(deployment_duration),
-    .groups = "drop"
-  ) %>%
-  mutate(observations_per_hour = observations / (deployment_duration_days * 24)) %>%
-  group_by(habitat_type, common_name) %>%
-  summarise(observations_per_hour = sum(observations_per_hour), .groups = "drop")
+library(patchwork)
 
+# Define all hour levels and species
+hour_levels <- c("12 AM", sprintf("%02d AM", 1:11), "12 PM", sprintf("%02d PM", 1:11))
+species_levels <- lumped_species
 
-# Plot stacked bar chart
-ggplot(species_by_habitat, aes(x = habitat_type, y = observations_per_hour, fill = common_name)) +
-  geom_bar(stat = "identity") +
-  scale_fill_manual(values = species_palette, name = "Species") +
-  labs(
-    title = "Species Observed at Hibernacula by Habitat Type",
-    x = NULL,
-    y = "Observations per Camera Trap Hour"
-  ) +
-  theme_minimal(base_size = 12) +
+# Helper to pad missing combinations
+pad_hourly <- function(df, feature_type) {
+  df %>%
+    filter(feature_type_methodology == feature_type, !is.na(common_name_lumped)) %>%
+    mutate(
+      hour_am_pm = format(start_time, "%I %p"),
+      hour_am_pm = factor(hour_am_pm, levels = hour_levels),
+      common_name_lumped = factor(common_name_lumped, levels = species_levels)
+    ) %>%
+    count(hour_am_pm, common_name_lumped, name = "count") %>%
+    complete(hour_am_pm, common_name_lumped, fill = list(count = 0))
+}
+
+# Create padded datasets
+hourly_boulder <- pad_hourly(merged_data_lumped, "Boulder")
+hourly_hib     <- pad_hourly(merged_data_lumped, "Constructed Hibernacula")
+hourly_log     <- pad_hourly(merged_data_lumped, "Log")
+
+# Reusable theme adjustments
+shared_theme <- theme_minimal() +
   theme(
-    legend.position = "right",
-    axis.text.x = element_text(size = 12)
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),  # vertical labels
   )
 
+# Find maximum count across all datasets for consistent y-axis limits
+max_count <- 100
+
+# Plot Boulder
+plot_boulder <- ggplot(hourly_boulder, aes(x = hour_am_pm, y = count, fill = common_name_lumped)) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_fill_manual(values = species_palette, name = "Species") +
+  scale_y_continuous(limits = c(0, max_count)) +
+  labs(
+    title = "Boulder Sites",
+    x = "Hour of Day (AM/PM)",
+    y = ""
+  ) +
+   shared_theme
+
+# Plot Hibernacula
+plot_hib <- ggplot(hourly_hib, aes(x = hour_am_pm, y = count, fill = common_name_lumped)) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_fill_manual(values = species_palette, name = "Species") +
+    scale_y_continuous(limits = c(0, max_count)) +
+  labs(
+    title = "Constructed Hibernacula",
+    x = "",
+    y = "Observation Count"
+  ) +
+  shared_theme
+
+  
+# Plot Log
+plot_log <- ggplot(hourly_log, aes(x = hour_am_pm, y = count, fill = common_name_lumped)) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_fill_manual(values = species_palette, name = "Species") +
+    scale_y_continuous(limits = c(0, max_count)) +
+  labs(
+    title = "Log Sites",
+    x = "",
+    y = ""
+  ) +
+  shared_theme
+
+# Combine with patchwork
+(plot_hib | plot_boulder | plot_log) +
+  plot_layout(guides = "collect") &
+  theme(legend.position = "bottom")
 ```
 
 ## Species counts for Each Taxonomic Class
@@ -895,11 +1010,87 @@ reptilia_plot
 
 ## Map of Deployments and Observations
 
-Each circle represents a camera trap deployment site.
-The circles are scaled to the average daily number of observations at each site.
-
 ```{r}
 #| label: fig-deployment-map
+#| fig-cap: Spatial distribution of camera trap deployments at the study site. Circle color indicates feature type and size reflects the average daily number of wildlife observations. Inset map shows the location within California.
+#| fig-width: 8
+#| fig-height: 6
+
+library(maptiles)
+library(terra)
+library(sf)
+library(ggplot2)
+library(cowplot)
+library(RColorBrewer)
+library(maps)
+
+# Convert site_summary to sf object
+site_sf <- st_as_sf(site_summary, coords = c("longitude", "latitude"), crs = 4326)
+
+# Get bounding box and expand slightly
+bbox <- st_bbox(site_sf)
+padding <- 0.002
+bbox_expanded <- c(
+  xmin = bbox["xmin"] - padding,
+  xmax = bbox["xmax"] + padding,
+  ymin = bbox["ymin"] - padding,
+  ymax = bbox["ymax"] + padding
+)
+
+# Download satellite tiles (Esri)
+basemap <- get_tiles(site_sf, provider = "Esri.WorldImagery", crop = TRUE, zoom = 16)
+
+# Convert raster to data.frame for ggplot
+rgb_df <- as.data.frame(basemap, xy = TRUE)
+colnames(rgb_df) <- c("x", "y", "red", "green", "blue")
+rgb_df$hex <- rgb(rgb_df$red, rgb_df$green, rgb_df$blue, maxColorValue = 255)
+
+# Set feature type colors
+feature_colors <- c(
+  "Boulder" = brewer.pal(3, "Set2")[1],
+  "Constructed Hibernacula" = brewer.pal(3, "Set2")[2],
+  "Log" = brewer.pal(3, "Set2")[3]
+)
+
+# Main satellite deployment map
+main_map <- ggplot() +
+  geom_raster(data = rgb_df, aes(x = x, y = y, fill = hex)) +
+  scale_fill_identity() +
+  geom_sf(data = site_sf, aes(color = feature_type_methodology, size = avg_daily_observations), alpha = 0.9) +
+  scale_color_manual(values = feature_colors, name = "Feature Type") +
+  scale_size(name = "Avg. Daily Obs.", range = c(2, 6)) +
+  coord_sf(xlim = c(bbox_expanded["xmin"], bbox_expanded["xmax"]),
+           ylim = c(bbox_expanded["ymin"], bbox_expanded["ymax"])) +
+  theme_minimal(base_size = 10) +
+  theme(panel.grid = element_blank(), legend.position = "bottom")
+
+# Overview map of CA with red dot
+ca_map <- map("state", plot = FALSE, fill = TRUE) %>%
+  st_as_sf() %>%
+  filter(ID == "california")
+
+centroid_coords <- site_sf |>
+  st_coordinates() |>
+  as.data.frame() |>
+  summarise(longitude = mean(X), latitude = mean(Y))
+
+overview_map <- ggplot() +
+  geom_sf(data = ca_map, fill = "gray90", color = "gray40") +
+  geom_point(data = centroid_coords, aes(x = longitude, y = latitude), color = "red", size = 2) +
+  theme_void()
+
+# Combine with cowplot
+final_map <- ggdraw() +
+  draw_plot(main_map) +
+  draw_plot(overview_map, x = 0.7, y = 0.65, width = 0.28, height = 0.28)
+
+final_map
+
+```
+
+
+```{r}
+#| label: fig-deployment-map-leaflet
 ##| eval: false
 #| fig-cap: Spatial distribution of camera trap deployments at the study site. Circle colors indicate feature type, while circle size represents the average daily number of wildlife observations at each location.
 #| include: false
