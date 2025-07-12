@@ -134,7 +134,8 @@ deployments_data_clean <- deployments_data_raw |>
   )
  
 # Read in the site-to-habitat crosswalk
-site_to_habitat <- read_csv(here("data", "site_to_habitat_crosswalk.csv"))
+site_to_habitat <- read_csv(here("data", "site_to_habitat_crosswalk.csv")) |> 
+   mutate(trail = factor(trail, levels = c("no", "yes")))
 
 # Join with deployments_data_clean
 deployments_data_clean <- deployments_data_clean %>%
@@ -143,9 +144,10 @@ deployments_data_clean <- deployments_data_clean %>%
 merged_sequences_and_deployment_data <- sequences_data_clean |> 
   full_join(deployments_data_clean, by = "deployment_id") |> 
   filter(class != "No CV Result") |> 
-  filter(is.na(genus) | genus != "Homo") |>  
+  filter(is.na(genus) | genus != "Homo") |>  #remove humans
   mutate(genus_species = paste(genus, species, sep = " ")) |> 
-  filter(class!= "Insecta")
+  filter(class!= "Insecta") |> #remove insects
+  filter(species!="catus") #remove domestic cats
 
 merged_sequences_and_deployment_data$start_time <- ymd_hms(merged_sequences_and_deployment_data$start_time)
 merged_sequences_and_deployment_data$feature_type_methodology = as.factor(merged_sequences_and_deployment_data$feature_type_methodology)
@@ -230,8 +232,22 @@ merged_data_with_combined_observations <- merged_sequences_and_deployment_data %
 ```
 
 ```{r}
+daily_deployment_summary <- merged_data_with_combined_observations %>%
+  group_by(obs_start_date, deployment_id, placename, feature_type_methodology, latitude, longitude, start_date, end_date, deployment_duration, habitat_type,trail) %>%
+  summarize(
+    total_observations = sum(group_size, na.rm = TRUE),  # Sum group_size instead of counting rows
+    .groups = 'drop'
+  )
+  
+daily_site_summary <- daily_deployment_summary %>%
+  group_by(placename, latitude, longitude, feature_type_methodology,habitat_type,trail) %>%
+  summarize(
+    total_observations = sum(total_observations, na.rm = TRUE),
+    .groups = 'drop'
+  ) 
+
 deployment_summary <- merged_data_with_combined_observations %>%
-  group_by(deployment_id, placename, feature_type_methodology, latitude, longitude, start_date, end_date, deployment_duration, habitat_type) %>%
+  group_by(deployment_id, placename, feature_type_methodology, latitude, longitude, start_date, end_date, deployment_duration, habitat_type,trail) %>%
   summarize(
     total_observations = sum(group_size, na.rm = TRUE),  # Sum group_size instead of counting rows
     .groups = 'drop'
@@ -241,7 +257,7 @@ deployment_summary <- merged_data_with_combined_observations %>%
   )
 
 site_summary <- deployment_summary %>%
-  group_by(placename, latitude, longitude, feature_type_methodology) %>%
+  group_by(placename, latitude, longitude, feature_type_methodology,habitat_type,trail) %>%
   summarize(
     total_observations = sum(total_observations, na.rm = TRUE),
     total_deployment_duration = sum(deployment_duration, na.rm = TRUE),
@@ -280,13 +296,21 @@ site_summary_recoded <- site_summary %>%
     TRUE ~ feature_type_methodology
   ))
 
+#recode for daily_site_summary
+daily_site_summary_recoded <- daily_site_summary %>%
+  mutate(feature_type_methodology = case_when(
+    feature_type_methodology %in% c("Log", "Boulder") ~ "Log/Boulder",
+    TRUE ~ feature_type_methodology
+  ))
 ```
 
 Since this analysis intended to analyze the effect on wildlife presence of constructed hibernacula relative to natural features like logs and boulders, we performed a two-category analysis comparing wildlife observations at constructed hibernacula against observations at all of the boulder/log sites combined.
 
-```{r fig-boxplot-daily-obs}
+```{r}
 #| label: fig-boxplot-daily-obs
-#| fig-cap: "Average daily observations per camera trap site across different feature types. Points represent individual sites, while the white diamonds indicate mean values. 95% confidence intervals are shown around the mean values."
+#| eval: false
+#| fig-cap: Average daily observations per camera trap site across different feature types. Points represent individual sites, while the white diamonds indicate mean values. 95% confidence intervals are shown around the mean values.
+#| include: false
 
 # Box plot for avg daily observations by recoded feature type methodology with consistent colors
 ggplot(site_summary_recoded, aes(x = feature_type_methodology, y = avg_daily_observations, fill = feature_type_methodology)) +
@@ -303,13 +327,11 @@ ggplot(site_summary_recoded, aes(x = feature_type_methodology, y = avg_daily_obs
   theme_minimal() +
   theme(axis.text.x = element_text(vjust = 1)) +
   scale_fill_manual(values = c("Log/Boulder" = "#2992a5", "Constructed Hibernacula" = "#fc8d62"))  # Custom colors for consistency
-
 ```
+
 ```{r fig-daily-obs-mean-ci}
 #| label: fig-daily-obs-mean-ci
-#| fig-cap: "Average daily observations per camera trap site across different feature types. Points represent individual sites, white diamonds indicate mean values, and vertical lines show 95% confidence intervals."
-
-library(dplyr)
+#| fig-cap: "Average daily observations per camera trap site across different feature types. Points represent individual sites, black diamonds indicate mean values, and vertical lines show 95% confidence intervals."
 
 # Step 1: Compute summary stats
 summary_stats <- site_summary_recoded %>%
@@ -331,7 +353,7 @@ ggplot(site_summary_recoded, aes(x = feature_type_methodology, y = avg_daily_obs
   geom_errorbar(data = summary_stats, aes(y = mean, ymin = lower, ymax = upper),
                 width = 0.15, color = "black", linewidth = 0.7) +
   geom_point(data = summary_stats, aes(y = mean), shape = 23, size = 4,
-             fill = "white", color = "black", stroke = 1.2) +
+             fill = "black", color = "black", stroke = 1.2) +
   scale_color_manual(values = c("Log/Boulder" = "#2992a5", "Constructed Hibernacula" = "#fc8d62")) +
   labs(
     title = "Avg. Daily Observations per Camera Trap Site by Feature Type",
@@ -373,6 +395,35 @@ t_test_df <- data.frame(
 knitr::kable(t_test_df)
 
 ```
+
+
+## Linear Regression
+```{r}
+lm_model <- lm(total_observations ~ feature_type_methodology + trail,
+               data = daily_site_summary_recoded)
+
+summary(lm_model)
+```
+
+## Poisson and Quasipoisson GLM
+```{r}
+poisson_model <- glm(total_observations ~ feature_type_methodology + trail,
+                   data = daily_site_summary_recoded,
+                   family = poisson())
+summary(poisson_model)
+
+dispersion_ratio <- summary(poisson_model)$deviance / summary(poisson_model)$df.residual
+
+dispersion_ratio
+```
+```{r}
+quasi_model <- glm(total_observations ~ feature_type_methodology + trail ,
+                   data = daily_site_summary_recoded,
+                   family = quasipoisson())
+
+summary(quasi_model)
+```
+
 
 ### Calculate Cohen's d
 
@@ -482,9 +533,10 @@ Further investigation into species composition, habitat preferences, and potenti
 
 ## Taxonomic Class Observations by Feature Type
 
-```{r fig-class-abundance}
+```{r}
 #| label: fig-class-abundance
-#| fig-cap: "Distribution of wildlife observations by taxonomic class across different feature types. Numbers inside bars indicate total observations for each class."
+#| fig-cap: Distribution of wildlife observations by taxonomic class across different feature types. Numbers inside bars indicate total observations for each class.
+#| include: false
 
 # Create a consistent class color palette
 class_levels <- c("Mammalia", "Aves", "Reptilia", "Amphibia")
@@ -515,9 +567,10 @@ merged_data_with_combined_observations |>
 
 ## Number of Species Observed per Feature Type
 
-```{r fig-species-count}
+```{r}
 #| label: fig-species-count
-#| fig-cap: "Number of unique species observed at each feature type, grouped by taxonomic class. Numbers inside bars indicate the count of unique species."
+#| fig-cap: Number of unique species observed at each feature type, grouped by taxonomic class. Numbers inside bars indicate the count of unique species.
+#| include: false
 
 merged_data_with_combined_observations |> 
   filter(!is.na(species)) |> 
@@ -543,10 +596,11 @@ Note that the figure above excludes observations for which species-level ID was 
 
 ## Avg. Daily Observations per Camera Trap Site
 
-```{r fig-site-observations}
+```{r}
 #| label: fig-site-observations
-#| fig-cap: "Average daily wildlife observations at each feature site. Sites are grouped by feature type with color-coding to distinguish between feature categories."
-#| fig-pos: 'H'
+#| fig-cap: Average daily wildlife observations at each feature site. Sites are grouped by feature type with color-coding to distinguish between feature categories.
+#| fig-pos: H
+#| include: false
 
 
 # Plot observations per day per deployment site (placename), grouped by feature type
@@ -573,10 +627,21 @@ ggplot(site_summary, aes(x = placename, y = avg_daily_observations, fill = featu
 # Convert hour to 12-hour format with AM/PM
 merged_data_with_combined_observations$hour_am_pm <- format(merged_data_with_combined_observations$start_time, "%I %p")
 
-# Summarize data to get raw counts for each feature type per hour
-hourly_summary <- merged_data_with_combined_observations %>%
+# Summarize data to get raw counts for each site per hour
+hourly_site_summary <- merged_data_with_combined_observations %>%
+  group_by(placename, hour_am_pm, deployment_duration,feature_type_methodology) %>%
+  summarize(count = n(), .groups = "drop")  |> # Get raw count
+    mutate(count_per_deployment_hour = count / deployment_duration)
+
+hourly_summary <- hourly_site_summary %>%
   group_by(hour_am_pm, feature_type_methodology) %>%
-  summarize(count = n(), .groups = "drop")  # Get raw count
+  summarize(total_count_per_deployment_hour = sum(count_per_deployment_hour, na.rm = TRUE),
+            .groups = "drop")
+
+# # Summarize data to get raw counts for each feature type per hour
+# hourly_summary <- merged_data_with_combined_observations %>%
+#   group_by(hour_am_pm, feature_type_methodology) %>%
+#   summarize(count = n(), .groups = "drop")  # Get raw count
 
 # Correct ordering of hours from "12 AM" to "11 PM"
 hourly_summary$hour_am_pm <- factor(hourly_summary$hour_am_pm, 
@@ -584,13 +649,13 @@ hourly_summary$hour_am_pm <- factor(hourly_summary$hour_am_pm,
                                                "12 PM", sprintf("%02d PM", 1:11)))
 
 # Plot raw counts
-ggplot(hourly_summary, aes(x = hour_am_pm, y = count, fill = feature_type_methodology)) +
-  geom_bar(stat = "identity", position = "stack") +  # Stacked bars for raw counts
+ggplot(hourly_summary, aes(x = hour_am_pm, y = total_count_per_deployment_hour, fill = feature_type_methodology)) +
+  geom_bar(stat = "identity", position = "dodge") +  # Stacked bars for raw counts
   scale_fill_brewer(palette = "Set2") +  # Distinct colors
   labs(
-    title = "Raw Count of Observations by Feature Type by Hour",
+    title = "Observations by Feature Type by Hour",
     x = "Hour of Day (AM/PM)",
-    y = "Raw Count of Observations",
+    y = "Observations per Trap-Deployment Hour",
     fill = "Feature Type"
   ) +
   theme_minimal() +
