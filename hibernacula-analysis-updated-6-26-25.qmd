@@ -75,7 +75,7 @@ This project is a continuation of earlier work (see [here](https://escholarship.
 This follow-up project, conducted in the spring of 2021, aims to assess not just the frequency of wildlife use of each feature type but also the ecological function that different habitat structures may play in restored landscapes.
 
 For this project, motion-sensor camera traps were installed at 5 boulder locations, 8 log locations, and 14 constructed hibernacula.
-Generally, 2 camera traps were set at each location for 6 days (though there were a few exceptions to these standards).
+Generally, 2 camera traps were set at each location for 5 days (though there were a few exceptions to these standards).
 Images were then uploaded to Wildlife Insights and reviewed manually for the presence of wildlife in and around the habitat features.
 Reviewers categorized any wildlife present to the lowest possible taxonomic level and counted the number of each taxon present in the image sequence.
 
@@ -134,7 +134,7 @@ deployments_data_clean <- deployments_data_raw |>
     start_date = as.Date(start_date),
     deployment_duration = as.numeric(difftime(end_date, start_date, units = "days"))
   )
- 
+
 # Read in the site-to-habitat crosswalk
 site_to_habitat <- read_csv(here("data", "site_to_habitat_crosswalk.csv")) |> 
   mutate(
@@ -146,6 +146,8 @@ site_to_habitat <- read_csv(here("data", "site_to_habitat_crosswalk.csv")) |>
 deployments_data_clean <- deployments_data_clean %>%
   left_join(site_to_habitat, by = c("placename" = "site"))
 
+
+# Merge sequences and deployments data
 merged_sequences_and_deployment_data <- sequences_data_clean |> 
   full_join(deployments_data_clean, by = "deployment_id") |> 
   filter(
@@ -260,6 +262,34 @@ daily_site_summary <- merged_data_with_deduplicated_observations %>%
     daily_total_observations = sum(group_size, na.rm = TRUE),
     .groups = "drop"
   ) 
+
+# Create daily rows for each deployment
+expanded_deployments <- deployments_data_clean %>%
+  mutate(start_date = as.Date(start_date),
+         end_date = as.Date(end_date)) %>%
+  rowwise() %>%
+  mutate(obs_start_date = list(seq.Date(start_date, end_date, by = "day"))) %>%
+  unnest(cols = c(obs_start_date)) %>%
+  ungroup() %>%
+  dplyr::select(placename, obs_start_date)
+
+# Create a daily summary of observations per site
+full_daily_data <- expanded_deployments %>%
+left_join(daily_site_summary, by = c("placename", "obs_start_date"))
+
+# Fill in missing values for latitude, longitude, feature_type_methodology, feature_type_methodology_recoded, habitat_type, and trail; set daily_total_observations to 0 if NA
+full_daily_data <- full_daily_data %>%
+    group_by(placename) %>%
+    fill(latitude, longitude, feature_type_methodology,feature_type_methodology_recoded, habitat_type, trail, .direction = "downup") %>%
+    ungroup() %>%
+    mutate(daily_total_observations = ifelse(is.na(daily_total_observations), 0, daily_total_observations))
+
+no_data_days <- full_daily_data %>%
+  filter(daily_total_observations == 0) |> 
+  drop_na()
+
+# Fill in missing dates for each site
+daily_site_summary <- bind_rows(daily_site_summary, no_data_days)
 
 site_summary <- daily_site_summary %>%
   group_by(
@@ -471,8 +501,28 @@ stargazer(lm_model_1, lm_model_2, lm_model_3,
           dep.var.labels = "Daily Total Observations",
           column.labels = c("Model 1", "Model 2", "Model 3"),
           covariate.labels = c("Feature Type - Boulder/Log)", "Trail - Yes", "Habitat Type - Grassland", "Habitat Type - Scrub"),
-          digits = 3)
+          digits = 3,
+          notes = "Reference levels: Constructed Hibernacula (Feature Type), No (Trail), Marsh (Habitat Type).")
 ```
+**Model 1:**
+Including only the feature type:
+Sites with Boulder/Log features have ~6.1 fewer daily observations compared to the reference feature type.
+This effect is statistically significant at p < 0.01.
+
+**Model 2:**
+Adds Trail (Yes/No):
+Boulder/Log effect remains significant and grows stronger (~8.6 fewer observations).
+The presence of a Trail reduces observations by ~6.7, and this effect is statistically significant.
+
+**Model 3:**
+Adds Habitat Type (with Marsh as the reference):
+Boulder/Log still shows a strong, significant negative effect (~9.0 fewer observations).
+Trail effect becomes slightly stronger (~9.0 fewer observations) and is still significant.
+Grassland habitat appears to increase observations by ~7.7, and Scrub by ~3.5, but only grassland's effect is statistically significant.
+
+**Model Fit (R²):**
+Very low R² across models (~3–10%), meaning the linear model explains only a small portion of the variance in daily observations.
+
 
 ## Poisson and Quasipoisson GLM
 ```{r}
@@ -491,8 +541,9 @@ stargazer(poisson_model_1, poisson_model_2, poisson_model_3,
           title = "Comparison of Poisson GLMs",
           dep.var.labels = "Daily Total Observations",
           column.labels = c("Model 1", "Model 2", "Model 3"),
-          covariate.labels = c("Feature Type - Boulder/Log)", "Trail - Yes", "Habitat Type - Grassland", "Habitat Type - Scrub"),
-          digits = 3)
+          covariate.labels = c("Feature Type - Boulder/Log)", "Trail - Yes", "Habitat Type - Grassland", "Habitat Type - Scrub","Baselin"),
+          digits = 3,
+          notes = "Reference levels: Constructed Hibernacula (Feature Type), No (Trail), Marsh (Habitat Type).")
 
 
 dispersion_ratio_1 <- summary(poisson_model_1)$deviance / summary(poisson_model_1)$df.residual
@@ -514,7 +565,35 @@ if (dispersion_ratio_3 > 1) {
 } else {
   cat("Poisson GLM 3's dispersion ratio is acceptable:", dispersion_ratio_3, "\n")
 }
+```
 
+These Poisson models are more appropriate for count data like daily observations. The coefficients are on the log scale, so interpretation requires exponentiation.
+
+**Model 1:**
+Boulder/Log sites have a log count decrease of 0.648, or about 48% fewer expected daily observations (exp(-0.648) ≈ 0.523).
+Highly significant (p < 0.01).
+
+**Model 2:**
+Adding Trail:
+Trail presence decreases expected counts by about 44% (exp(-0.576) ≈ 0.562), significant at p < 0.01.
+Boulder/Log effect becomes stronger: 56% decrease (exp(-0.827) ≈ 0.437) and remains highly significant.
+
+**Model 3:**
+Adding Habitat Type:
+Grassland: +121% increase (exp(0.791) ≈ 2.206), highly significant.
+Scrub: +48% increase (exp(0.394) ≈ 1.483), highly significant.
+Trail effect strengthens to 56% decrease (exp(-0.832) ≈ 0.435), highly significant.
+Boulder/Log effect remains strong at 58% decrease (exp(-0.873) ≈ 0.418), highly significant.
+
+**Model Fit:**
+Log-likelihood improves substantially across models (less negative = better fit).
+AIC decreases markedly across models (lower = better), with Model 3 showing the best fit.
+
+**BUT:**
+Overdispersion is present in all Poisson models (dispersion ratios ~15.3-16.4), which violates Poisson assumptions and may lead to underestimated standard errors. Consider using negative binomial regression or quasi-Poisson models to account for overdispersion.
+
+
+```{r}
 quasi_model_1 <- glm(daily_total_observations ~ feature_type_methodology_recoded,
                    data = daily_site_summary,
                    family = quasipoisson())
@@ -530,13 +609,27 @@ stargazer(quasi_model_1, quasi_model_2, quasi_model_3,
           title = "Comparison of Quasi-Poisson GLMs",
           dep.var.labels = "Daily Total Observations",
           column.labels = c("Model 1", "Model 2", "Model 3"),
-          covariate.labels = c("Feature Type", "Trail", "Habitat Type"),
+          covariate.labels = c("Feature Type - Boulder/Log)", "Trail - Yes", "Habitat Type - Grassland", "Habitat Type - Scrub"),
           digits = 3)
 ```
 
-```{r}
+These Quasi-Poisson models correct for overdispersion by adjusting standard errors (coefficients remain the same as Poisson models, but standard errors are inflated to account for overdispersion).
 
-```
+**Model 1:**
+Boulder/Log sites have a log count decrease of 0.648, or about 48% fewer expected daily observations (exp(-0.648) ≈ 0.523).
+Remains highly significant (p < 0.01) even with corrected standard errors.
+
+**Model 2:**
+Adding Trail:
+Trail presence decreases expected counts by about 44% (exp(-0.576) ≈ 0.562), but now only marginally significant (p < 0.1) due to inflated standard errors.
+Boulder/Log effect remains strong: 56% decrease (exp(-0.827) ≈ 0.437) and highly significant (p < 0.01).
+
+**Model 3:**
+Adding Habitat Type:
+Grassland: +121% increase (exp(0.791) ≈ 2.206), highly significant (p < 0.01).
+Scrub: +48% increase (exp(0.394) ≈ 1.483), but now non-significant due to larger standard errors.
+Trail effect strengthens to 56% decrease (exp(-0.832) ≈ 0.435), significant at p < 0.05.
+Boulder/Log effect remains strong at 58% decrease (exp(-0.873) ≈ 0.418), highly significant (p < 0.01).
 
 ## Results
 
@@ -564,92 +657,13 @@ levene_f_value <- round(levene_test$"F value"[1], 2)
 levene_p_value <- round(levene_test$"Pr(>F)"[1], 4)
 ```
 
-The Welch two-sample t-test comparing average daily wildlife observations between Constructed Hibernacula and Log/Boulder features showed the following:
-
-- The test was **not statistically significant**, with a p-value of `r p_value_text`.
-- On average, Constructed Hibernacula had `r mean_hibernacula` daily observations, while Log/Boulder features had `r mean_log_boulder`.
-- The mean difference in average daily observations was `r mean_difference`, with a 95% confidence interval ranging from `r ci_lower` to `r ci_upper`.
-
-Though the p-value exceeds the conventional significance threshold (0.05), this does not rule out a meaningful difference.
-
-Supporting this, the effect size measured by Cohen's d was `r cohen_d_value`, which corresponds to a `r cohen_d_magnitude` effect size.
-
-The 95% confidence interval for Cohen's d ranged from `r cohen_d_ci_lower` to `r cohen_d_ci_upper`, which includes zero, suggesting some uncertainty about the direction and magnitude of the effect.
-
-Assumption checks for the t-test included:
-
-- The Shapiro-Wilk test for normality found p-values of `r shapiro_p_hibernacula` for Constructed Hibernacula and `r shapiro_p_log_boulder` for Log/Boulder sites. Both p-values are greater than 0.05, so the data do not strongly violate normality assumptions.
-
-- Levene’s test indicated unequal variances (F = `r levene_f_value`, p = `r levene_p_value`), confirming heteroscedasticity between groups.
-
-Despite unequal variances, the Welch t-test remains appropriate due to its robustness to variance heterogeneity and moderate sample sizes.
-
-### Additional Modeling Results
-#### Linear Models
-
-**Model 1:**
-Including only the feature type:
-Sites with Boulder/Log features have ~9.4 fewer daily observations compared to the reference feature type.
-This effect is statistically significant at p < 0.01.
-
-**Model 2:**
-Adds Trail (Yes/No):
-Boulder/Log effect remains significant and grows stronger (~11 fewer observations).
-The presence of a Trail reduces observations by ~4.9, but this effect is not statistically significant.
-
-**Model 3:**
-Adds Habitat Type (with Marsh as the reference):
-Boulder/Log still shows a strong, significant negative effect (~11 fewer observations).
-Trail effect becomes slightly stronger (~7 fewer observations) but is still not significant.
-Grassland habitat appears to increase observations by ~5.8, and Scrub by ~2.7, but neither are statistically significant.
-
-**Model Fit (R²):**
-Very low R² across models (~7–10%), meaning the linear model explains only a small portion of the variance in daily observations.
-
-#### Poisson GLMs
-
-These models are more appropriate for count data like daily observations. The coefficients are on the log scale, so interpretation requires exponentiation.
-
-**Model 1:**
-Boulder/Log sites have a log count decrease of 0.761, or about 53% fewer expected daily observations (exp(-0.761) ≈ 0.467).
-Highly significant (p < 0.01).
-
-**Model 2:**
-Adding Trail:
-Trail presence decreases expected counts by about 26% (exp(-0.297) ≈ 0.743), significant at p < 0.01.
-Boulder/Log effect remains large and significant.
-
-**Model 3:**
-Adding Habitat Type:
-Grassland: +56% increase (exp(0.447) ≈ 1.564), significant.
-Scrub: +25% increase (exp(0.226) ≈ 1.253), significant.
-Trail and Boulder/Log still show strong, significant negative effects.
-
-**Model Fit:**
-Log-likelihood improves across models (i.e., fit improves).
-AIC decreases across models (lower = better).
-
-**BUT:**
-Overdispersion is present in all Poisson models (dispersion ratio ~13.9), which violates Poisson assumptions and may lead to underestimated standard errors.
-
-#### Quasi-Poisson GLMs
-
-These models correct for overdispersion by adjusting standard errors (coefficients are the same as Poisson).
-Coefficients remain unchanged.
-Standard errors are larger, leading to loss of statistical significance for:
-- Trail effect (now non-significant).
-- Habitat type (now non-significant).
-- Feature type remains significant (p < 0.01) in all models.
 
 #### Summary of Results
 
 Across all models, Boulder/Log features consistently and significantly reduce daily observations relative to Constructed Hibernacula, suggesting the latter are associated with higher activity or detection.
 
-Trail presence and Habitat Type effects appear meaningful in the Poisson models, but are not robust under corrected standard errors (quasi-Poisson).
+Trail presence and Habitat Type effects appear meaningful in the Poisson models. And the Poisson models fit the data better than linear models, but overdispersion must be addressed. Quasi-Poisson corrects for this with corrected standard errors, and the Quasi-Poisson Model 3 that includes all three variables (feature type, trail proximity, and habitat type) shows signficance (p < 0.05) for all variables except for Scrub habitat type, which is no longer significant due to larger standard errors.
 
-Poisson models fit the data better than linear models, but overdispersion must be addressed.
-
-Quasi-Poisson corrects for this, indicating that only the Boulder/Log effect is statistically robust.
 
 # Data Visualization
 
@@ -710,9 +724,10 @@ merged_data_with_deduplicated_observations |>
   ) +
   theme_minimal() +
   theme(axis.text.x = element_text())
+
+#Note that the figure above excludes observations for which species-level ID was not possible.
 ```
 
-Note that the figure above excludes observations for which species-level ID was not possible.
 
 ## Avg. Daily Observations per Camera Trap Site
 ```{r}
@@ -1146,8 +1161,8 @@ reptilia_plot
 
 ```{r}
 #| label: fig-deployment-map
-#| fig-cap: Spatial distribution of camera trap deployments at the study site. Circle color indicates feature type and size reflects the average daily number of wildlife observations. Inset map shows the location within California.
-#| fig-width: 8
+#| fig-cap: "**Spatial distribution of camera trap deployments at the study site.** Circle color indicates feature type and size reflects the average daily number of wildlife observations. Inset map shows the location within California."
+#| fig-width: 10
 #| fig-height: 6
 
 library(maptiles)
@@ -1163,10 +1178,11 @@ site_sf <- st_as_sf(site_summary, coords = c("longitude", "latitude"), crs = 432
 
 # Get bounding box and expand slightly
 bbox <- st_bbox(site_sf)
-padding <- 1
+padding <- 0.001  # Reduced padding for tighter view
+west_shift <- 0.0  # Adjust this value to shift more/less west
 bbox_expanded <- c(
-  xmin = bbox["xmin"] - padding,
-  xmax = bbox["xmax"] + padding,
+  xmin = bbox["xmin"] - padding - west_shift,
+  xmax = bbox["xmax"] + padding - west_shift,
   ymin = bbox["ymin"] - padding,
   ymax = bbox["ymax"] + padding
 )
@@ -1190,35 +1206,49 @@ feature_colors <- c(
 main_map <- ggplot() +
   geom_raster(data = rgb_df, aes(x = x, y = y, fill = hex)) +
   scale_fill_identity() +
-  geom_sf(data = site_sf, aes(color = feature_type_methodology, size = avg_daily_observations), alpha = 0.9) +
+  geom_sf(data = site_sf, aes(color = feature_type_methodology, size = avg_daily_observations), 
+          alpha = 0.9, stroke = 0.5) +
   scale_color_manual(values = feature_colors, name = "Feature Type") +
   scale_size(name = "Avg. Daily Obs.", range = c(2, 6)) +
   coord_sf(xlim = c(bbox_expanded["xmin"], bbox_expanded["xmax"]),
            ylim = c(bbox_expanded["ymin"], bbox_expanded["ymax"])) +
-  theme_minimal(base_size = 10) +
-  theme(panel.grid = element_blank(), legend.position = "bottom",
-  axis.title = element_blank()
-)
+  theme_minimal(base_size = 12) +
+  theme(
+    panel.grid = element_blank(),
+    legend.position = "bottom",
+    axis.title = element_blank(),
+    legend.box = "horizontal"
+  ) +
+  guides(
+    color = guide_legend(override.aes = list(size = 4)),
+    size = guide_legend(override.aes = list(color = "black"))
+  )
 
-# Overview map of CA with red dot
+# Calculate study area centroid
+centroid_coords <- site_sf %>%
+  st_coordinates() %>%
+  as.data.frame() %>%
+  summarise(longitude = mean(X), latitude = mean(Y))
+
+# Overview map of CA with study area location
 ca_map <- map("state", plot = FALSE, fill = TRUE) %>%
   st_as_sf() %>%
   filter(ID == "california")
 
-centroid_coords <- site_sf |>
-  st_coordinates() |>
-  as.data.frame() |>
-  summarise(longitude = mean(X), latitude = mean(Y))
-
 overview_map <- ggplot() +
-  geom_sf(data = ca_map, fill = "gray90", color = "gray40") +
-  geom_point(data = centroid_coords, aes(x = longitude, y = latitude), color = "red", size = 2) +
-  theme_void()
+  geom_sf(data = ca_map, fill = "gray90", color = "gray60", size = 0.3) +
+  geom_point(data = centroid_coords, aes(x = longitude, y = latitude), 
+             color = "red", size = 3, shape = 16) +
+  theme_void() +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, size = 0.5),
+    plot.background = element_rect(fill = "white", color = NA)
+  )
 
-# Combine with cowplot
+# Combine maps with proper positioning
 final_map <- ggdraw() +
   draw_plot(main_map) +
-  draw_plot(overview_map, x = 0.7, y = .5, width = 0.28, height = 0.28)
+  draw_plot(overview_map, x = 0.68, y = 0.65, width = 0.3, height = 0.3)
 
 final_map
 ```
@@ -1226,6 +1256,7 @@ final_map
 
 ```{r}
 #| label: fig-deployment-map-leaflet
+#| eval: false
 #| include: false
 ##| eval: false
 #| fig-cap: Spatial distribution of camera trap deployments at the study site. Circle colors indicate feature type, while circle size represents the average daily number of wildlife observations at each location.
@@ -1276,8 +1307,7 @@ leaflet(site_summary) %>%
 # Conclusion
 
 This study provides evidence that wildlife visitation rates differ significantly between Constructed Hibernacula and Log/Boulder features at NCOS.
-Camera trap data revealed that Constructed Hibernacula supported higher average daily observations (8.75) compared to Log/Boulder features (4.92), with a statistically significant mean difference of 3.92 observations per day (p = 0.04594).
-The effect size (Cohen’s d = 0.58) indicates a medium-sized impact.
+Camera trap data revealed that Constructed Hibernacula supported higher average daily observations compared to Log/Boulder features, with a statistically significant effect shown through Quasi-Poisson regression models.
 
 Beyond the statistics, the ecological implications of these findings are particularly informative.
 The increased frequency of observations at constructed hibernacula appears to be driven by species such as squirrels and mice that establish semi-permanent residency in these structures.
@@ -1302,5 +1332,4 @@ I want to acknowledge several caveats that should be considered when interpretin
 
 -   Furthermore, camera misfirings were not uncommon, which may have led to gaps in data collection or inflated detection counts in certain instances (e.g. if the movement of vegetation triggered an image capture but a stationary organism happened to be present).
 
-While these results highlight the potential benefits of Constructed Hibernacula in habitat restoration, the wide confidence interval suggests some variability in the effect.
 Future studies with larger sample sizes and longer monitoring periods could refine these findings, further clarifying the ecological value of different habitat structures.
