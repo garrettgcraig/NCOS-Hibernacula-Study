@@ -1143,18 +1143,18 @@ ggplot(hourly_all_sites, aes(x = hour_am_pm, y = count, fill = common_name_lumpe
 #| include: false
 
 # Filter for Boulder only
-hourly_boulder <-  merged_data_lumped %>%
+figs_hourly_boulder <-  merged_data_lumped %>%
   filter(feature_type_methodology == "Boulder", !is.na(common_name)) %>%
   mutate(hour_am_pm = format(start_time, "%I %p")) %>%
   mutate(hour_am_pm = factor(hour_am_pm, levels = c("12 AM", sprintf("%02d AM", 1:11),
                                                     "12 PM", sprintf("%02d PM", 1:11)))) %>%
   group_by(hour_am_pm, common_name_lumped) %>%
   summarise(count = n(), .groups = "drop")
-hourly_boulder$common_name_lumped <- factor(hourly_boulder$common_name_lumped, levels = lumped_species)
+figs_hourly_boulder$common_name_lumped <- factor(figs_hourly_boulder$common_name_lumped, levels = lumped_species)
 
 
 # Plot Boulder
-ggplot(hourly_boulder, aes(x = hour_am_pm, y = count, fill = common_name_lumped)) +
+ggplot(figs_hourly_boulder, aes(x = hour_am_pm, y = count, fill = common_name_lumped)) +
   geom_bar(stat = "identity", position = "stack") +
   scale_fill_manual(values = species_palette, name = "Species") +
   labs(
@@ -1173,18 +1173,18 @@ ggplot(hourly_boulder, aes(x = hour_am_pm, y = count, fill = common_name_lumped)
 #| include: false
 
 # Filter for Constructed Hibernacula
-hourly_hib <-  merged_data_lumped %>%
+figs_hourly_hibernacula <-  merged_data_lumped %>%
   filter(feature_type_methodology == "Constructed Hibernacula", !is.na(common_name)) %>%
   mutate(hour_am_pm = format(start_time, "%I %p")) %>%
   mutate(hour_am_pm = factor(hour_am_pm, levels = c("12 AM", sprintf("%02d AM", 1:11),
                                                     "12 PM", sprintf("%02d PM", 1:11)))) %>%
   group_by(hour_am_pm, common_name_lumped) %>%
   summarise(count = n(), .groups = "drop")
-hourly_hib$common_name_lumped <- factor(hourly_hib$common_name_lumped, levels = lumped_species)
+figs_hourly_hibernacula$common_name_lumped <- factor(figs_hourly_hibernacula$common_name_lumped, levels = lumped_species)
 
 
 # Plot Hibernacula
-ggplot(hourly_hib, aes(x = hour_am_pm, y = count, fill = common_name_lumped)) +
+ggplot(figs_hourly_hibernacula, aes(x = hour_am_pm, y = count, fill = common_name_lumped)) +
   geom_bar(stat = "identity", position = "stack") +
   scale_fill_manual(values = species_palette, name = "Species") +
   labs(
@@ -1204,17 +1204,17 @@ ggplot(hourly_hib, aes(x = hour_am_pm, y = count, fill = common_name_lumped)) +
 #| include: false
 
 # Filter for Log only
-hourly_log <- merged_data_lumped %>%
+figs_hourly_log <- merged_data_lumped %>%
   filter(feature_type_methodology == "Log", !is.na(common_name)) %>%
   mutate(hour_am_pm = format(start_time, "%I %p")) %>%
   mutate(hour_am_pm = factor(hour_am_pm, levels = c("12 AM", sprintf("%02d AM", 1:11),
                                                     "12 PM", sprintf("%02d PM", 1:11)))) %>%
   group_by(hour_am_pm, common_name_lumped) %>%
   summarise(count = n(), .groups = "drop") 
-hourly_log$common_name_lumped <- factor(hourly_log$common_name_lumped, levels = lumped_species)
+figs_hourly_log$common_name_lumped <- factor(figs_hourly_log$common_name_lumped, levels = lumped_species)
 
 # Plot Log
-ggplot(hourly_log, aes(x = hour_am_pm, y = count, fill = common_name_lumped)) +
+ggplot(figs_hourly_log, aes(x = hour_am_pm, y = count, fill = common_name_lumped)) +
   geom_bar(stat = "identity", position = "stack") +
   scale_fill_manual(values = species_palette, name = "Species") +
   labs(
@@ -1235,8 +1235,8 @@ ggplot(hourly_log, aes(x = hour_am_pm, y = count, fill = common_name_lumped)) +
 library(patchwork)
 
 # Define all hour levels and species
-hour_levels <- c("12 AM", sprintf("%02d AM", 1:11), "12 PM", sprintf("%02d PM", 1:11))
-species_levels <- lumped_species
+levels_hours <- c("12 AM", sprintf("%02d AM", 1:11), "12 PM", sprintf("%02d PM", 1:11))
+levels_species <- lumped_species
 
 # Helper to pad missing combinations
 pad_hourly <- function(df, feature_type) {
@@ -1244,17 +1244,17 @@ pad_hourly <- function(df, feature_type) {
     filter(feature_type_methodology == feature_type, !is.na(common_name_lumped)) %>%
     mutate(
       hour_am_pm = format(start_time, "%I %p"),
-      hour_am_pm = factor(hour_am_pm, levels = hour_levels),
-      common_name_lumped = factor(common_name_lumped, levels = species_levels)
+      hour_am_pm = factor(hour_am_pm, levels = levels_hours),
+      common_name_lumped = factor(common_name_lumped, levels = levels_species)
     ) %>%
     count(hour_am_pm, common_name_lumped, name = "count") %>%
     complete(hour_am_pm, common_name_lumped, fill = list(count = 0))
 }
 
 # Create padded datasets
-hourly_boulder <- pad_hourly(merged_data_lumped, "Boulder")
-hourly_hib     <- pad_hourly(merged_data_lumped, "Constructed Hibernacula")
-hourly_log     <- pad_hourly(merged_data_lumped, "Log")
+figs_hourly_boulder <- pad_hourly(merged_data_lumped, "Boulder")
+figs_hourly_hibernacula     <- pad_hourly(merged_data_lumped, "Constructed Hibernacula")
+figs_hourly_log     <- pad_hourly(merged_data_lumped, "Log")
 
 # Reusable theme adjustments
 shared_theme <- theme_minimal() +
@@ -1266,7 +1266,7 @@ shared_theme <- theme_minimal() +
 max_count <- 100
 
 # Plot Boulder
-plot_boulder <- ggplot(hourly_boulder, aes(x = hour_am_pm, y = count, fill = common_name_lumped)) +
+figs_plot_boulder <- ggplot(figs_hourly_boulder, aes(x = hour_am_pm, y = count, fill = common_name_lumped)) +
   geom_bar(stat = "identity", position = "stack") +
   scale_fill_manual(values = species_palette, name = "Species") +
   scale_y_continuous(limits = c(0, max_count)) +
@@ -1278,7 +1278,7 @@ plot_boulder <- ggplot(hourly_boulder, aes(x = hour_am_pm, y = count, fill = com
    shared_theme
 
 # Plot Hibernacula
-plot_hib <- ggplot(hourly_hib, aes(x = hour_am_pm, y = count, fill = common_name_lumped)) +
+figs_plot_hibernacula <- ggplot(figs_hourly_hibernacula, aes(x = hour_am_pm, y = count, fill = common_name_lumped)) +
   geom_bar(stat = "identity", position = "stack") +
   scale_fill_manual(values = species_palette, name = "Species") +
     scale_y_continuous(limits = c(0, max_count)) +
@@ -1291,7 +1291,7 @@ plot_hib <- ggplot(hourly_hib, aes(x = hour_am_pm, y = count, fill = common_name
 
   
 # Plot Log
-plot_log <- ggplot(hourly_log, aes(x = hour_am_pm, y = count, fill = common_name_lumped)) +
+figs_plot_log <- ggplot(figs_hourly_log, aes(x = hour_am_pm, y = count, fill = common_name_lumped)) +
   geom_bar(stat = "identity", position = "stack") +
   scale_fill_manual(values = species_palette, name = "Species") +
     scale_y_continuous(limits = c(0, max_count)) +
@@ -1303,7 +1303,7 @@ plot_log <- ggplot(hourly_log, aes(x = hour_am_pm, y = count, fill = common_name
   shared_theme
 
 # Combine with patchwork
-(plot_hib | plot_boulder | plot_log) +
+(figs_plot_hibernacula | figs_plot_boulder | figs_plot_log) +
   plot_layout(guides = "collect") &
   theme(legend.position = "bottom")
 ```
@@ -1321,7 +1321,7 @@ species_abundance <- clean_study_part_2_joined_sequences_and_deployments |>
   summarise(abundance = n(), .groups = 'drop')
 
 # Plot for Aves
-aves_plot <- ggplot(filter(species_abundance, class == "Aves"), 
+figs_aves_plot <- ggplot(filter(species_abundance, class == "Aves"), 
                     aes(x = common_name, y = abundance, fill = feature_type_methodology)) +
   geom_bar(stat = "identity", position = "stack") +
   scale_fill_brewer(palette = "Set2") +  # More distinct colors
@@ -1329,7 +1329,7 @@ aves_plot <- ggplot(filter(species_abundance, class == "Aves"),
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))+
   labs(fill = "Feature Type")
-aves_plot
+figs_aves_plot
 ```
 
 ```{r fig-mammalia-abundance}
@@ -1338,7 +1338,7 @@ aves_plot
 #| fig-pos: 'H'
 
 # Plot for Mammalia
-mammalia_plot <- ggplot(filter(species_abundance, class == "Mammalia"), 
+figs_mammalia_plot <- ggplot(filter(species_abundance, class == "Mammalia"), 
                         aes(x = common_name, y = abundance, fill = feature_type_methodology)) +
   geom_bar(stat = "identity", position = "stack") +
   scale_fill_brewer(palette = "Set2") +  # More distinct colors
@@ -1346,7 +1346,7 @@ mammalia_plot <- ggplot(filter(species_abundance, class == "Mammalia"),
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))+
   labs(fill = "Feature Type") 
-mammalia_plot
+figs_mammalia_plot
 ```
 
 ```{r}
@@ -1356,7 +1356,7 @@ mammalia_plot
 #| fig-pos: H
 #| include: false
 
-reptilia_plot <- ggplot(filter(species_abundance, class == "Reptilia"), 
+figs_reptilia_plot <- ggplot(filter(species_abundance, class == "Reptilia"), 
                         aes(x = common_name, y = abundance, fill = feature_type_methodology)) +
   geom_bar(stat = "identity", position = "stack") +
   scale_fill_brewer(palette = "Set2") +  # More distinct colors
@@ -1364,7 +1364,7 @@ reptilia_plot <- ggplot(filter(species_abundance, class == "Reptilia"),
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))+
   labs(fill = "Feature Type")
-reptilia_plot
+figs_reptilia_plot
 ```
 
 ## Map of Deployments and Observations
