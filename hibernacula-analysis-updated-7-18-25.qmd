@@ -408,19 +408,8 @@ hourly_presence_summary <- hourly_presence_all |>
   group_by(study_part, feature_type_methodology, obs_hour) |>
   summarise(species_detections = n(), .groups = "drop")
 
-# Plot
-ggplot(hourly_presence_summary, aes(x = obs_hour, y = species_detections, fill = feature_type_methodology)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  facet_wrap(~ study_part
-             ) +
-  scale_x_continuous(breaks = 0:23) +
-  labs(
-    title = "Hourly Wildlife Presence by Feature Type and Study Period",
-    x = "Hour of Day",
-    y = "Number of Species Detections",
-    fill = "Feature Type"
-  ) +
-  theme_minimal()
+# Plot NEEDS TO BE ADDED
+
 
 ```
 
