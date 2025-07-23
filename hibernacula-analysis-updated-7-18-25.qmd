@@ -62,10 +62,19 @@ library(effsize)       # for Cohen’s d and other effect sizes
 library(simpleboot)    # for bootstrapping
 library(boot)          # bootstrapping (more general)
 library(car)           # regression tools, including ANOVA, VIF
+library(MASS)          # negative binomial models
+library(dplyr)        # reloaded to ensure dplyr's functions are used
 
 # Mapping and spatial
 library(leaflet)       # interactive maps
 library(RColorBrewer)  # color palettes for plots and maps
+library(maptiles)
+library(terra)
+library(sf)
+library(ggplot2)
+library(cowplot)
+library(maps)
+library(ggspatial)
 
 # Text and string manipulation
 library(stringi)       # extended string processing
@@ -87,22 +96,35 @@ Reviewers categorized any wildlife present to the lowest possible taxonomic leve
 
 # Data Processing
 
-## Load data downloaded from Wildlife Insights
+## Load data
+Part 1 Data, hibernacula coordinates, and site-to-habitat crosswalk from Alistair Dobson.
 
+Part 2 Data downloaded From Wildlife Insights:
 [NCOS Hibernacula Biodiversity Assessment](https://app.wildlifeinsights.org/manage/organizations/2002131/projects/2003592/summary?)
 
 ```{r}
-sequences_data_raw = read_csv(here("data","sequences.csv"))
-deployments_data_raw=read_csv(here("data","deployments.csv"))
-cameras_data_raw=read_csv(here("data","cameras.csv"))
+##load study part 1 data from February 2021
+clean_study_part_1_observations <- read_excel(here("data","originalMasterHibernaculaAnalysis.xlsx"), sheet = "Master.Data.Cleaned")
 
-##load Alistair's first study's data from February 2021
-february_study_observations <- read_excel(here("data","originalMasterHibernaculaAnalysis.xlsx"), sheet = "Master.Data.Cleaned")
+##load study part 2 data from April/May 2021
+raw_study_part_2_sequences_data = read_csv(here("data","sequences.csv"))
+raw_study_part_2_deployments_data = read_csv(here("data","deployments.csv"))
+
+# Read in the site-to-habitat crosswalk
+site_to_habitat_crosswalk <- read_csv(here("data", "site_to_habitat_crosswalk.csv")) |> 
+  mutate(
+    trail = factor(trail, levels = c("no", "yes")),
+    habitat_type = factor(habitat_type, levels = c("Marsh", "Grassland", "Scrub"))
+  )
+
+#load hibernacula_coordinates
+hibernacula_coordinates <- read_csv(here("data", "hibernacula_coordinates.csv")) |> 
+  mutate(placename = str_to_upper(placename))
 ```
 
 ## Clean and merge data files
 
-### Clean Data
+### Clean Study Part 2 Data
 
 Two deployments (L30C9 & H8C11) were set as the incorrect feature type in Wildlife Insights, so I correct them here.
 
@@ -110,10 +132,10 @@ At least a few deployments (H46C2, B2C9, H7C12, H35C6) stopped recording images 
 Others (e.g. H2C12), may have also stopped short, though it's not entirely clear.
 
 ```{r}
-deployments_data_raw$feature_type_methodology[deployments_data_raw$deployment_id == "L30C9"] <- "Log"
-deployments_data_raw$feature_type_methodology[deployments_data_raw$deployment_id == "H8C11"] <- "Constructed Hibernacula"
+raw_study_part_2_deployments_data$feature_type_methodology[raw_study_part_2_deployments_data$deployment_id == "L30C9"] <- "Log"
+raw_study_part_2_deployments_data$feature_type_methodology[raw_study_part_2_deployments_data$deployment_id == "H8C11"] <- "Constructed Hibernacula"
 
-sequences_data_clean <- sequences_data_raw |> 
+clean_study_part_2_sequences <- raw_study_part_2_sequences_data |> 
   dplyr::select("project_id", "deployment_id", "sequence_id", "is_blank", "identified_by", "wi_taxon_id", 
          "class", "order", "family", "genus", "species", "common_name", "start_time", "end_time", 
          "group_size", "individual_animal_notes", "license") |> 
@@ -124,11 +146,13 @@ sequences_data_clean <- sequences_data_raw |>
     sequence_duration_sec = as.numeric(difftime(end_time, start_time, units = "secs"))  # Sequence duration in seconds
   )
 
-deployments_data_clean <- deployments_data_raw |>  
-   dplyr::select("deployment_id", "placename", "longitude", "latitude", "start_date", "end_date", 
-         "feature_type_methodology", "camera_id", "camera_name", "camera_functioning", 
-         "sensor_height", "sensor_orientation", "remarks") |> 
-  clean_names() |> 
+clean_study_part_2_deployments <- raw_study_part_2_deployments_data |>
+  dplyr::select(
+    deployment_id, placename, longitude, latitude, start_date, end_date,
+    feature_type_methodology, camera_id, camera_name, camera_functioning,
+    sensor_height, sensor_orientation, remarks
+  ) |>
+  clean_names() |>
   mutate(
     end_date = case_when(
       deployment_id == "H46C2" ~ as.Date("2021-05-02"),
@@ -138,27 +162,15 @@ deployments_data_clean <- deployments_data_raw |>
       TRUE ~ as.Date(end_date)
     ),
     start_date = as.Date(start_date),
-    deployment_duration = as.numeric(difftime(end_date, start_date, units = "days"))) |> 
-      filter(deployment_id != "L56" #L56 was a deployment with no cameras/sequences
-  )
+    deployment_duration = as.numeric(difftime(end_date, start_date, units = "days")),
+    study_part = 2  # tags all of these sequences as part of the second part of the study
+  ) |>
+  filter(deployment_id != "L56") |>
+  left_join(site_to_habitat_crosswalk, by = c("placename" = "site"))
 
-
-# Read in the site-to-habitat crosswalk
-site_to_habitat <- read_csv(here("data", "site_to_habitat_crosswalk.csv")) |> 
-  mutate(
-    trail = factor(trail, levels = c("no", "yes")),
-    habitat_type = factor(habitat_type, levels = c("Marsh", "Grassland", "Scrub"))
-  )
-
-# Join site_to_habitat crosswalk with deployments_data_clean
-deployments_data_clean <- deployments_data_clean %>%
-  mutate(study_part = 2) |>  ## tags all of these sequences as part of the second part of the study)
-  left_join(site_to_habitat, by = c("placename" = "site"))
-
-
-# Merge sequences and deployments data
-merged_sequences_and_deployment_data <- sequences_data_clean |> 
-  full_join(deployments_data_clean, by = "deployment_id") |> 
+# join sequences and deployments data
+clean_study_part_2_joined_sequences_and_deployments <- clean_study_part_2_sequences |> 
+  full_join(clean_study_part_2_deployments, by = "deployment_id") |> 
   filter(
     class != "No CV Result",
     is.na(genus) | genus != "Homo",    # Remove humans
@@ -183,22 +195,16 @@ merged_sequences_and_deployment_data <- sequences_data_clean |>
     )
   )
 
-write.csv(merged_sequences_and_deployment_data,here("data","merged.csv"))
+write.csv(clean_study_part_2_joined_sequences_and_deployments,here("data","merged.csv"))
 ```
 
-#### Clean February Data
+### Clean Study Part 1 Data
 ```{r}
-##clean February data
-
-#load hibernacula_coordinates
-hibernacula_coordinates <- read_csv(here("data", "hibernacula_coordinates.csv")) |> 
-  mutate(placename = str_to_upper(placename))
-
-#join hibernacula_coordinates to february_study_observations
-february_study_observations <- february_study_observations |> 
+#join hibernacula_coordinates to clean_study_part_1_observations
+clean_study_part_1_observations <- clean_study_part_1_observations |> 
   left_join(hibernacula_coordinates, by = c("placename"))
 
-february_study_observations <- february_study_observations |> 
+clean_study_part_1_observations <- clean_study_part_1_observations |> 
   filter(!is.na(common_name)) |> 
   mutate(
     obs_start_time = hms::as_hms(obs_start_time),
@@ -209,7 +215,7 @@ february_study_observations <- february_study_observations |>
       str_replace_all("Coopers Hawk", "Cooper's Hawk") |>
       str_replace_all("Hermit thrush", "Hermit Thrush")
   ) |> 
-  left_join(site_to_habitat, by = c("placename" = "site")) |> 
+  left_join(site_to_habitat_crosswalk, by = c("placename" = "site")) |> 
   mutate(
     deployment_duration = 5, ## ASSUMES ALL FEBRUARY DEPLOYMENTS WERE 5 DAYS LONG
     study_part = 1 ## tags all of these sequences as part of the first part of the study
@@ -253,26 +259,27 @@ february_study_observations <- february_study_observations |>
     calculated_deployment_duration = as.numeric(end_date - start_date),### this shows that some sites may not have had 5 full days of trapping: H12, H13, H33, H48, H64 (4 days each); H25 (3 days), H21 2 (days)
     deployment_duration = calculated_deployment_duration) |> 
   ungroup() |> 
-filter(!(placename == "H41" & camera_name == "C6"), ## removing this deployment because camera was set improperly (bad angle)
-       !(placename == "H23" & camera_name == "C3"),  ## removing this deployment because camera was set improperly (bad angle)
-       !(placename == "H24" & camera_name == "C1")) |>  ## removing this deployment because it seems to have failed on day 1
-  select(-calculated_deployment_duration)
+filter(!(placename == "H41" & camera_name == "C6"), ## removing deployment b/c camera was set at bad angle)
+       !(placename == "H23" & camera_name == "C3"),  ## emoving deployment b/c camera was set at bad angle)
+       !(placename == "H24" & camera_name == "C1")) |>  ## removing  deployment because it failed on day 1
+  dplyr::select(-calculated_deployment_duration)
 
-february_study_observations <- february_study_observations |> 
+clean_study_part_1_observations <- clean_study_part_1_observations |> 
   mutate(row_id = row_number())
 
 
 ## REMOVING OBSERVATIONS BY DIFFERENT CAMERAS AT THE SAME PLACE, DATE, AND MINUTE 
-  february_study_observations <- february_study_observations |> 
+  clean_study_part_1_observations <- clean_study_part_1_observations |> 
     mutate(
       row_id = row_number(),
       start_time = as.POSIXct(obs_start_date) + as.numeric(obs_start_time),
       truncated_time = floor_date(start_time, unit = "minute"),
       end_time = start_time + seconds(60)  # assume we want to remove duplicates within the minute
     )
+
   # Self-join within group to find same-minute, same-species, different-camera overlaps
-  overlap_pairs_part_1 <- february_study_observations |> 
-    inner_join(february_study_observations, by = c("placename", "obs_start_date", "truncated_time", "common_name")) |> 
+  overlap_pairs_part_1 <- clean_study_part_1_observations |> 
+    inner_join(clean_study_part_1_observations, by = c("placename", "obs_start_date", "truncated_time", "common_name")) |> 
     filter(
       camera_name.x != camera_name.y,
       row_id.x != row_id.y
@@ -289,12 +296,11 @@ february_study_observations <- february_study_observations |>
     pull(row_id.x) |> 
     unique()
   
-  deduplicated_february_observations <- february_study_observations |> 
+  clean_study_part_1_observations <- clean_study_part_1_observations |> 
     filter(!row_id %in% rows_to_remove_part_1)
 
-  
 ## analyze how long each February deployment lasted
-february_placename_summary <- february_study_observations |> 
+study_part_1_placename_summary <- clean_study_part_1_observations |> 
   filter(!str_detect(camera_name, "&|,")) |> 
   group_by(
     placename, camera_name, start_date, end_date, deployment_duration,
@@ -302,16 +308,8 @@ february_placename_summary <- february_study_observations |>
   ) |> 
   summarize(.groups = "drop")
 
-
-## full join february_placename_summary and deployment_data_clean to get all deployments in one spot
-combined_deployments_summary <- february_placename_summary |> 
-  full_join(deployments_data_clean, by = c("placename", "camera_name","start_date", "end_date", "deployment_duration", "feature_type_methodology", "habitat_type", "trail", "study_part","latitude","longitude"))
-
-write.csv(combined_deployments_summary, here("data","combined_deployments_summary.csv"), row.names = FALSE)
-
-
 ##SUMMARIZE FEBRUARY OBSERVATIONS BY SPECIES PER HOUR PER PLACE
-february_reduced_to_hourly <- deduplicated_february_observations |>
+hourly_presence_february <- clean_study_part_1_observations |>
   # Create hour-block and date
   mutate(
     obs_hour = hour(obs_start_time),
@@ -322,15 +320,24 @@ february_reduced_to_hourly <- deduplicated_february_observations |>
   summarize(n = 1, .groups = "drop")  # Forces 1 row per unique species in each hour/day block
 ```
 
+### Combining Study Parts 1 and 2 
+```{r}
+## full join study_part_1_placename_summary and deployment_data_clean to get all deployments in one spot
+combined_deployments_summary <- study_part_1_placename_summary |> 
+  full_join(clean_study_part_2_deployments, by = c("placename", "camera_name","start_date", "end_date", "deployment_duration", "feature_type_methodology", "habitat_type", "trail", "study_part","latitude","longitude"))
+
+write.csv(combined_deployments_summary, here("data","combined_deployments_summary.csv"), row.names = FALSE)
+```
+
 ```{r}
 ### This whole section removes overlapping sequences of the same species at the same place on the same date, but different cameras in the May data.
 
 # Step 1: Add row_id based on existing sequence_id
-data_intervals <- merged_sequences_and_deployment_data %>%
+data_intervals <- clean_study_part_2_joined_sequences_and_deployments %>%
   mutate(row_id = sequence_id)
 
 # Step 2: Self-join to find overlapping intervals (same species, place, date; different cameras)
-overlap_pairs <- interval_inner_join(
+overlap_pairs_part_2 <- interval_inner_join(
   data_intervals, data_intervals,
   by = c("start_time", "end_time"),
   maxgap = 0,
@@ -356,7 +363,7 @@ overlap_pairs <- interval_inner_join(
   )
 
 # Step 3: Decide which rows to remove (keep higher group_size; if tied, keep later end_time)
-rows_to_remove <- overlap_pairs %>%
+rows_to_remove <- overlap_pairs_part_2 %>%
   mutate(
     keep_x = if_else(group_size.x > group_size.y, TRUE,
               if_else(group_size.x < group_size.y, FALSE,
@@ -367,28 +374,59 @@ rows_to_remove <- overlap_pairs %>%
   unique()
 
 # Step 4: Remove the lower-priority overlaps
-merged_data_with_deduplicated_observations <- merged_sequences_and_deployment_data %>%
+clean_study_part_2_joined_sequences_and_deployments <- clean_study_part_2_joined_sequences_and_deployments %>%
   filter(!sequence_id %in% rows_to_remove)
 ```
 
-## Working with February Study Data
 ```{r}
-#| eval: false ### RUNNING THIS BLOCK INCORPORATES FEBRUARY DATA INTO THE REST OF THE ANALYSIS. Need coordinates for the February data as of 7/17/2025.
-#| include: false
+## reducing May observations to hourly presence
+hourly_presence_may <- clean_study_part_2_joined_sequences_and_deployments |>
+  mutate(
+    obs_hour = hour(obs_start_time),
+    obs_day = as.Date(obs_start_date)
+  ) |>
+  group_by(
+    placename,
+    obs_day,
+    obs_hour,
+    feature_type_methodology,
+    common_name,
+    habitat_type,
+    trail,
+    study_part,
+    start_date,
+    end_date,
+    deployment_duration
+  ) |>
+  summarize(n = 1, .groups = "drop")
 
-# Find common columns
-common_cols <- intersect(names(february_study_observations), names(merged_data_with_deduplicated_observations))
+## combining hourly presenve data from February and May
+hourly_presence_all <- bind_rows(hourly_presence_february, hourly_presence_may)
 
-# Perform join by only the shared columns
-merged_data_with_deduplicated_observations <- full_join(february_study_observations, 
-                        merged_data_with_deduplicated_observations, 
-                        by = common_cols) |> 
-  mutate(obs_datetime = obs_start_date + as.numeric(obs_start_time))
+# Count unique species per hour, feature, and study period
+hourly_presence_summary <- hourly_presence_all |>
+  group_by(study_part, feature_type_methodology, obs_hour) |>
+  summarise(species_detections = n(), .groups = "drop")
+
+# Plot
+ggplot(hourly_presence_summary, aes(x = obs_hour, y = species_detections, fill = feature_type_methodology)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  facet_wrap(~ study_part
+             ) +
+  scale_x_continuous(breaks = 0:23) +
+  labs(
+    title = "Hourly Wildlife Presence by Feature Type and Study Period",
+    x = "Hour of Day",
+    y = "Number of Species Detections",
+    fill = "Feature Type"
+  ) +
+  theme_minimal()
+
 ```
 
-
+### Summarizing Data
 ```{r}
-# merged_data_with_deduplicated_observations <- merged_data_with_deduplicated_observations %>%
+# clean_study_part_2_joined_sequences_and_deployments <- clean_study_part_2_joined_sequences_and_deployments %>%
 #   mutate(
 #     feature_type_methodology_recoded = case_when(
 #       feature_type_methodology %in% c("Log", "Boulder") ~ "Log/Boulder",
@@ -398,7 +436,7 @@ merged_data_with_deduplicated_observations <- full_join(february_study_observati
 #                                               levels = c("Constructed Hibernacula", "Log/Boulder"))
 #   )
 
-daily_site_summary <- merged_data_with_deduplicated_observations %>%
+daily_site_summary <- clean_study_part_2_joined_sequences_and_deployments %>%
   group_by(
     obs_start_date, placename, latitude, longitude,
     feature_type_methodology, feature_type_methodology_recoded,
@@ -410,7 +448,7 @@ daily_site_summary <- merged_data_with_deduplicated_observations %>%
   ) 
 
 # Create daily rows for each deployment
-expanded_deployments <- deployments_data_clean %>%
+expanded_deployments <- clean_study_part_2_deployments %>%
   mutate(start_date = as.Date(start_date),
          end_date = as.Date(end_date)) %>%
   rowwise() %>%
@@ -526,23 +564,23 @@ It's not the primary analysis, but it provides a quick check for differences in 
 #| tbl-cap: Welch two sample T-test comparing average daily observations between feature types
 
 # Perform the t-test
-t_test_result <- t.test(daily_total_observations ~ feature_type_methodology_recoded, data = daily_site_summary)
+stats_t_test_result <- t.test(daily_total_observations ~ feature_type_methodology_recoded, data = daily_site_summary)
 
 # Extract key components from the t-test result
-t_test_df <- data.frame(
+stats_t_test_df <- data.frame(
   Statistic = c("p-value", "Confidence Interval (Lower)", "Confidence Interval (Upper)", 
                 "Mean (Constructed Hibernacula)", "Mean (Log/Boulder)"),
   Value = c(
-    round(t_test_result$p.value, 5),
-    round(t_test_result$conf.int[1], 4),
-    round(t_test_result$conf.int[2], 4),
-    round(t_test_result$estimate[1], 4),
-    round(t_test_result$estimate[2], 4)
+    round(stats_t_test_result$p.value, 5),
+    round(stats_t_test_result$conf.int[1], 4),
+    round(stats_t_test_result$conf.int[2], 4),
+    round(stats_t_test_result$estimate[1], 4),
+    round(stats_t_test_result$estimate[2], 4)
   )
 )
 
 # Print the formatted table
-knitr::kable(t_test_df)
+knitr::kable(stats_t_test_df)
 ```
 
 ### Calculate Cohen's d
@@ -552,21 +590,21 @@ knitr::kable(t_test_df)
 #| tbl-cap: Cohen's d - effect size for average daily observations between feature types
 
 # Calculate Cohen's d
-cohen_d_result <- cohen.d(avg_daily_observations ~ feature_type_methodology_recoded, data = site_summary)
+stats_cohen_d_result <- cohen.d(avg_daily_observations ~ feature_type_methodology_recoded, data = site_summary)
 
 # Extract key components from the Cohen's d result
-cohen_d_df <- data.frame(
+stats_cohen_d_df <- data.frame(
   Statistic = c("Cohen's d", "Effect Size Magnitude", "Confidence Interval (Lower)", "Confidence Interval (Upper)"),
   Value = c(
-    round(cohen_d_result$estimate, 4),
-    cohen_d_result$magnitude,
-    round(cohen_d_result$conf.int[1], 4),
-    round(cohen_d_result$conf.int[2], 4)
+    round(stats_cohen_d_result$estimate, 4),
+    stats_cohen_d_result$magnitude,
+    round(stats_cohen_d_result$conf.int[1], 4),
+    round(stats_cohen_d_result$conf.int[2], 4)
   )
 )
 
 # Print the formatted table
-knitr::kable(cohen_d_df)
+knitr::kable(stats_cohen_d_df)
 ```
 
 ### T-Test Assumption Testing
@@ -578,14 +616,14 @@ knitr::kable(cohen_d_df)
 #| tbl-cap: Shapiro-Wilk normality test for average daily observations by feature type
 
 # Perform the Shapiro-Wilk normality test
-normality_test <- site_summary %>%
+stats_normality_test <- site_summary %>%
   group_by(feature_type_methodology_recoded) %>%
   summarise(shapiro_result = list(shapiro.test(avg_daily_observations))) %>%
   mutate(shapiro_p_value = sapply(shapiro_result, function(x) x$p.value)) %>%
    dplyr::select(feature_type_methodology_recoded, shapiro_p_value)
 
 # Print the formatted table
-knitr::kable(normality_test)
+knitr::kable(stats_normality_test)
 
 # OLD NOTES FOR P-VALUES FROM WHEN I USED DEPLOYMENT SUMMARY
 # Constructed Hibernacula: p-value = 0.0006307
@@ -608,21 +646,21 @@ The p-values are greater than 0.05, so we do not reject the null hypothesis that
 #| tbl-cap: Levene's Test for Homogeneity of Variance for Average Daily Observations by Feature Type
 
 # Perform the Levene's test
-levene_test <- leveneTest(avg_daily_observations ~ feature_type_methodology_recoded, data = site_summary)
+stats_levene_test <- leveneTest(avg_daily_observations ~ feature_type_methodology_recoded, data = site_summary)
 
 # Extract key components from the Levene's test result
-levene_test_df <- data.frame(
+stats_levene_test_df <- data.frame(
   Statistic = c("Df (Group)", "Df (Residual)", "F value", "p-value"),
   Value = c(
-    levene_test$Df[1],
-    levene_test$Df[2],
-    round(levene_test$`F value`[1], 4),
-    round(levene_test$`Pr(>F)`[1], 5)
+    stats_levene_test$Df[1],
+    stats_levene_test$Df[2],
+    round(stats_levene_test$`F value`[1], 4),
+    round(stats_levene_test$`Pr(>F)`[1], 5)
   )
 )
 
 # Print the formatted table
-knitr::kable(levene_test_df)
+knitr::kable(stats_levene_test_df)
 
 ```
 
@@ -647,7 +685,7 @@ stargazer(lm_model_1, lm_model_2, lm_model_3,
           title = "Comparison of Linear Models",
           dep.var.labels = "Daily Total Observations",
           column.labels = c("Model 1", "Model 2", "Model 3"),
-          covariate.labels = c("Feature Type - Boulder/Log)", "Trail - Yes", "Habitat Type - Grassland", "Habitat Type - Scrub"),
+          covariate.labels = c("Feature Type - Boulder/Log)", "Trail - Yes", "Habitat Type - Grassland", "Habitat Type - Scrub","Reference"),
           digits = 3,
           notes = "Ref: Hibernacula, No Trail, Marsh")
 ```
@@ -744,7 +782,7 @@ stargazer(quasi_model_1, quasi_model_2, quasi_model_3,
           title = "Comparison of Quasi-Poisson GLMs",
           dep.var.labels = "Daily Total Observations",
           column.labels = c("Model 1", "Model 2", "Model 3"),
-          covariate.labels = c("Feature Type - Boulder/Log", "Trail - Yes", "Habitat Type - Grassland", "Habitat Type - Scrub","Baseline"),
+          covariate.labels = c("Feature Type - Boulder/Log", "Trail - Yes", "Habitat Type - Grassland", "Habitat Type - Scrub","Reference"),
           digits = 3)
 ```
 
@@ -761,33 +799,72 @@ Scrub: +48% increase (exp(0.394) ≈ 1.483), but now non-significant due to larg
 Trail effect strengthens to 56% decrease (exp(-0.832) ≈ 0.435), significant at p \< 0.05.
 Boulder/Log effect remains strong at 58% decrease (exp(-0.873) ≈ 0.418), highly significant (p \< 0.01).
 
-## Results
+## Negative Binomial Models
+```{r}
+# Model 1: Feature type only
+nb_model_1 <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded, data = daily_site_summary)
+
+# Model 2: Feature type + trail
+nb_model_2 <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded + trail, data = daily_site_summary)
+
+# Model 3: Feature type + trail + habitat_type
+nb_model_3 <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded + trail + habitat_type, data = daily_site_summary)
+
+stargazer(lm_model_1, lm_model_2, lm_model_3,
+          type = "text",
+          title = "Comparison of Linear Models",
+          dep.var.labels = "Daily Total Observations",
+          column.labels = c("Model 1", "Model 2", "Model 3"),
+          covariate.labels = c("Feature Type - Boulder/Log", "Trail - Yes", 
+                               "Habitat Type - Grassland", "Habitat Type - Scrub","Reference"),
+          digits = 3,
+          notes = "Reference levels: Constructed Hibernacula (Feature Type), No (Trail), Marsh (Habitat Type).",
+          no.space = TRUE)
+```
+These models use a negative binomial distribution to account for overdispersion in daily wildlife observation counts, with model fit improving across AIC values from 1120.4 → 1112.6.
+
+**Model 1:**
+Boulder/Log features are associated with a log count decrease of –0.648 (p < 0.01), translating to approximately 48% fewer expected observations per day compared to the hibernacula (exp(–0.648) ≈ 0.523). This effect is significant and consistent.
+
+**Model 2:**
+Adding Trail shows that sites with trails experience about 44% fewer observations (exp(–0.576) ≈ 0.562). This effect is marginally significant (p = 0.066), suggesting a potentially meaningful but uncertain negative influence.
+The Boulder/Log effect remains robust and slightly stronger, with a 56% decrease (exp(–0.828) ≈ 0.437).
+
+**Model 3:**
+Introducing Habitat Type improves model fit further.
+Grassland sites show a 222% increase in expected daily observations (exp(1.223) ≈ 3.40), highly significant (p < 0.01).
+Scrub habitats have about 57% more observations (exp(0.453) ≈ 1.57), marginally significant (p ≈ 0.073).
+Trail presence now shows a 75% decrease in observations (exp(–1.372) ≈ 0.253), with the effect becoming highly significant (p < 0.001).
+
+The Boulder/Log effect remains nearly identical, with 58% fewer observations (exp(–0.860) ≈ 0.423), confirming its robustness across specifications.
+
+
+## Summary of Results
 
 ```{r}
 # Welch t-test results
-p_value_text <- round(t_test_result$p.value, 5)
-mean_hibernacula <- round(t_test_result$estimate[1], 2)
-mean_log_boulder <- round(t_test_result$estimate[2], 2)
-mean_difference <- round(diff(t_test_result$estimate), 2)
-ci_lower <- round(t_test_result$conf.int[1], 2)
-ci_upper <- round(t_test_result$conf.int[2], 2)
+p_value_text <- round(stats_t_test_result$p.value, 5)
+mean_hibernacula <- round(stats_t_test_result$estimate[1], 2)
+mean_log_boulder <- round(stats_t_test_result$estimate[2], 2)
+mean_difference <- round(diff(stats_t_test_result$estimate), 2)
+ci_lower <- round(stats_t_test_result$conf.int[1], 2)
+ci_upper <- round(stats_t_test_result$conf.int[2], 2)
 
 # Cohen's d
-cohen_d_value <- round(cohen_d_result$estimate, 2)
-cohen_d_magnitude <- cohen_d_result$magnitude
-cohen_d_ci_lower <- round(cohen_d_result$conf.int[1], 2)
-cohen_d_ci_upper <- round(cohen_d_result$conf.int[2], 2)
+cohen_d_value <- round(stats_cohen_d_result$estimate, 2)
+cohen_d_magnitude <- stats_cohen_d_result$magnitude
+cohen_d_ci_lower <- round(stats_cohen_d_result$conf.int[1], 2)
+cohen_d_ci_upper <- round(stats_cohen_d_result$conf.int[2], 2)
 
 # Shapiro-Wilk normality
-shapiro_p_hibernacula <- round(normality_test$shapiro_p_value[normality_test$feature_type_methodology_recoded == "Constructed Hibernacula"], 4)
-shapiro_p_log_boulder <- round(normality_test$shapiro_p_value[normality_test$feature_type_methodology_recoded == "Log/Boulder"], 4)
+shapiro_p_hibernacula <- round(stats_normality_test$shapiro_p_value[stats_normality_test$feature_type_methodology_recoded == "Constructed Hibernacula"], 4)
+shapiro_p_log_boulder <- round(stats_normality_test$shapiro_p_value[stats_normality_test$feature_type_methodology_recoded == "Log/Boulder"], 4)
 
 # Levene’s test
-levene_f_value <- round(levene_test$"F value"[1], 2)
-levene_p_value <- round(levene_test$"Pr(>F)"[1], 4)
+levene_f_value <- round(stats_levene_test$"F value"[1], 2)
+levene_p_value <- round(stats_levene_test$"Pr(>F)"[1], 4)
 ```
 
-#### Summary of Results
 
 Across all models, Boulder/Log features consistently and significantly reduce daily observations relative to Constructed Hibernacula, suggesting the latter are associated with higher activity or detection.
 
@@ -795,7 +872,7 @@ Trail proximity and Habitat Type effects appear meaningful in the Poisson models
 And the Poisson models fit the data better than linear models, but overdispersion must be addressed.
 Quasi-Poisson corrects for this with corrected standard errors, and the Quasi-Poisson Model 3 that includes all three variables (feature type, trail proximity, and habitat type) shows significance (p \< 0.05) for all variables except for Scrub habitat type, which is no longer significant due to larger standard errors.
 
-# Data Visualization
+# Data Visualizations
 
 ## Taxonomic Class Observations by Feature Type
 
@@ -811,7 +888,7 @@ class_palette <- setNames(
   class_levels
 )
 
-merged_data_with_deduplicated_observations |> 
+clean_study_part_2_joined_sequences_and_deployments |> 
   group_by(feature_type_methodology, class) |> 
   summarise(abundance = n(), .groups = 'drop') |> 
   ggplot(aes(x = feature_type_methodology, y = abundance, fill = class)) +
@@ -838,7 +915,7 @@ merged_data_with_deduplicated_observations |>
 #| fig-cap: Number of unique species observed at each feature type, grouped by taxonomic class. Numbers inside bars indicate the count of unique species.
 #| include: false
 
-merged_data_with_deduplicated_observations |> 
+clean_study_part_2_joined_sequences_and_deployments |> 
   filter(!is.na(species)) |> 
   group_by(feature_type_methodology, class) |> 
   summarise(unique_species = n_distinct(species), .groups = 'drop') |> 
@@ -883,17 +960,16 @@ ggplot(site_summary, aes(x = placename, y = avg_daily_observations, fill = featu
 ```
 
 ## Hourly Breakdown by Feature Type
-
 ```{r fig-hourly-activity}
 #| label: fig-hourly-activity
 #| fig-cap: "Temporal distribution of wildlife observations throughout the day by feature type. This visualization demonstrates potential differences in when animals use each feature type. Each bar represents the total number of animals observed at a given feature type divided by the total number of camera days at each feature type."
 #| fig-pos: 'H'
 
 # Convert hour to 12-hour format with AM/PM
-merged_data_with_deduplicated_observations$hour_am_pm <- format(merged_data_with_deduplicated_observations$start_time, "%I %p")
+clean_study_part_2_joined_sequences_and_deployments$hour_am_pm <- format(clean_study_part_2_joined_sequences_and_deployments$start_time, "%I %p")
 
 # Summarize data to get raw counts for each site per hour
-hourly_deployment_summary <- merged_data_with_deduplicated_observations %>%
+hourly_deployment_summary <- clean_study_part_2_joined_sequences_and_deployments %>%
   group_by(
     placename,
     camera_name,
@@ -906,7 +982,7 @@ hourly_deployment_summary <- merged_data_with_deduplicated_observations %>%
     .groups = "drop"
   )
 
-camera_effort_by_feature <- merged_data_with_deduplicated_observations %>%
+camera_effort_by_feature <- clean_study_part_2_joined_sequences_and_deployments %>%
   distinct(deployment_id, feature_type_methodology, deployment_duration) %>%  # one row per deployment
   group_by(feature_type_methodology) %>%
   summarize(
@@ -925,7 +1001,7 @@ hourly_summary_with_effort <- hourly_summary %>%
   mutate(avg_observations_in_hour_block = total_observations / camera_days)
 
 # # Summarize data to get raw counts for each feature type per hour
-# hourly_summary <- merged_data_with_deduplicated_observations %>%
+# hourly_summary <- clean_study_part_2_joined_sequences_and_deployments %>%
 #   group_by(hour_am_pm, feature_type_methodology) %>%
 #   summarize(count = n(), .groups = "drop")  # Get raw count
 
@@ -958,12 +1034,12 @@ ggplot(hourly_summary_with_effort, aes(x = hour_am_pm, y = avg_observations_in_h
 detection_threshold <- 50
 
 # Count total observations by species
-species_counts <- merged_data_with_deduplicated_observations %>%
+species_counts <- clean_study_part_2_joined_sequences_and_deployments %>%
   filter(!is.na(common_name)) %>%
   count(common_name, name = "total_count")
 
 # Recode species names based on detection threshold or name content
-merged_data_lumped <- merged_data_with_deduplicated_observations %>%
+merged_data_lumped <- clean_study_part_2_joined_sequences_and_deployments %>%
   left_join(species_counts, by = "common_name") %>%
   mutate(
     common_name_lumped = case_when(
@@ -1240,7 +1316,7 @@ plot_log <- ggplot(hourly_log, aes(x = hour_am_pm, y = count, fill = common_name
 #| fig-pos: 'H'
 
 # Summarize species counts by feature_type_methodology, filtering out "NA NA" genus_species
-species_abundance <- merged_data_with_deduplicated_observations |> 
+species_abundance <- clean_study_part_2_joined_sequences_and_deployments |> 
   group_by(feature_type_methodology, class, family, genus_species, common_name) |> 
   summarise(abundance = n(), .groups = 'drop')
 
@@ -1273,10 +1349,12 @@ mammalia_plot <- ggplot(filter(species_abundance, class == "Mammalia"),
 mammalia_plot
 ```
 
-```{r fig-reptilia-abundance}
+```{r}
 #| label: fig-reptilia-abundance
-#| fig-cap: "Distribution of reptile species observations across different feature types. The chart shows which reptile taxa utilized each feature type and their relative abundance."
-#| fig-pos: 'H'
+#| eval: false
+#| fig-cap: Distribution of reptile species observations across different feature types. The chart shows which reptile taxa utilized each feature type and their relative abundance.
+#| fig-pos: H
+#| include: false
 
 reptilia_plot <- ggplot(filter(species_abundance, class == "Reptilia"), 
                         aes(x = common_name, y = abundance, fill = feature_type_methodology)) +
@@ -1297,19 +1375,11 @@ reptilia_plot
 #| fig-width: 10
 #| fig-height: 6
 
-library(maptiles)
-library(terra)
-library(sf)
-library(ggplot2)
-library(cowplot)
-library(RColorBrewer)
-library(maps)
-
 # Convert site_summary to sf object
-site_sf <- st_as_sf(site_summary, coords = c("longitude", "latitude"), crs = 4326)
+map_site_sf <- st_as_sf(site_summary, coords = c("longitude", "latitude"), crs = 4326)
 
 # Get bounding box and expand slightly
-bbox <- st_bbox(site_sf)
+bbox <- st_bbox(map_site_sf)
 padding <- 0.001  # Reduced padding for tighter view
 west_shift <- 0.0  # Adjust this value to shift more/less west
 bbox_expanded <- c(
@@ -1320,12 +1390,12 @@ bbox_expanded <- c(
 )
 
 # Download satellite tiles (Esri)
-basemap <- get_tiles(site_sf, provider = "Esri.WorldImagery", zoom = 18)
+map_basemap <- get_tiles(map_site_sf, provider = "Esri.WorldImagery", zoom = 18)
 
 # Convert raster to data.frame for ggplot
-rgb_df <- as.data.frame(basemap, xy = TRUE)
-colnames(rgb_df) <- c("x", "y", "red", "green", "blue")
-rgb_df$hex <- rgb(rgb_df$red, rgb_df$green, rgb_df$blue, maxColorValue = 255)
+map_rgb_df <- as.data.frame(map_basemap, xy = TRUE)
+colnames(map_rgb_df) <- c("x", "y", "red", "green", "blue")
+map_rgb_df$hex <- rgb(map_rgb_df$red, map_rgb_df$green, map_rgb_df$blue, maxColorValue = 255)
 
 # Set feature type colors
 feature_colors <- c(
@@ -1335,15 +1405,28 @@ feature_colors <- c(
 )
 
 # Main satellite deployment map
-main_map <- ggplot() +
-  geom_raster(data = rgb_df, aes(x = x, y = y, fill = hex)) +
+map_main <- ggplot() +
+  geom_raster(data = map_rgb_df, aes(x = x, y = y, fill = hex)) +
   scale_fill_identity() +
-  geom_sf(data = site_sf, aes(color = feature_type_methodology, size = avg_daily_observations), 
+  geom_sf(data = map_site_sf, aes(color = feature_type_methodology, size = avg_daily_observations), 
           alpha = 0.9, stroke = 0.5) +
   scale_color_manual(values = feature_colors, name = "Feature Type") +
   scale_size(name = "Avg. Daily Obs.", range = c(2, 6)) +
   coord_sf(xlim = c(bbox_expanded["xmin"], bbox_expanded["xmax"]),
            ylim = c(bbox_expanded["ymin"], bbox_expanded["ymax"])) +
+  annotation_scale(
+    location = "bl",      # bottom left
+    pad_x = unit(0.45, "in"),
+    pad_y = unit(0.3, "in"),
+    width_hint = 0.25
+  ) +
+  annotation_north_arrow(
+    location = "br",      # bottom right
+    which_north = "true",
+    pad_x = unit(0.35, "in"),
+    pad_y = unit(0.23, "in"),
+    style = north_arrow_fancy_orienteering
+  ) +
   theme_minimal(base_size = 12) +
   theme(
     panel.grid = element_blank(),
@@ -1357,19 +1440,19 @@ main_map <- ggplot() +
   )
 
 # Calculate study area centroid
-centroid_coords <- site_sf %>%
+map_centroid_coords <- map_site_sf %>%
   st_coordinates() %>%
   as.data.frame() %>%
   summarise(longitude = mean(X), latitude = mean(Y))
 
 # Overview map of CA with study area location
-ca_map <- map("state", plot = FALSE, fill = TRUE) %>%
+map_CA <- map("state", plot = FALSE, fill = TRUE) %>%
   st_as_sf() %>%
   filter(ID == "california")
 
-overview_map <- ggplot() +
-  geom_sf(data = ca_map, fill = "gray90", color = "gray60", size = 0.3) +
-  geom_point(data = centroid_coords, aes(x = longitude, y = latitude), 
+map_overview <- ggplot() +
+  geom_sf(data = map_CA, fill = "gray90", color = "gray60", size = 0.3) +
+  geom_point(data = map_centroid_coords, aes(x = longitude, y = latitude), 
              color = "red", size = 3, shape = 16) +
   theme_void() +
   theme(
@@ -1378,11 +1461,11 @@ overview_map <- ggplot() +
   )
 
 # Combine maps with proper positioning
-final_map <- ggdraw() +
-  draw_plot(main_map) +
-  draw_plot(overview_map, x = 0.68, y = 0.65, width = 0.3, height = 0.3)
+map_final <- ggdraw() +
+  draw_plot(map_main) +
+  draw_plot(map_overview, x = 0.705, y = 0.655, width = 0.3, height = 0.3)
 
-final_map
+map_final
 ```
 
 ```{r}
