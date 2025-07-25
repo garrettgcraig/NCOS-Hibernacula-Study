@@ -304,7 +304,7 @@ study_part_1_placename_summary <- clean_study_part_1_observations |>
   filter(!str_detect(camera_name, "&|,")) |> 
   group_by(
     placename, camera_name, start_date, end_date, deployment_duration,
-    feature_type_methodology, habitat_type, trail, study_part,latitude,longitude,count_of_obs_dates_at_place
+    feature_type_methodology, habitat_type, notable_entrances, trail, study_part,latitude,longitude,count_of_obs_dates_at_place
   ) |> 
   summarize(.groups = "drop")
 
@@ -316,7 +316,7 @@ hourly_presence_february <- clean_study_part_1_observations |>
     obs_day = as.Date(obs_start_date)
   ) |> 
   #Count unique species per hour block, day, and place
-  group_by(placename, obs_day, obs_hour, feature_type_methodology,common_name,habitat_type,trail,study_part,start_date,end_date,deployment_duration) |> 
+  group_by(placename, obs_day, obs_hour, feature_type_methodology,common_name,habitat_type,notable_entrances,trail,study_part,start_date,end_date,deployment_duration) |> 
   summarize(n = 1, .groups = "drop")  # Forces 1 row per unique species in each hour/day block
 ```
 
@@ -324,7 +324,7 @@ hourly_presence_february <- clean_study_part_1_observations |>
 ```{r}
 ## full join study_part_1_placename_summary and deployment_data_clean to get all deployments in one spot
 combined_deployments_summary <- study_part_1_placename_summary |> 
-  full_join(clean_study_part_2_deployments, by = c("placename", "camera_name","start_date", "end_date", "deployment_duration", "feature_type_methodology", "habitat_type", "trail", "study_part","latitude","longitude"))
+  full_join(clean_study_part_2_deployments, by = c("placename", "camera_name","start_date", "end_date", "deployment_duration", "feature_type_methodology", "habitat_type","notable_entrances", "trail", "study_part","latitude","longitude"))
 
 write.csv(combined_deployments_summary, here("data","combined_deployments_summary.csv"), row.names = FALSE)
 ```
@@ -392,6 +392,7 @@ hourly_presence_may <- clean_study_part_2_joined_sequences_and_deployments |>
     feature_type_methodology,
     common_name,
     habitat_type,
+    notable_entrances,
     trail,
     study_part,
     start_date,
@@ -429,7 +430,7 @@ daily_site_summary <- clean_study_part_2_joined_sequences_and_deployments %>%
   group_by(
     obs_start_date, placename, latitude, longitude,
     feature_type_methodology, feature_type_methodology_recoded,
-    habitat_type, trail
+    habitat_type,notable_entrances, trail
   ) %>%
   summarize(
     daily_total_observations = sum(group_size, na.rm = TRUE),
@@ -453,7 +454,7 @@ left_join(daily_site_summary, by = c("placename", "obs_start_date"))
 # Fill in missing values for latitude, longitude, feature_type_methodology, feature_type_methodology_recoded, habitat_type, and trail; set daily_total_observations to 0 if NA
 full_daily_data <- full_daily_data %>%
     group_by(placename) %>%
-    fill(latitude, longitude, feature_type_methodology,feature_type_methodology_recoded, habitat_type, trail, .direction = "downup") %>%
+    fill(latitude, longitude, feature_type_methodology,feature_type_methodology_recoded, habitat_type,notable_entrances, trail, .direction = "downup") %>%
     ungroup() %>%
     mutate(daily_total_observations = ifelse(is.na(daily_total_observations), 0, daily_total_observations))
 
@@ -468,7 +469,7 @@ site_summary <- daily_site_summary %>%
   group_by(
     placename, latitude, longitude,
     feature_type_methodology, feature_type_methodology_recoded,
-    habitat_type, trail
+    habitat_type,notable_entrances, trail
   ) %>%
   summarize(
     total_observations = sum(daily_total_observations, na.rm = TRUE),
@@ -790,25 +791,56 @@ Boulder/Log effect remains strong at 58% decrease (exp(-0.873) ≈ 0.418), highl
 
 ## Negative Binomial Models
 ```{r}
-# Model 1: Feature type only
-nb_model_1 <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded, data = daily_site_summary)
+# 1 predictor models
+nb_model_1a <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded, data = daily_site_summary)
+nb_model_1b <- MASS::glm.nb(daily_total_observations ~ trail, data = daily_site_summary)
+nb_model_1c <- MASS::glm.nb(daily_total_observations ~ habitat_type, data = daily_site_summary)
+nb_model_1d <- MASS::glm.nb(daily_total_observations ~ notable_entrances, data = daily_site_summary)
 
-# Model 2: Feature type + trail
-nb_model_2 <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded + trail, data = daily_site_summary)
+# 2 predictor models
+nb_model_2a <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded + trail, data = daily_site_summary)
+nb_model_2b <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded + habitat_type, data = daily_site_summary)
+nb_model_2c <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded + notable_entrances, data = daily_site_summary)
+nb_model_2d <- MASS::glm.nb(daily_total_observations ~ trail + habitat_type, data = daily_site_summary)
+nb_model_2e <- MASS::glm.nb(daily_total_observations ~ trail + notable_entrances, data = daily_site_summary)
+nb_model_2f <- MASS::glm.nb(daily_total_observations ~ habitat_type + notable_entrances, data = daily_site_summary)
 
-# Model 3: Feature type + trail + habitat_type
-nb_model_3 <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded + trail + habitat_type, data = daily_site_summary)
+# 3 predictor models
+nb_model_3a <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded + trail + habitat_type, data = daily_site_summary)
+nb_model_3b <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded + trail + notable_entrances, data = daily_site_summary)
+nb_model_3c <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded + habitat_type + notable_entrances, data = daily_site_summary)
+nb_model_3d <- MASS::glm.nb(daily_total_observations ~ trail + habitat_type + notable_entrances, data = daily_site_summary)
 
-stargazer(lm_model_1, lm_model_2, lm_model_3,
-          type = "text",
-          title = "Comparison of Linear Models",
-          dep.var.labels = "Daily Total Observations",
-          column.labels = c("Model 1", "Model 2", "Model 3"),
-          covariate.labels = c("Feature Type - Boulder/Log", "Trail - Yes", 
-                               "Habitat Type - Grassland", "Habitat Type - Scrub","Reference"),
-          digits = 3,
-          notes = "Reference levels: Constructed Hibernacula (Feature Type), No (Trail), Marsh (Habitat Type).",
-          no.space = TRUE)
+# 4 predictor model (full model)
+nb_model_4 <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded + trail + habitat_type + notable_entrances, data = daily_site_summary)
+
+modelsummary::modelsummary(
+  list(
+    "Model 1a: Feature Type" = nb_model_1a,
+    "Model 1b: Trail" = nb_model_1b,
+    "Model 1c: Habitat Type" = nb_model_1c,
+    "Model 1d: Notable Entrances" = nb_model_1d,
+    
+    "Model 2a: Feature Type + Trail" = nb_model_2a,
+    "Model 2b: Feature Type + Habitat Type" = nb_model_2b,
+    "Model 2c: Feature Type + Notable Entrances" = nb_model_2c,
+    "Model 2d: Trail + Habitat Type" = nb_model_2d,
+    "Model 2e: Trail + Notable Entrances" = nb_model_2e,
+    "Model 2f: Habitat Type + Notable Entrances" = nb_model_2f,
+    
+    "Model 3a: Feature Type + Trail + Habitat Type" = nb_model_3a,
+    "Model 3b: Feature Type + Trail + Notable Entrances" = nb_model_3b,
+    "Model 3c: Feature Type + Habitat Type + Notable Entrances" = nb_model_3c,
+    "Model 3d: Trail + Habitat Type + Notable Entrances" = nb_model_3d,
+    
+    "Model 4: Full Model" = nb_model_4
+  ),
+  stars = TRUE,
+  estimate = "{estimate}",
+  statistic = "p.value",
+  gof_omit = "BIC|Log.Lik",
+  title = "Comparison of Negative Binomial Models"
+)
 ```
 These models use a negative binomial distribution to account for overdispersion in daily wildlife observation counts, with model fit improving across AIC values from 1120.4 → 1112.6.
 
@@ -857,9 +889,7 @@ levene_p_value <- round(stats_levene_test$"Pr(>F)"[1], 4)
 
 Across all models, Boulder/Log features consistently and significantly reduce daily observations relative to Constructed Hibernacula, suggesting the latter are associated with higher activity or detection.
 
-Trail proximity and Habitat Type effects appear meaningful in the Poisson models.
-And the Poisson models fit the data better than linear models, but overdispersion must be addressed.
-Quasi-Poisson corrects for this with corrected standard errors, and the Quasi-Poisson Model 3 that includes all three variables (feature type, trail proximity, and habitat type) shows significance (p \< 0.05) for all variables except for Scrub habitat type, which is no longer significant due to larger standard errors.
+Trail proximity and Habitat Type (except Scrub) effects appear meaningful in the negative binomial model.
 
 # Data Visualizations
 
