@@ -202,18 +202,19 @@ write.csv(clean_study_part_2_joined_sequences_and_deployments,here("data","merge
 ```{r}
 #join hibernacula_coordinates to clean_study_part_1_observations
 clean_study_part_1_observations <- clean_study_part_1_observations |> 
-  left_join(hibernacula_coordinates, by = c("placename"))
-
-clean_study_part_1_observations <- clean_study_part_1_observations |> 
+  left_join(hibernacula_coordinates, by = c("placename"))|> 
   filter(!is.na(common_name)) |> 
   mutate(
     obs_start_time = hms::as_hms(obs_start_time),
     common_name = common_name |>
-      str_replace_all("Racoon", "Raccoon") |>
+      str_replace_all("Racoon", "Northern Raccoon") |>
       str_replace_all("California Towee", "California Towhee") |>
       str_replace_all("Says Phoebe", "Say's Phoebe") |>
       str_replace_all("Coopers Hawk", "Cooper's Hawk") |>
-      str_replace_all("Hermit thrush", "Hermit Thrush")
+      str_replace_all("Hermit thrush", "Hermit Thrush") |>
+      str_replace_all("Western Skink", "Western skink") |>
+      str_replace_all("Mouse", "North American Deermouse") |>
+      str_replace_all("Western Fence Lizard", "Western fence lizard") 
   ) |> 
   left_join(site_to_habitat_crosswalk, by = c("placename" = "site")) |> 
   mutate(
@@ -327,9 +328,9 @@ combined_deployments_summary <- study_part_1_placename_summary |>
   full_join(clean_study_part_2_deployments, by = c("placename", "camera_name","start_date", "end_date", "deployment_duration", "feature_type_methodology", "habitat_type","notable_entrances", "trail", "study_part","latitude","longitude"))
 
 write.csv(combined_deployments_summary, here("data","combined_deployments_summary.csv"), row.names = FALSE)
-```
 
-```{r}
+
+
 ### This whole section removes overlapping sequences of the same species at the same place on the same date, but different cameras in the May data.
 
 # Step 1: Add row_id based on existing sequence_id
@@ -376,10 +377,10 @@ rows_to_remove <- overlap_pairs_part_2 %>%
 # Step 4: Remove the lower-priority overlaps
 clean_study_part_2_joined_sequences_and_deployments <- clean_study_part_2_joined_sequences_and_deployments %>%
   filter(!sequence_id %in% rows_to_remove)
-```
 
-```{r}
-## reducing May observations to hourly presence
+
+
+### reducing May observations to hourly presence
 hourly_presence_may <- clean_study_part_2_joined_sequences_and_deployments |>
   mutate(
     obs_hour = hour(obs_start_time),
@@ -409,9 +410,13 @@ hourly_presence_summary <- hourly_presence_all |>
   group_by(study_part, feature_type_methodology, obs_hour) |>
   summarise(species_detections = n(), .groups = "drop")
 
-# Plot NEEDS TO BE ADDED
-
-
+camera_effort_by_feature_study_part_1 <- study_part_1_placename_summary %>%
+    group_by(feature_type_methodology) %>%
+    summarize(
+        camera_days = sum(deployment_duration, na.rm = TRUE),
+        total_camera_hours = camera_days * 24,
+        .groups = "drop"
+    )
 ```
 
 ### Summarizing Data
@@ -438,7 +443,7 @@ daily_site_summary <- clean_study_part_2_joined_sequences_and_deployments %>%
   ) 
 
 # Create daily rows for each deployment
-expanded_deployments <- clean_study_part_2_deployments %>%
+expanded_deployments_study_part_2 <- clean_study_part_2_deployments %>%
   mutate(start_date = as.Date(start_date),
          end_date = as.Date(end_date)) %>%
   rowwise() %>%
@@ -448,7 +453,7 @@ expanded_deployments <- clean_study_part_2_deployments %>%
   dplyr::select(placename, obs_start_date)
 
 # Create a daily summary of observations per site
-full_daily_data <- expanded_deployments %>%
+full_daily_data <- expanded_deployments_study_part_2 %>%
 left_join(daily_site_summary, by = c("placename", "obs_start_date"))
 
 # Fill in missing values for latitude, longitude, feature_type_methodology, feature_type_methodology_recoded, habitat_type, and trail; set daily_total_observations to 0 if NA
@@ -893,6 +898,68 @@ Trail proximity and Habitat Type (except Scrub) effects appear meaningful in the
 
 # Data Visualizations
 
+## Hourly Detection Frequency per Species
+
+```{r}
+hourly_species_summary <- hourly_presence_all |>
+    group_by(common_name, obs_hour) |>
+    summarise(detections = n(), .groups = "drop")
+
+# Summarize total detections per species
+species_totals <- hourly_species_summary |>
+  group_by(common_name) |>
+  summarise(total_detections = sum(detections), .groups = "drop")
+
+# Join totals to the summary for plotting
+hourly_species_summary_sorted <- hourly_species_summary |>
+  left_join(species_totals, by = "common_name") |>
+  mutate(common_name = reorder(common_name, total_detections))
+
+# Heatmap with sorted species
+ggplot(hourly_species_summary_sorted, aes(x = obs_hour, y = common_name, fill = detections)) +
+  geom_tile(color = "white") +
+  scale_fill_viridis_c(option = "plasma", direction = -1) +
+  labs(
+    x = "Hour of Day",
+    y = "Species (sorted by total detections)",
+    fill = "# of Camera Hours with at Least 1 Detection",
+    title = "Hourly Detection Frequency per Species"
+  ) +
+  theme_minimal(base_size = 12)+
+ theme(legend.position = "bottom")
+```
+## Hourly Detection Frequency per Species by Habitat Type
+```{r}
+# Group and summarize by feature_type_methodology, species, hour
+hourly_species_feature <- hourly_presence_all |>
+  group_by(feature_type_methodology, common_name, obs_hour) |>
+  summarise(detections = n(), .groups = "drop")
+
+# Order species within each feature by total detections
+hourly_species_feature <- hourly_species_feature |>
+  group_by(feature_type_methodology, common_name) |>
+  mutate(total_detections = sum(detections)) |>
+  ungroup() |>
+  group_by(feature_type_methodology) |>
+  mutate(common_name = reorder(common_name, total_detections))
+
+# Plot: Faceted heatmap by feature_type_methodology
+ggplot(hourly_species_feature, aes(x = obs_hour, y = common_name, fill = detections)) +
+  geom_tile(color = "white") +
+  scale_fill_viridis_c(option = "plasma", direction = -1) +
+  labs(
+    x = "Hour of Day",
+    y = "Species (sorted by total detections within feature type)",
+    fill = "Detections",
+    title = "Hourly Detection Frequency per Species and Feature Type"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "bottom") +
+  facet_wrap(~ feature_type_methodology, scales = "free_y")
+```
+
+
+
 ## Taxonomic Class Observations by Feature Type
 
 ```{r}
@@ -988,7 +1055,7 @@ ggplot(site_summary, aes(x = placename, y = avg_daily_observations, fill = featu
 clean_study_part_2_joined_sequences_and_deployments$hour_am_pm <- format(clean_study_part_2_joined_sequences_and_deployments$start_time, "%I %p")
 
 # Summarize data to get raw counts for each site per hour
-hourly_deployment_summary <- clean_study_part_2_joined_sequences_and_deployments %>%
+hourly_deployment_summary_study_part_2 <- clean_study_part_2_joined_sequences_and_deployments %>%
   group_by(
     placename,
     camera_name,
@@ -1001,7 +1068,7 @@ hourly_deployment_summary <- clean_study_part_2_joined_sequences_and_deployments
     .groups = "drop"
   )
 
-camera_effort_by_feature <- clean_study_part_2_joined_sequences_and_deployments %>%
+camera_effort_by_feature_study_part_2 <- clean_study_part_2_joined_sequences_and_deployments %>%
   distinct(deployment_id, feature_type_methodology, deployment_duration) %>%  # one row per deployment
   group_by(feature_type_methodology) %>%
   summarize(
@@ -1010,13 +1077,17 @@ camera_effort_by_feature <- clean_study_part_2_joined_sequences_and_deployments 
     .groups = "drop"
   )
 
-hourly_summary <- hourly_deployment_summary %>%
+camera_effort_by_feature_combined <- bind_rows(
+    camera_effort_by_feature_study_part_1 %>% mutate(study_part = "part_1"),
+    camera_effort_by_feature_study_part_2 %>% mutate(study_part = "part_2"))
+
+hourly_summary_study_part_2 <- hourly_deployment_summary_study_part_2 %>%
   group_by(hour_am_pm, feature_type_methodology) %>%
   summarize(total_observations = sum(observations, na.rm = TRUE),
             .groups = "drop")
 
-hourly_summary_with_effort <- hourly_summary %>%
-  left_join(camera_effort_by_feature, by = "feature_type_methodology") %>%
+hourly_summary_with_effort_study_part_2 <- hourly_summary_study_part_2 %>%
+  left_join(camera_effort_by_feature_study_part_2, by = "feature_type_methodology") %>%
   mutate(avg_observations_in_hour_block = total_observations / camera_days)
 
 # # Summarize data to get raw counts for each feature type per hour
@@ -1025,12 +1096,12 @@ hourly_summary_with_effort <- hourly_summary %>%
 #   summarize(count = n(), .groups = "drop")  # Get raw count
 
 # Correct ordering of hours from "12 AM" to "11 PM"
-hourly_summary_with_effort$hour_am_pm <- factor(hourly_summary$hour_am_pm, 
+hourly_summary_with_effort_study_part_2$hour_am_pm <- factor(hourly_summary$hour_am_pm, 
                                     levels = c("12 AM", sprintf("%02d AM", 1:11), 
                                                "12 PM", sprintf("%02d PM", 1:11)))
 
 # Plot raw counts
-ggplot(hourly_summary_with_effort, aes(x = hour_am_pm, y = avg_observations_in_hour_block , fill = feature_type_methodology)) +
+ggplot(hourly_summary_with_effort_study_part_2, aes(x = hour_am_pm, y = avg_observations_in_hour_block , fill = feature_type_methodology)) +
   geom_bar(stat = "identity", position = "dodge") +  # Stacked bars for raw counts
   scale_fill_brewer(palette = "Set2") +  # Distinct colors
   labs(
