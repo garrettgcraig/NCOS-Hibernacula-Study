@@ -431,7 +431,7 @@ camera_effort_by_feature_study_part_1 <- study_part_1_placename_summary %>%
 #                                               levels = c("Constructed Hibernacula", "Log/Boulder"))
 #   )
 
-daily_site_summary <- clean_study_part_2_joined_sequences_and_deployments %>%
+daily_site_summary_study_part_2 <- clean_study_part_2_joined_sequences_and_deployments %>%
   group_by(
     obs_start_date, placename, latitude, longitude,
     feature_type_methodology, feature_type_methodology_recoded,
@@ -453,24 +453,24 @@ expanded_deployments_study_part_2 <- clean_study_part_2_deployments %>%
   dplyr::select(placename, obs_start_date)
 
 # Create a daily summary of observations per site
-full_daily_data <- expanded_deployments_study_part_2 %>%
-left_join(daily_site_summary, by = c("placename", "obs_start_date"))
+full_daily_data_study_part_2 <- expanded_deployments_study_part_2 %>%
+left_join(daily_site_summary_study_part_2, by = c("placename", "obs_start_date"))
 
 # Fill in missing values for latitude, longitude, feature_type_methodology, feature_type_methodology_recoded, habitat_type, and trail; set daily_total_observations to 0 if NA
-full_daily_data <- full_daily_data %>%
+full_daily_data_study_part_2 <- full_daily_data_study_part_2 %>%
     group_by(placename) %>%
     fill(latitude, longitude, feature_type_methodology,feature_type_methodology_recoded, habitat_type,notable_entrances, trail, .direction = "downup") %>%
     ungroup() %>%
     mutate(daily_total_observations = ifelse(is.na(daily_total_observations), 0, daily_total_observations))
 
-no_data_days <- full_daily_data %>%
+no_data_days <- full_daily_data_study_part_2 %>%
   filter(daily_total_observations == 0) |> 
   drop_na()
 
 # Fill in missing dates for each site
-daily_site_summary <- bind_rows(daily_site_summary, no_data_days)
+daily_site_summary_study_part_2 <- bind_rows(daily_site_summary_study_part_2, no_data_days)
 
-site_summary <- daily_site_summary %>%
+site_summary <- daily_site_summary_study_part_2 %>%
   group_by(
     placename, latitude, longitude,
     feature_type_methodology, feature_type_methodology_recoded,
@@ -559,7 +559,7 @@ It's not the primary analysis, but it provides a quick check for differences in 
 #| tbl-cap: Welch two sample T-test comparing average daily observations between feature types
 
 # Perform the t-test
-stats_t_test_result <- t.test(daily_total_observations ~ feature_type_methodology_recoded, data = daily_site_summary)
+stats_t_test_result <- t.test(daily_total_observations ~ feature_type_methodology_recoded, data = daily_site_summary_study_part_2)
 
 # Extract key components from the t-test result
 stats_t_test_df <- data.frame(
@@ -667,13 +667,13 @@ Even given unequal variances, the Welch Two Sample t-test is still appropriate b
 
 ```{r}
 lm_model_1 <- lm(daily_total_observations ~ feature_type_methodology_recoded,
-               data = daily_site_summary)
+               data = daily_site_summary_study_part_2)
 
 lm_model_2 <- lm(daily_total_observations ~ feature_type_methodology_recoded + trail,
-               data = daily_site_summary)
+               data = daily_site_summary_study_part_2)
 
 lm_model_3 <- lm(daily_total_observations ~ feature_type_methodology_recoded + trail + habitat_type,
-               data = daily_site_summary)
+               data = daily_site_summary_study_part_2)
 
 stargazer(lm_model_1, lm_model_2, lm_model_3,
           type = "text",
@@ -701,13 +701,13 @@ Grassland habitat appears to increase observations by \~7.7, and Scrub by \~3.5,
 
 ```{r}
 poisson_model_1 <- glm(daily_total_observations ~ feature_type_methodology_recoded,
-                   data = daily_site_summary,
+                   data = daily_site_summary_study_part_2,
                    family = poisson())
 poisson_model_2 <- glm(daily_total_observations ~ feature_type_methodology_recoded + trail,
-                   data = daily_site_summary,
+                   data = daily_site_summary_study_part_2,
                    family = poisson())
 poisson_model_3 <- glm(daily_total_observations ~ feature_type_methodology_recoded + trail + habitat_type,
-                   data = daily_site_summary,
+                   data = daily_site_summary_study_part_2,
                    family = poisson())
 
 stargazer(poisson_model_1, poisson_model_2, poisson_model_3,
@@ -763,13 +763,13 @@ Consider using negative binomial regression or quasi-Poisson models to account f
 
 ```{r}
 quasi_model_1 <- glm(daily_total_observations ~ feature_type_methodology_recoded,
-                   data = daily_site_summary,
+                   data = daily_site_summary_study_part_2,
                    family = quasipoisson())
 quasi_model_2 <- glm(daily_total_observations ~ feature_type_methodology_recoded + trail,
-                   data = daily_site_summary,
+                   data = daily_site_summary_study_part_2,
                    family = quasipoisson())
 quasi_model_3 <- glm(daily_total_observations ~ feature_type_methodology_recoded + trail + habitat_type,
-                   data = daily_site_summary,
+                   data = daily_site_summary_study_part_2,
                    family = quasipoisson())
 
 stargazer(quasi_model_1, quasi_model_2, quasi_model_3,
@@ -797,27 +797,27 @@ Boulder/Log effect remains strong at 58% decrease (exp(-0.873) ≈ 0.418), highl
 ## Negative Binomial Models
 ```{r}
 # 1 predictor models
-nb_model_1a <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded, data = daily_site_summary)
-nb_model_1b <- MASS::glm.nb(daily_total_observations ~ trail, data = daily_site_summary)
-nb_model_1c <- MASS::glm.nb(daily_total_observations ~ habitat_type, data = daily_site_summary)
-nb_model_1d <- MASS::glm.nb(daily_total_observations ~ notable_entrances, data = daily_site_summary)
+nb_model_1a <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded, data = daily_site_summary_study_part_2)
+nb_model_1b <- MASS::glm.nb(daily_total_observations ~ trail, data = daily_site_summary_study_part_2)
+nb_model_1c <- MASS::glm.nb(daily_total_observations ~ habitat_type, data = daily_site_summary_study_part_2)
+nb_model_1d <- MASS::glm.nb(daily_total_observations ~ notable_entrances, data = daily_site_summary_study_part_2)
 
 # 2 predictor models
-nb_model_2a <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded + trail, data = daily_site_summary)
-nb_model_2b <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded + habitat_type, data = daily_site_summary)
-nb_model_2c <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded + notable_entrances, data = daily_site_summary)
-nb_model_2d <- MASS::glm.nb(daily_total_observations ~ trail + habitat_type, data = daily_site_summary)
-nb_model_2e <- MASS::glm.nb(daily_total_observations ~ trail + notable_entrances, data = daily_site_summary)
-nb_model_2f <- MASS::glm.nb(daily_total_observations ~ habitat_type + notable_entrances, data = daily_site_summary)
+nb_model_2a <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded + trail, data = daily_site_summary_study_part_2)
+nb_model_2b <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded + habitat_type, data = daily_site_summary_study_part_2)
+nb_model_2c <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded + notable_entrances, data = daily_site_summary_study_part_2)
+nb_model_2d <- MASS::glm.nb(daily_total_observations ~ trail + habitat_type, data = daily_site_summary_study_part_2)
+nb_model_2e <- MASS::glm.nb(daily_total_observations ~ trail + notable_entrances, data = daily_site_summary_study_part_2)
+nb_model_2f <- MASS::glm.nb(daily_total_observations ~ habitat_type + notable_entrances, data = daily_site_summary_study_part_2)
 
 # 3 predictor models
-nb_model_3a <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded + trail + habitat_type, data = daily_site_summary)
-nb_model_3b <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded + trail + notable_entrances, data = daily_site_summary)
-nb_model_3c <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded + habitat_type + notable_entrances, data = daily_site_summary)
-nb_model_3d <- MASS::glm.nb(daily_total_observations ~ trail + habitat_type + notable_entrances, data = daily_site_summary)
+nb_model_3a <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded + trail + habitat_type, data = daily_site_summary_study_part_2)
+nb_model_3b <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded + trail + notable_entrances, data = daily_site_summary_study_part_2)
+nb_model_3c <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded + habitat_type + notable_entrances, data = daily_site_summary_study_part_2)
+nb_model_3d <- MASS::glm.nb(daily_total_observations ~ trail + habitat_type + notable_entrances, data = daily_site_summary_study_part_2)
 
 # 4 predictor model (full model)
-nb_model_4 <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded + trail + habitat_type + notable_entrances, data = daily_site_summary)
+nb_model_4 <- MASS::glm.nb(daily_total_observations ~ feature_type_methodology_recoded + trail + habitat_type + notable_entrances, data = daily_site_summary_study_part_2)
 
 modelsummary::modelsummary(
   list(
@@ -896,67 +896,9 @@ Across all models, Boulder/Log features consistently and significantly reduce da
 
 Trail proximity and Habitat Type (except Scrub) effects appear meaningful in the negative binomial model.
 
-# Data Visualizations
+# Data Visualizations: Study Part 2
 
-## Hourly Detection Frequency per Species
 
-```{r}
-hourly_species_summary <- hourly_presence_all |>
-    group_by(common_name, obs_hour) |>
-    summarise(detections = n(), .groups = "drop")
-
-# Summarize total detections per species
-species_totals <- hourly_species_summary |>
-  group_by(common_name) |>
-  summarise(total_detections = sum(detections), .groups = "drop")
-
-# Join totals to the summary for plotting
-hourly_species_summary_sorted <- hourly_species_summary |>
-  left_join(species_totals, by = "common_name") |>
-  mutate(common_name = reorder(common_name, total_detections))
-
-# Heatmap with sorted species
-ggplot(hourly_species_summary_sorted, aes(x = obs_hour, y = common_name, fill = detections)) +
-  geom_tile(color = "white") +
-  scale_fill_viridis_c(option = "plasma", direction = -1) +
-  labs(
-    x = "Hour of Day",
-    y = "Species (sorted by total detections)",
-    fill = "# of Camera Hours with at Least 1 Detection",
-    title = "Hourly Detection Frequency per Species"
-  ) +
-  theme_minimal(base_size = 12)+
- theme(legend.position = "bottom")
-```
-## Hourly Detection Frequency per Species by Habitat Type
-```{r}
-# Group and summarize by feature_type_methodology, species, hour
-hourly_species_feature <- hourly_presence_all |>
-  group_by(feature_type_methodology, common_name, obs_hour) |>
-  summarise(detections = n(), .groups = "drop")
-
-# Order species within each feature by total detections
-hourly_species_feature <- hourly_species_feature |>
-  group_by(feature_type_methodology, common_name) |>
-  mutate(total_detections = sum(detections)) |>
-  ungroup() |>
-  group_by(feature_type_methodology) |>
-  mutate(common_name = reorder(common_name, total_detections))
-
-# Plot: Faceted heatmap by feature_type_methodology
-ggplot(hourly_species_feature, aes(x = obs_hour, y = common_name, fill = detections)) +
-  geom_tile(color = "white") +
-  scale_fill_viridis_c(option = "plasma", direction = -1) +
-  labs(
-    x = "Hour of Day",
-    y = "Species (sorted by total detections within feature type)",
-    fill = "Detections",
-    title = "Hourly Detection Frequency per Species and Feature Type"
-  ) +
-  theme_minimal(base_size = 12) +
-  theme(legend.position = "bottom") +
-  facet_wrap(~ feature_type_methodology, scales = "free_y")
-```
 
 
 
@@ -1079,7 +1021,12 @@ camera_effort_by_feature_study_part_2 <- clean_study_part_2_joined_sequences_and
 
 camera_effort_by_feature_combined <- bind_rows(
     camera_effort_by_feature_study_part_1 %>% mutate(study_part = "part_1"),
-    camera_effort_by_feature_study_part_2 %>% mutate(study_part = "part_2"))
+    camera_effort_by_feature_study_part_2 %>% mutate(study_part = "part_2")) |> 
+  group_by(feature_type_methodology) %>%
+  summarize(
+    total_camera_hours = sum(total_camera_hours, na.rm = TRUE),
+    .groups = "drop"
+  )
 
 hourly_summary_study_part_2 <- hourly_deployment_summary_study_part_2 %>%
   group_by(hour_am_pm, feature_type_methodology) %>%
@@ -1096,7 +1043,7 @@ hourly_summary_with_effort_study_part_2 <- hourly_summary_study_part_2 %>%
 #   summarize(count = n(), .groups = "drop")  # Get raw count
 
 # Correct ordering of hours from "12 AM" to "11 PM"
-hourly_summary_with_effort_study_part_2$hour_am_pm <- factor(hourly_summary$hour_am_pm, 
+hourly_summary_with_effort_study_part_2$hour_am_pm <- factor(hourly_summary_with_effort_study_part_2$hour_am_pm, 
                                     levels = c("12 AM", sprintf("%02d AM", 1:11), 
                                                "12 PM", sprintf("%02d PM", 1:11)))
 
@@ -1557,6 +1504,162 @@ map_final <- ggdraw() +
 
 map_final
 ```
+# Data Visualizations: Study Part 1
+
+## Species Residency Status by Feature Type
+
+```{r}
+# 1. Camera effort summed across study parts
+camera_effort_by_feature_total <- camera_effort_by_feature_combined %>%
+  group_by(feature_type_methodology) %>%
+  summarize(total_camera_hours = sum(total_camera_hours, na.rm = TRUE), .groups = "drop")
+
+# 2. Calculate detections per camera hour for each species-feature combo
+species_feature_detections <- hourly_presence_all %>%
+  group_by(feature_type_methodology, common_name) %>%
+  summarise(detections = n(), .groups = "drop") %>%
+  left_join(camera_effort_by_feature_total, by = "feature_type_methodology") %>%
+  mutate(detections_per_camera_hour = detections / total_camera_hours)
+
+# 3. Assign residency status
+residency_threshold <- 0.01
+species_feature_detections <- species_feature_detections %>%
+  mutate(residency_status = ifelse(detections_per_camera_hour > residency_threshold, "resident", "transient"))
+
+# 4. Colors for residency status
+status_colors <- c("resident" = "#fc8d62", "transient" = "#2992a5")
+
+# 5. Calculate summary statistics (mean, CI) for each feature type and residency status
+summary_stats <- species_feature_detections %>%
+  group_by(feature_type_methodology, residency_status) %>%
+  summarise(
+    mean = mean(detections_per_camera_hour, na.rm = TRUE),
+    se = sd(detections_per_camera_hour, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    lower = mean - qt(0.975, df = n - 1) * se,
+    upper = mean + qt(0.975, df = n - 1) * se,
+    .groups = "drop"
+  )
+
+# 6. Create a plot for each feature type
+feature_types <- unique(species_feature_detections$feature_type_methodology)
+plots <- lapply(feature_types, function(ft) {
+  ggplot(
+    species_feature_detections %>% filter(feature_type_methodology == ft),
+    aes(x = residency_status, y = detections_per_camera_hour)
+  ) +
+    geom_jitter(aes(color = residency_status), width = 0.25, alpha = 0.7, size = 2, show.legend = FALSE) +
+    geom_errorbar(
+      data = summary_stats %>% filter(feature_type_methodology == ft),
+      aes(y = mean, ymin = lower, ymax = upper),
+      width = 0.15, color = "black", linewidth = 0.7
+    ) +
+    geom_point(
+      data = summary_stats %>% filter(feature_type_methodology == ft),
+      aes(y = mean),
+      shape = 23, size = 4,
+      fill = "black", color = "black", stroke = 1.2
+    ) +
+    scale_color_manual(values = status_colors) +
+    labs(
+      title = paste("Species Detection Rates:", ft),
+      x = "Residency Status",
+      y = "Detections per Camera Hour"
+    ) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(vjust = 1))
+})
+
+# 7. Display all plots side by side
+wrap_plots(plots)
+```
+```{r}
+# For each feature type, print resident species
+resident_species_by_feature <- species_feature_detections %>%
+  filter(residency_status == "resident") %>%
+  group_by(feature_type_methodology) %>%
+  summarise(resident_species = paste(sort(unique(common_name)), collapse = ", "))
+
+print(resident_species_by_feature)
+```
+
+
+```{r}
+# Run a t-test for each feature type
+feature_types <- unique(species_feature_detections$feature_type_methodology)
+
+for (ft in feature_types) {
+  cat("\n", "====", ft, "====\n")
+  subdat <- species_feature_detections %>% filter(feature_type_methodology == ft)
+  if (length(unique(subdat$residency_status)) == 2 && nrow(subdat) > 2) {
+    ttest <- t.test(detections_per_camera_hour ~ residency_status, data = subdat)
+    print(ttest)
+  } else {
+    cat("Not enough data for both groups to perform t-test.\n")
+  }
+}
+```
+
+## Hourly Detection Frequency per Species
+
+```{r}
+hourly_species_summary <- hourly_presence_all |>
+    group_by(common_name, obs_hour) |>
+    summarise(detections = n(), .groups = "drop")
+
+# Summarize total detections per species
+species_totals <- hourly_species_summary |>
+  group_by(common_name) |>
+  summarise(total_detections = sum(detections), .groups = "drop")
+
+# Join totals to the summary for plotting
+hourly_species_summary_sorted <- hourly_species_summary |>
+  left_join(species_totals, by = "common_name") |>
+  mutate(common_name = reorder(common_name, total_detections))
+
+# Heatmap with sorted species
+ggplot(hourly_species_summary_sorted, aes(x = obs_hour, y = common_name, fill = detections)) +
+  geom_tile(color = "white") +
+  scale_fill_viridis_c(option = "plasma", direction = -1) +
+  labs(
+    x = "Hour of Day",
+    y = "Species (sorted by total detections)",
+    fill = "# of Camera Hours with at Least 1 Detection",
+    title = "Hourly Detection Frequency per Species"
+  ) +
+  theme_minimal(base_size = 12)+
+ theme(legend.position = "bottom")
+```
+## Hourly Detection Frequency per Species by Habitat Type
+```{r}
+# Group and summarize by feature_type_methodology, species, hour
+hourly_species_feature <- hourly_presence_all |>
+  group_by(feature_type_methodology, common_name, obs_hour) |>
+  summarise(detections = n(), .groups = "drop")
+
+# Order species within each feature by total detections
+hourly_species_feature <- hourly_species_feature |>
+  group_by(feature_type_methodology, common_name) |>
+  mutate(total_detections = sum(detections)) |>
+  ungroup() |>
+  group_by(feature_type_methodology) |>
+  mutate(common_name = reorder(common_name, total_detections))
+
+# Plot: Faceted heatmap by feature_type_methodology
+ggplot(hourly_species_feature, aes(x = obs_hour, y = common_name, fill = detections)) +
+  geom_tile(color = "white") +
+  scale_fill_viridis_c(option = "plasma", direction = -1) +
+  labs(
+    x = "Hour of Day",
+    y = "Species (sorted by total detections within feature type)",
+    fill = "Detections",
+    title = "Hourly Detection Frequency per Species and Feature Type"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "bottom") +
+  facet_wrap(~ feature_type_methodology, scales = "free_y")
+```
+
 
 ```{r}
 #| label: fig-deployment-map-leaflet
@@ -1611,7 +1714,7 @@ leaflet(site_summary) %>%
 # Conclusion
 
 This study provides evidence that wildlife visitation rates differ significantly between Constructed Hibernacula and Log/Boulder features at NCOS.
-Camera trap data revealed that Constructed Hibernacula supported higher average daily observations compared to Log/Boulder features, with a statistically significant effect shown through Quasi-Poisson regression models.
+Camera trap data revealed that Constructed Hibernacula supported higher average daily observations compared to Log/Boulder features, with a statistically significant effect shown through negative binomial models.
 
 Beyond the statistics, the ecological implications of these findings are particularly informative.
 The increased frequency of observations at constructed hibernacula appears to be driven by species such as squirrels and mice that establish semi-permanent residency in these structures.
