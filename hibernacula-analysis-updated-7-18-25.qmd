@@ -27,6 +27,9 @@ format:
     fig-format: png
     pdf-engine: lualatex
     mainfont: "Palatino"
+    code-block: false   # ← hides code blocks from the PDF
+    execute:
+      echo: false
 execute:
   eval: true
   message: false
@@ -521,20 +524,22 @@ summary_stats <- site_summary %>%
 
 # Step 2: Plot
 ggplot(site_summary, aes(x = feature_type_methodology_recoded, y = avg_daily_observations)) +
-  geom_jitter(aes(
-    or = feature_type_methodology_recoded), width = 0.25, alpha = 0.6, size = 2, show.legend = FALSE) +
-  geom_errorbar(data = summary_stats, aes(y = mean, ymin = lower, ymax = upper),
+  geom_jitter(aes(color = feature_type_methodology_recoded), width = 0.25, alpha = 0.6, size = 2, show.legend = FALSE) +
+  geom_errorbar(data = summary_stats, aes(x = feature_type_methodology_recoded, y = mean, ymin = lower, ymax = upper),
                 width = 0.15, color = "black", linewidth = 0.7) +
-  geom_point(data = summary_stats, aes(y = mean), shape = 23, size = 4,
-             fill = "black", color = "black", stroke = 1.2) +
+  geom_point(data = summary_stats,
+             aes(x = feature_type_methodology_recoded, y = mean, fill = feature_type_methodology_recoded),
+             shape = 23, size = 4, color = "black", stroke = 1.2) +
   scale_color_manual(values = c("Log/Boulder" = "#2992a5", "Constructed Hibernacula" = "#fc8d62")) +
+  scale_fill_manual(values = c("Log/Boulder" = "#2992a5", "Constructed Hibernacula" = "#fc8d62")) +
   labs(
     title = "Avg. Daily Observations per Camera Trap Site by Feature Type",
     x = "Feature Type",
     y = "Avg. Daily Observations"
   ) +
   theme_minimal() +
-  theme(axis.text.x = element_text(vjust = 1))
+  theme(axis.text.x = element_text(vjust = 1))+
+  theme(legend.position = "none")
 
 ```
 
