@@ -767,12 +767,12 @@ webshot("species_table.html", here("figures","species_table.png"), zoom = 2, vwi
 ```
 
 ### Map
-```{r}
+```{r fig-deployment-map}
 #| label: fig-deployment-map
 #| fig-cap: "**Spatial distribution of camera trap deployments at the study site.** Circle color indicates feature type and size reflects the average daily number of wildlife observations. Inset map shows the location within California."
 #| fig-width: 10
 #| fig-height: 6
-#| 
+
 # Convert site_summary to sf object
 map_site_sf <- st_as_sf(placename_summary_pt_2, coords = c("longitude", "latitude"), crs = 4326)
 
@@ -868,3 +868,313 @@ map_final
 ggsave(here("figures","deployment_map.png"), plot = map_final, width = 10, height = 6, dpi = 300, bg = "white")
 ```
 
+# Part 1:
+
+## Load Data
+```{r}
+##load study part 1 data from February 2021
+clean_pt_1_obs <- read_excel(here("data","originalMasterHibernaculaAnalysis.xlsx"), sheet = "Master.Data.Cleaned")
+
+#load hibernacula_coords
+hibernacula_coords <- read_csv(here("data", "hibernacula_coordinates.csv")) |> 
+  mutate(placename = str_to_upper(placename))
+```
+
+## Clean and Prepare Data
+```{r}
+#join hibernacula_coords to clean_pt_1_obs
+clean_pt_1_obs <- clean_pt_1_obs |> 
+  left_join(hibernacula_coords, by = c("placename"))|> 
+  filter(!is.na(common_name)) |> 
+  mutate(
+    obs_start_time = hms::as_hms(obs_start_time),
+    common_name = common_name |>
+      str_replace_all("Racoon", "Northern Raccoon") |>
+      str_replace_all("California Towee", "California Towhee") |>
+      str_replace_all("Says Phoebe", "Say's Phoebe") |>
+      str_replace_all("Coopers Hawk", "Cooper's Hawk") |>
+      str_replace_all("Hermit thrush", "Hermit Thrush") |>
+      str_replace_all("Western Skink", "Western skink") |>
+      str_replace_all("Mouse", "North American Deermouse") |>
+      str_replace_all("Western Fence Lizard", "Western fence lizard") 
+  ) |> 
+  left_join(site_to_habitat_crosswalk, by = c("placename" = "site")) |> 
+  mutate(
+    deployment_duration = 5, ## ASSUMES ALL FEBRUARY DEPLOYMENTS WERE 5 DAYS LONG
+    study_part = 1 ## tags all of these sequences as part of the first part of the study
+  ) |> 
+  group_by(placename,camera_name) |> 
+  mutate(
+    start_date = min(obs_start_date, na.rm = TRUE),
+    end_date = max(obs_start_date, na.rm = TRUE),
+    calculated_deployment_duration = as.numeric(end_date - start_date) ### this shows that some sites may not have had 5 full days of trapping: H12, H13, H33, H48, H64 (4 days each); H25 (3 days), H21 2 (days)
+  ) |> 
+  ungroup() |> 
+  mutate( ## manual corrections for start/end dates based on review of first/last recorded images
+    start_date = case_when(
+      placename == "H21" & camera_name == "C12" & study_part == 1 ~ as.Date("2021-02-18"),
+      placename == "H25" & camera_name == "C2" & study_part == 1 ~ as.Date("2021-02-04"),
+      placename == "H48" & camera_name == "C10" & study_part == 1 ~ as.Date("2021-02-11"),
+      placename == "H11" & camera_name == "C11" & study_part == 1 ~ as.Date("2021-02-04"),
+      placename == "H11" & camera_name == "C12" & study_part == 1 ~ as.Date("2021-02-04"),
+      placename == "H58" & camera_name == "C09" & study_part == 1 ~ as.Date("2021-02-04"),
+      placename == "H19" & camera_name == "C05" & study_part == 1 ~ as.Date("2021-02-18"),
+      placename == "H34" & camera_name == "C05" & study_part == 1 ~ as.Date("2021-02-04"),
+      TRUE ~ start_date
+    ),
+    end_date = case_when(
+      placename == "H21" & camera_name == "C12" & study_part == 1 ~ as.Date("2021-02-23"),
+      placename == "H25" & camera_name == "C2" & study_part == 1 ~ as.Date("2021-02-09"),
+      placename == "H12" & camera_name == "C11" & study_part == 1 ~ as.Date("2021-03-09"),
+      placename == "H12" & camera_name == "C12" & study_part == 1 ~ as.Date("2021-03-09"),
+      placename == "H13" & camera_name == "C2" & study_part == 1 ~ as.Date("2021-02-16"),
+      placename == "H16" & camera_name == "C9" & study_part == 1 ~ as.Date("2021-03-09"),
+      placename == "H11" & camera_name == "C12" & study_part == 1 ~ as.Date("2021-02-09"),
+      placename == "H58" & camera_name == "C09" & study_part == 1 ~ as.Date("2021-02-09"),
+      placename == "H47" & camera_name == "C08" & study_part == 1 ~ as.Date("2021-03-02"),
+      placename == "H59" & camera_name == "C04" & study_part == 1 ~ as.Date("2021-02-16"),
+      TRUE ~ end_date
+    )
+  ) |> 
+   group_by(placename,camera_name) |> 
+  mutate(
+    calculated_deployment_duration = as.numeric(end_date - start_date),
+    deployment_duration = calculated_deployment_duration) |> 
+  ungroup() |> 
+filter(!(placename == "H41" & camera_name == "C6"), ## removing deployment b/c camera was set at bad angle)
+       !(placename == "H23" & camera_name == "C3"),  ## emoving deployment b/c camera was set at bad angle)
+       !(placename == "H24" & camera_name == "C1")) |>  ## removing  deployment because it failed on day 1
+  dplyr::select(-calculated_deployment_duration)
+
+clean_pt_1_obs <- clean_pt_1_obs |> 
+  mutate(row_id = row_number())
+```
+
+
+```{r}
+## REMOVING OBSERVATIONS BY DIFFERENT CAMERAS AT THE SAME PLACE, DATE, AND MINUTE 
+  clean_pt_1_obs <- clean_pt_1_obs |> 
+    mutate(
+      row_id = row_number(),
+      start_time = as.POSIXct(obs_start_date) + as.numeric(obs_start_time),
+      truncated_time = floor_date(start_time, unit = "minute"),
+      end_time = start_time + seconds(60)  # assume we want to remove duplicates within the minute
+    )
+
+  # Self-join within group to find same-minute, same-species, different-camera overlaps
+  overlap_pairs_part_1 <- clean_pt_1_obs |> 
+    inner_join(clean_pt_1_obs, by = c("placename", "obs_start_date", "truncated_time", "common_name")) |> 
+    filter(
+      camera_name.x != camera_name.y,
+      row_id.x != row_id.y
+    ) |> 
+    distinct(row_id.x, row_id.y, .keep_all = TRUE)
+  
+  rows_to_remove_part_1 <- overlap_pairs_part_1 |> 
+    mutate(
+      keep_x = if_else(group_size.x > group_size.y, TRUE,
+                if_else(group_size.x < group_size.y, FALSE,
+                  end_time.x > end_time.y))  # later end_time wins if tie
+    ) |> 
+    filter(!keep_x) |> 
+    pull(row_id.x) |> 
+    unique()
+  
+  clean_pt_1_obs <- clean_pt_1_obs |> 
+    filter(!row_id %in% rows_to_remove_part_1)
+
+## analyze how long each February deployment lasted
+placename_summary_pt_1 <- clean_pt_1_obs |> 
+  filter(!str_detect(camera_name, "&|,")) |> 
+  group_by(
+    placename, camera_name, start_date, end_date, deployment_duration,
+    feature_type_methodology, habitat_type, notable_entrances, trail, study_part,latitude,longitude
+  ) |> 
+  summarize(.groups = "drop")
+
+##SUMMARIZE FEBRUARY OBSERVATIONS BY SPECIES PER HOUR PER PLACE
+hourly_presence_pt_1 <- clean_pt_1_obs |>
+  # Create hour-block and date
+  mutate(
+    obs_hour = hour(obs_start_time),
+    obs_day = as.Date(obs_start_date)
+  ) |> 
+  #Count unique species per hour block, day, and place
+  group_by(placename, obs_day, obs_hour, feature_type_methodology,common_name,habitat_type,notable_entrances,trail,study_part,start_date,end_date,deployment_duration) |> 
+  summarize(n = 1, .groups = "drop")  # Forces 1 row per unique species in each hour/day block
+```
+
+# Combining Study Parts 1 and 2 
+```{r}
+## full join placename_summary_pt_1 and deployment_data_clean to get all deployments in one spot
+deployments_summary_pt_1_and_2 <- placename_summary_pt_1 |> 
+  full_join(clean_pt_2_dep, by = c("placename", "camera_name","start_date", "end_date", "deployment_duration", "feature_type_methodology", "habitat_type","notable_entrances", "trail", "study_part","latitude","longitude"))
+
+write.csv(deployments_summary_pt_1_and_2, here("data","deployments_summary_pt_1_and_2.csv"), row.names = FALSE)
+
+
+### reducing May observations to hourly presence
+hourly_presence_pt_2 <- clean_pt_2_seq_dep |>
+  mutate(
+    obs_hour = hour(obs_start_time),
+    obs_day = as.Date(obs_start_date)
+  ) |>
+  group_by(
+    placename,
+    obs_day,
+    obs_hour,
+    feature_type_methodology,
+    common_name,
+    habitat_type,
+    notable_entrances,
+    trail,
+    study_part,
+    start_date,
+    end_date,
+    deployment_duration
+  ) |>
+  summarize(n = 1, .groups = "drop")
+
+## combining hourly presence data from February and May
+hourly_presence_pt_1_and_2 <- bind_rows(hourly_presence_pt_1, hourly_presence_pt_2)
+
+# Count unique species per hour, feature, and study period
+hourly_presence_pt_1_and_2_summary <- hourly_presence_pt_1_and_2 |>
+  group_by(study_part, feature_type_methodology, obs_hour) |>
+  summarise(species_detections = n(), .groups = "drop")
+
+feature_type_effort_summary_pt_1 <- placename_summary_pt_1 %>%
+    group_by(feature_type_methodology) %>%
+    summarize(
+        total_camera_days = sum(deployment_duration, na.rm = TRUE),
+        total_camera_hours = total_camera_days * 24,
+        .groups = "drop"
+    )
+```
+
+## Data Visualizations:
+### Species Residency Status by Feature Type
+```{r fig-residency-status-by-feature}
+#| fig-label: fig-residency-status-by-feature
+#| fig-cap: "**Species residency status by feature type.** Detection rates (avg. # of hours each species is detected per camera day) for resident and transient species across different feature types. Points represent individual species. Resident species are colored Black diamonds show mean detection rates with 95% confidence intervals. Species with detection rates above 0.24 detections per camera day are classified as residents."
+
+# 1. Camera effort summed across study parts
+
+feature_type_effort_summary_pt_1_and_2 <- bind_rows(
+    feature_type_effort_summary_pt_1 %>% mutate(study_part = 1),
+    feature_type_effort_summary_pt_2 %>% mutate(study_part = 2)) |> 
+  group_by(feature_type_methodology)
+
+feature_type_effort_combined_summary_pt_1_and_2 <- feature_type_effort_summary_pt_1_and_2 %>%
+  group_by(feature_type_methodology) %>%
+  summarize(total_camera_days = sum(total_camera_days, na.rm = TRUE),
+ total_camera_hours = sum(total_camera_hours, na.rm = TRUE), .groups = "drop")
+
+# 2. Calculate detections per camera hour for each species-feature combo
+species_hourly_presence_by_feature_pt_1_and_2 <- hourly_presence_pt_1_and_2 %>%
+  group_by(feature_type_methodology, common_name) %>%
+  summarise(detections = n(), .groups = "drop") %>%
+  left_join(feature_type_effort_combined_summary_pt_1_and_2, by = "feature_type_methodology") %>%
+  mutate(detections_per_camera_day = detections / total_camera_days)
+
+# 3. Assign residency status
+residency_threshold <- 0.24
+species_hourly_presence_by_feature_pt_1_and_2 <- species_hourly_presence_by_feature_pt_1_and_2 %>%
+  mutate(residency_status = ifelse(detections_per_camera_day > residency_threshold, "resident", "transient"))
+
+# 4. Colors for residency status
+status_colors <- c("resident" = "#fc8d62", "transient" = "#2992a5")
+
+# 5. Calculate summary statistics (mean, CI) for each feature type and residency status
+summary_stats_species_hourly_presence_by_feature_pt_1_and_2 <- species_hourly_presence_by_feature_pt_1_and_2 %>%
+  group_by(feature_type_methodology, residency_status) %>%
+  summarise(
+    mean = mean(detections_per_camera_day, na.rm = TRUE),
+    se = sd(detections_per_camera_day, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    lower = mean - qt(0.975, df = n - 1) * se,
+    upper = mean + qt(0.975, df = n - 1) * se,
+    .groups = "drop"
+  )
+
+max_y <- max(species_hourly_presence_by_feature_pt_1_and_2$detections_per_camera_day, na.rm = TRUE)
+max_y <- ceiling(max_y * 1.3 * 10) / 10  # 20% buffer and round to nearest 0.1
+
+# 6. Create a plot for each feature type
+feature_types <- unique(species_hourly_presence_by_feature_pt_1_and_2$feature_type_methodology)
+
+# Step 1: Assign "Other" label to species not in the palette
+species_hourly_presence_by_feature_pt_1_and_2 <- species_hourly_presence_by_feature_pt_1_and_2 %>%
+  mutate(
+    species_fill = ifelse(common_name %in% names(species_palette_pt_2),
+                          common_name,
+                          "Other")
+  )
+
+# Step 2: Reorder species so "Other" comes last
+species_levels <- c(sort(setdiff(unique(species_hourly_presence_by_feature_pt_1_and_2$species_fill), "Other")), "Other")
+species_hourly_presence_by_feature_pt_1_and_2 <- species_hourly_presence_by_feature_pt_1_and_2 %>%
+  mutate(species_fill = factor(species_fill, levels = species_levels))
+
+# Step 2: Add 'Other' color to palette
+extended_palette <- species_palette_pt_2
+if (!"Other" %in% names(extended_palette)) {
+  extended_palette["Other"] <- "gray50"
+}
+
+extended_palette <- extended_palette[species_levels]
+
+plots <- lapply(seq_along(feature_types), function(i) {
+  ft <- feature_types[i]
+  
+  p <- ggplot(
+    species_hourly_presence_by_feature_pt_1_and_2 %>% filter(feature_type_methodology == ft),
+    aes(x = residency_status, y = detections_per_camera_day)
+  ) +
+    geom_jitter(aes(fill = species_fill), color = "black", shape = 21, width = 0.25, alpha = 0.7, size = 4, show.legend = TRUE) +
+    geom_errorbar(
+      data = summary_stats_species_hourly_presence_by_feature_pt_1_and_2 %>% filter(feature_type_methodology == ft),
+      aes(y = mean, ymin = lower, ymax = upper),
+      width = 0.5, color = "black", linewidth = 0.7
+    ) +
+    geom_point(
+      data = summary_stats_species_hourly_presence_by_feature_pt_1_and_2 %>% filter(feature_type_methodology == ft),
+      aes(y = mean),
+      shape = 23, size = 4,
+      fill = "black", color = "black", stroke = 1.2
+    ) +
+    scale_fill_manual(values = extended_palette, name="Species")+
+    scale_y_continuous(limits = c(0, max_y)) +
+    labs(
+      title = paste(ft)
+    ) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(vjust = 1)) 
+  
+  # Only add y-axis label to the first (leftmost) plot
+  if(i == 1) {
+    p <- p + labs(y = "Avg. # of Hours Detected per Camera Day")
+  } else {
+    p <- p + labs(y = "")
+  }
+  
+  # Only add x-axis label to the middle chart
+  middle_index <- ceiling(length(feature_types) / 2)
+  if(i == middle_index) {
+    p <- p + labs(x = "Residency Status")
+  } else {
+    p <- p + labs(x = "")
+  }
+  
+  return(p)
+})
+
+# 7. Display all plots side by side
+p4 = wrap_plots(plots, guides = "collect")
+
+p4
+
+ggsave(here("figures","species_residency_status_by_feature_type.png"), 
+       plot = p4, 
+       width = 12, height = 6, dpi = 300, bg = "white")
+```
