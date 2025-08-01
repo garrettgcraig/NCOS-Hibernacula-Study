@@ -454,7 +454,7 @@ lumped_species_pt_2 <- clean_pt_2_seq_dep_lumped %>%
   pull(common_name_lumped)
 
 species_palette_pt_2 <- setNames(
-  colorRampPalette(RColorBrewer::brewer.pal(8, "Set3"))(length(lumped_species_pt_2)),
+  colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))(length(lumped_species_pt_2)),
   lumped_species_pt_2
 )
 
@@ -627,7 +627,7 @@ figs_plot_hibernacula <- ggplot(figs_hourly_hibernacula, aes(x = hour_am_pm, y =
 # Plot for Log
 figs_plot_log <- ggplot(figs_hourly_log, aes(x = hour_am_pm, y = detections_per_camera_day, fill = common_name_lumped)) +
   geom_bar(stat = "identity", position = "stack") +
-  scale_fill_manual(values = species_palette_pt_2, name = "Species") +
+  scale_fill_manual(values = species_palette_pt_2, alpha = .9, name = "Species") +
   scale_y_continuous(limits = c(0, max_count)) +
   labs(
     title = "Log Sites",
@@ -648,7 +648,7 @@ ggsave(here("figures","diel_species_detection_rates_by_feature_type.png"), plot 
 
 ### Species List
 ```{r tbl-species-list}
-#| label: fig-daily-detections-mean-ci
+#| label: tbl-species-list
 #| tbl-cap: "Species List for Part 2 of the Study. Only includes wildlife identified to species level. Table is sorted by class then total number of detections." 
 
 # Calculate total unique features (placename) per feature_type
@@ -1054,9 +1054,10 @@ feature_type_effort_summary_pt_1 <- placename_summary_pt_1 %>%
 
 ## Data Visualizations:
 ### Species Residency Status by Feature Type
+
 ```{r fig-residency-status-by-feature}
 #| fig-label: fig-residency-status-by-feature
-#| fig-cap: "**Species residency status by feature type.** Detection rates (avg. # of hours each species is detected per camera day) for resident and transient species across different feature types. Points represent individual species. Resident species are colored Black diamonds show mean detection rates with 95% confidence intervals. Species with detection rates above 0.24 detections per camera day are classified as residents."
+#| fig-cap: "**Species residency status by feature type.** Detection rates (avg. # of hours each species is detected per camera day) for resident and transient species across different feature types. Points represent individual species. Species with detection rates above 0.25 detections per camera day are classified as residents. Resident species are colored, Black diamonds show mean detection rates with 95% confidence intervals."
 
 # 1. Camera effort summed across study parts
 
@@ -1078,12 +1079,10 @@ species_hourly_presence_by_feature_pt_1_and_2 <- hourly_presence_pt_1_and_2 %>%
   mutate(detections_per_camera_day = detections / total_camera_days)
 
 # 3. Assign residency status
-residency_threshold <- 0.24
+residency_threshold <- 0.25
 species_hourly_presence_by_feature_pt_1_and_2 <- species_hourly_presence_by_feature_pt_1_and_2 %>%
   mutate(residency_status = ifelse(detections_per_camera_day > residency_threshold, "resident", "transient"))
 
-# 4. Colors for residency status
-status_colors <- c("resident" = "#fc8d62", "transient" = "#2992a5")
 
 # 5. Calculate summary statistics (mean, CI) for each feature type and residency status
 summary_stats_species_hourly_presence_by_feature_pt_1_and_2 <- species_hourly_presence_by_feature_pt_1_and_2 %>%
@@ -1131,7 +1130,7 @@ plots <- lapply(seq_along(feature_types), function(i) {
     species_hourly_presence_by_feature_pt_1_and_2 %>% filter(feature_type_methodology == ft),
     aes(x = residency_status, y = detections_per_camera_day)
   ) +
-    geom_jitter(aes(fill = species_fill), color = "black", shape = 21, width = 0.25, alpha = 0.7, size = 4, show.legend = TRUE) +
+    geom_jitter(aes(fill = species_fill), color = "black", shape = 21, width = 0.25, alpha = .85, size = 4, show.legend = TRUE) +
     geom_errorbar(
       data = summary_stats_species_hourly_presence_by_feature_pt_1_and_2 %>% filter(feature_type_methodology == ft),
       aes(y = mean, ymin = lower, ymax = upper),
@@ -1170,7 +1169,14 @@ plots <- lapply(seq_along(feature_types), function(i) {
 })
 
 # 7. Display all plots side by side
-p4 = wrap_plots(plots, guides = "collect")
+p4 <- wrap_plots(plots, guides = "collect") &
+  theme(
+    legend.position = "bottom",
+    legend.box = "horizontal",
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 9)
+  ) &
+  guides(fill = guide_legend(nrow = 1, byrow = TRUE))  # Adjust nrow as needed
 
 p4
 
@@ -1178,3 +1184,60 @@ ggsave(here("figures","species_residency_status_by_feature_type.png"),
        plot = p4, 
        width = 12, height = 6, dpi = 300, bg = "white")
 ```
+
+## # of Entrances by Feature Type
+
+```{r fig-entrances-by-feature}
+#| fig-label: fig-entrances-by-feature
+#| fig-cap: "**Number of entrances by feature type.** Boxplots show the distribution of the number of entrances per feature type. Points represent individual features. The horizontal line indicates the median number of entrances."
+
+placename_summary_pt_1_and_2 <- deployments_summary_pt_1_and_2 %>%
+  filter(!is.na(notable_entrances)) %>%
+  group_by(placename, feature_type_methodology) %>%
+  summarise(
+    notable_entrances = max(notable_entrances),
+    .groups = "drop"
+  )
+
+# Calculate the number of entrances per feature type
+entrances_by_feature_type <- placename_summary_pt_1_and_2 %>%
+  group_by(feature_type_methodology) %>%
+  summarise(
+    mean_entrances = mean(notable_entrances, na.rm = TRUE),
+    median_entrances = median(notable_entrances, na.rm = TRUE),
+    sd_entrances = sd(notable_entrances, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  )
+
+# Create the boxplot
+p5 <- ggplot(placename_summary_pt_1_and_2, aes(x = feature_type_methodology, y = notable_entrances)) +
+  geom_boxplot(outlier.shape = NA, fill = "lightgray", alpha = 0.7) +
+  geom_jitter(aes(color = feature_type_methodology), size = 2, alpha = 0.6, width = 0.2) +
+  # Add dashed median lines for each feature type
+  geom_segment(
+    data = entrances_by_feature_type,
+    aes(
+      x = feature_type_methodology, xend = feature_type_methodology,
+      y = median_entrances, yend = median_entrances
+    ),
+    inherit.aes = FALSE,
+    linetype = "dashed", color = "red", linewidth = 1
+  ) +
+  labs(
+    title = "Number of Entrances by Feature Type",
+    x = "Feature Type",
+    y = "Number of Entrances"
+  ) +
+  scale_color_manual(values = c("Constructed Hibernacula" = "#fc8d62", "Boulder" = "#66c2a5", "Log" = "#8da0cb")) +
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "none",)
+
+p5
+
+ggsave(here("figures","entrances_by_feature_type.png"), 
+       plot = p5, 
+       width = 8, height = 6, dpi = 300, bg = "white")
+```
+    
