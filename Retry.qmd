@@ -325,25 +325,27 @@ nb_offset_2c <- MASS::glm.nb(total_detections ~ trail + habitat_type + offset(lo
 nb_offset_3a <- MASS::glm.nb(total_detections ~ feature_type_methodology_recoded + trail + habitat_type + offset(log(total_camera_hours)), data = placename_summary_pt_2)
 
 # Model summary table for offset models
-modelsummary::modelsummary(
+nb_table_output <- modelsummary::modelsummary(
   list(
     "Model 1a: Feature Type" = nb_offset_1a,
     "Model 1b: Trail" = nb_offset_1b,
     "Model 1c: Habitat Type" = nb_offset_1c,
-
     "Model 2a: Feature Type + Trail" = nb_offset_2a,
     "Model 2b: Feature Type + Habitat Type" = nb_offset_2b,
     "Model 2c: Trail + Habitat Type" = nb_offset_2c,
-
     "Model 3a: Feature Type + Trail + Habitat Type" = nb_offset_3a
   ),
   estimate = "{estimate}{stars}",
   statistic = "p.value",
   stars = c("*" = 0.05, "**" = 0.01, "***" = 0.001),
   gof_omit = "BIC|Log.Lik",
+  output = "gt",
   title = "Negative Binomial Models with Offset for Camera Hours",
-  note = "Significance codes: '***' p < 0.001, '**' p < 0.01, '*' p < 0.05"
-)
+  notes = "Significance codes: '***' p < 0.001, '**' p < 0.01, '*' p < 0.05"
+) %>%
+  gt::gtsave(filename = here("figures", "model_summary_nb_offset.png"))
+
+
 
 ```
 
@@ -627,7 +629,7 @@ figs_plot_hibernacula <- ggplot(figs_hourly_hibernacula, aes(x = hour_am_pm, y =
 # Plot for Log
 figs_plot_log <- ggplot(figs_hourly_log, aes(x = hour_am_pm, y = detections_per_camera_day, fill = common_name_lumped)) +
   geom_bar(stat = "identity", position = "stack") +
-  scale_fill_manual(values = species_palette_pt_2, alpha = .9, name = "Species") +
+  scale_fill_manual(values = species_palette_pt_2, name = "Species") +
   scale_y_continuous(limits = c(0, max_count)) +
   labs(
     title = "Log Sites",
@@ -726,13 +728,13 @@ t1 = species_final_pt_2 %>%
     'Scientific Name' = genus_species,
     'Detections' = count_observed_at_constructed_hibernacula,
     '% Visited' = percent_hibernacula_visited,
-    'Rate/Cam.-Day' = rate_per_cam_day_hibernacula,
+    'Per Cam.-Day' = rate_per_cam_day_hibernacula,
     'Detections ' = count_observed_at_boulder,
     '% Visited ' = percent_boulders_visited,
-    'Rate/Cam.-Day ' = rate_per_cam_day_boulder,
+    'Per Cam.-Day ' = rate_per_cam_day_boulder,
     'Detections  ' = count_observed_at_log,
     '% Visited  ' = percent_logs_visited,
-    'Rate/Cam.-Day  ' = rate_per_cam_day_log
+    'Per Cam.-Day  ' = rate_per_cam_day_log
   ) %>%
   mutate(
     'Detections   ' = Detections + `Detections ` + `Detections  `,
@@ -741,7 +743,7 @@ t1 = species_final_pt_2 %>%
       (`% Visited ` * total_features_pt_2_vec["Boulder"]) +
       (`% Visited  ` * total_features_pt_2_vec["Log"])
     ) / sum(total_features_pt_2_vec),
-    'Rate/Cam.-Day   ' = ((Detections + `Detections ` + `Detections  `) / total_camera_days_all),
+    'Per Cam.-Day   ' = ((Detections + `Detections ` + `Detections  `) / total_camera_days_all),
     # Round and format
     across(starts_with("%"), ~ paste0(round(.x, 2), "%")),
     across(starts_with("Rate/Day"), ~ round(.x, 2))
@@ -1003,6 +1005,107 @@ hourly_presence_pt_1 <- clean_pt_1_obs |>
   group_by(placename, obs_day, obs_hour, feature_type_methodology,common_name,habitat_type,notable_entrances,trail,study_part,start_date,end_date,deployment_duration) |> 
   summarize(n = 1, .groups = "drop")  # Forces 1 row per unique species in each hour/day block
 ```
+## Species List for Part 1
+
+```{r tbl-species-list-pt1}
+#| label: tbl-species-list-pt1
+#| tbl-cap: "Species List for Part 1 of the Study. Only includes wildlife identified to species level. Table is sorted number of detections." 
+
+# Calculate total unique features (placename) per feature_type
+total_features_pt_1 <- clean_pt_1_obs %>%
+  distinct(feature_type_methodology, placename) %>%
+  group_by(feature_type_methodology) %>%
+  summarise(total_features_pt_1 = n(), .groups = "drop")
+
+# Summarize sum(group_size) and count unique visited placename per species per feature type
+species_summary_pt_1 <- clean_pt_1_obs %>%
+  group_by(common_name, feature_type_methodology) %>%
+  summarise(
+    count_observed = sum(group_size, na.rm = TRUE),
+    features_visited = n_distinct(placename),
+    .groups = "drop"
+  )
+
+# Pivot counts wide
+species_counts_wide_pt_1 <- species_summary_pt_1 %>%
+  dplyr::select(-features_visited) %>%
+  pivot_wider(
+    names_from = feature_type_methodology,
+    values_from = count_observed,
+    values_fill = 0,
+    names_prefix = "count_observed_at_"
+  ) |> 
+  clean_names()
+
+# Pivot features visited wide
+species_features_wide_pt_1 <- species_summary_pt_1 %>%
+  dplyr::select(common_name, feature_type_methodology, features_visited) %>%
+  pivot_wider(
+    names_from = feature_type_methodology,
+    values_from = features_visited,
+    values_fill = 0,
+    names_prefix = "features_visited_at_"
+  ) |> 
+  clean_names()
+
+# Combine counts and features visited
+species_combined_pt_1 <- species_counts_wide_pt_1 %>%
+  full_join(species_features_wide_pt_1, by = c("common_name"))
+
+# Extract total features per feature type as named vector
+total_features_pt_1_vec <- total_features_pt_1 %>%
+  deframe()  # named vector: names are feature_type_methodology, values total_features_pt_1
+
+# Calculate percent visited by species at each feature type
+species_final_pt_1 <- species_combined_pt_1 %>%
+  mutate(
+    percent_hibernacula_visited = 100 * features_visited_at_constructed_hibernacula / total_features_pt_1_vec["Constructed Hibernacula"]
+  )
+
+camera_days_vec_pt_1 <- feature_type_effort_summary_pt_1 %>%
+  dplyr::select(feature_type_methodology, total_camera_days) %>%
+  pull(total_camera_days) %>%
+  setNames(feature_type_effort_summary_pt_1$feature_type_methodology)
+
+total_camera_days_pt_1 <- sum(camera_days_vec_pt_1)
+
+species_final_pt_1 <- species_final_pt_1 %>%
+  mutate(
+    rate_per_cam_day_hibernacula = count_observed_at_constructed_hibernacula / camera_days_vec_pt_1["Constructed Hibernacula"]
+  )
+
+# Create formatted table
+t1_pt1 = species_final_pt_1 %>%
+  dplyr::select(
+  #  'Class' = class,
+    'Common Name' = common_name,
+  #  'Scientific Name' = genus_species,
+    'Detections' = count_observed_at_constructed_hibernacula,
+    '% Visited' = percent_hibernacula_visited,
+    'Per Cam.-Day' = rate_per_cam_day_hibernacula,
+  ) %>%
+  arrange(desc(`Detections`), `Common Name`) %>%
+  kable(
+    caption = "Species Observations and Percent Feature Visited by Feature Type (Part 1)",
+    align = c("l", "l", "l", rep("c", 12)),
+    digits = 3
+  ) %>%
+  kable_styling(
+    full_width = FALSE,
+    position = "left",
+    bootstrap_options = c("striped", "hover", "condensed")
+  ) %>%
+  add_header_above(c(" " = 1, "Constructed Hibernacula" = 3))
+
+# Save the kable as an HTML file
+save_kable(t1_pt1, "species_table_pt1.html")
+
+# Use webshot2 to save as PNG image
+webshot("species_table_pt1.html", here("figures","species_table_pt1.png"), zoom = 2, vwidth = 550)
+
+```
+
+
 
 # Combining Study Parts 1 and 2 
 ```{r}
@@ -1100,7 +1203,7 @@ max_y <- max(species_hourly_presence_by_feature_pt_1_and_2$detections_per_camera
 max_y <- ceiling(max_y * 1.3 * 10) / 10  # 20% buffer and round to nearest 0.1
 
 # 6. Create a plot for each feature type
-feature_types <- unique(species_hourly_presence_by_feature_pt_1_and_2$feature_type_methodology)
+feature_types <- c("Constructed Hibernacula", "Boulder", "Log")
 
 # Step 1: Assign "Other" label to species not in the palette
 species_hourly_presence_by_feature_pt_1_and_2 <- species_hourly_presence_by_feature_pt_1_and_2 %>%
@@ -1199,7 +1302,7 @@ placename_summary_pt_1_and_2 <- deployments_summary_pt_1_and_2 %>%
     .groups = "drop"
   )
 
-# Calculate the number of entrances per feature type
+# Step 1: Summarize the table
 entrances_by_feature_type <- placename_summary_pt_1_and_2 %>%
   group_by(feature_type_methodology) %>%
   summarise(
@@ -1209,6 +1312,18 @@ entrances_by_feature_type <- placename_summary_pt_1_and_2 %>%
     n = n(),
     .groups = "drop"
   )
+
+# Step 2: Define output paths
+html_file <- here("misc", "entrances_by_feature_type_table.html")
+png_file  <- here("figures", "entrances_by_feature_type_table.png")
+
+# Step 3: Create and save HTML kable
+kable(entrances_by_feature_type, format = "html", digits = 2, caption = "Entrances by Feature Type") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = F) %>%
+  save_kable(file = html_file)
+
+# Step 4: Save as PNG using webshot
+webshot(html_file, file = png_file, zoom = 2, vwidth = 800, vheight = 600)
 
 # Create the boxplot
 p5 <- ggplot(placename_summary_pt_1_and_2, aes(x = feature_type_methodology, y = notable_entrances)) +
@@ -1241,3 +1356,123 @@ ggsave(here("figures","entrances_by_feature_type.png"),
        width = 8, height = 6, dpi = 300, bg = "white")
 ```
     
+## Species List Combined
+```{r}
+#| label: tbl-species-list-hourly
+#| tbl-cap: "Species List from Hourly Presence Data (Parts 1 and 2 Combined). Includes species-level wildlife identifications, sorted by class then total detections." 
+
+# Calculate total unique features (placename) per feature_type
+total_features_hourly <- hourly_presence_pt_1_and_2 %>%
+  distinct(feature_type_methodology, placename) %>%
+  group_by(feature_type_methodology) %>%
+  summarise(total_features_hourly = n(), .groups = "drop")
+
+# Summarize total detections and number of unique features visited
+species_summary_hourly <- hourly_presence_pt_1_and_2 %>%
+  group_by(common_name,feature_type_methodology) %>%
+  summarise(
+    count_observed = sum(n, na.rm = TRUE),
+    features_visited = n_distinct(placename),
+    .groups = "drop"
+  )
+
+# Pivot detection counts wide
+species_counts_wide_hourly <- species_summary_hourly %>%
+  dplyr::select(-features_visited) %>%
+  pivot_wider(
+    names_from = feature_type_methodology,
+    values_from = count_observed,
+    values_fill = 0,
+    names_prefix = "count_observed_at_"
+  ) %>%
+  clean_names()
+
+# Pivot features visited wide
+species_features_wide_hourly <- species_summary_hourly %>%
+  dplyr::select(common_name, feature_type_methodology, features_visited) %>%
+  pivot_wider(
+    names_from = feature_type_methodology,
+    values_from = features_visited,
+    values_fill = 0,
+    names_prefix = "features_visited_at_"
+  ) %>%
+  clean_names()
+
+# Combine counts and features visited
+species_combined_hourly <- species_counts_wide_hourly %>%
+  full_join(species_features_wide_hourly, by = c("common_name"))
+
+# Named vector of total features per feature type
+total_features_hourly_vec <- total_features_hourly %>%
+  deframe()
+
+# Calculate percent visited for each feature type
+species_final_hourly <- species_combined_hourly %>%
+  mutate(
+    percent_hibernacula_visited = 100 * features_visited_at_constructed_hibernacula / total_features_hourly_vec["Constructed Hibernacula"],
+    percent_boulders_visited = 100 * features_visited_at_boulder / total_features_hourly_vec["Boulder"],
+    percent_logs_visited = 100 * features_visited_at_log / total_features_hourly_vec["Log"]
+  )
+
+# Camera effort vector for denominator in rates
+camera_days_vec_hourly <- feature_type_effort_combined_summary_pt_1_and_2 %>%
+  dplyr::select(feature_type_methodology, total_camera_days) %>%
+  pull(total_camera_days) %>%
+  setNames(feature_type_effort_combined_summary_pt_1_and_2 $feature_type_methodology)
+
+total_camera_days_hourly <- sum(camera_days_vec_hourly)
+
+# Add detection rate per camera day
+species_final_hourly <- species_final_hourly %>%
+  mutate(
+    rate_per_cam_day_hibernacula = count_observed_at_constructed_hibernacula / camera_days_vec_hourly["Constructed Hibernacula"],
+    rate_per_cam_day_boulder = count_observed_at_boulder / camera_days_vec_hourly["Boulder"],
+    rate_per_cam_day_log = count_observed_at_log / camera_days_vec_hourly["Log"]
+  )
+
+# Format final table
+t1_hourly <- species_final_hourly %>%
+  dplyr::select(
+  #  'Class' = class,
+    'Common Name' = common_name,
+  #  'Scientific Name' = genus_species,
+    'Detections' = count_observed_at_constructed_hibernacula,
+    '% Visited' = percent_hibernacula_visited,
+    'Per Cam.-Day' = rate_per_cam_day_hibernacula,
+    'Detections ' = count_observed_at_boulder,
+    '% Visited ' = percent_boulders_visited,
+    'Per Cam.-Day ' = rate_per_cam_day_boulder,
+    'Detections  ' = count_observed_at_log,
+    '% Visited  ' = percent_logs_visited,
+    'Per Cam.-Day  ' = rate_per_cam_day_log
+  ) %>%
+  mutate(
+    'Detections   ' = Detections + `Detections ` + `Detections  `,
+    '% Visited   ' = (
+      (`% Visited` * total_features_hourly_vec["Constructed Hibernacula"]) +
+      (`% Visited ` * total_features_hourly_vec["Boulder"]) +
+      (`% Visited  ` * total_features_hourly_vec["Log"])
+    ) / sum(total_features_hourly_vec),
+    'Per Cam.-Day   ' = ((Detections + `Detections ` + `Detections  `) / total_camera_days_hourly),
+    across(starts_with("%"), ~ paste0(round(.x, 2), "%")),
+    across(starts_with("Per Cam.-Day"), ~ round(.x, 3))
+  ) %>%
+  arrange(desc(`Detections   `), `Common Name`) %>%
+  kable(
+    caption = "Unique Hours Present and Percent Feature Visited by Feature Type (Hourly Presence)",
+    align = c("l", "l", "l", rep("c", 12)),
+    digits = 3
+  ) %>%
+  kable_styling(
+    full_width = FALSE,
+    position = "left",
+    bootstrap_options = c("striped", "hover", "condensed")
+  ) %>%
+  add_header_above(c(" " = 1, "Constructed Hibernacula" = 3, "Boulders" = 3, "Logs" = 3, "Total" = 3))
+
+# Save as HTML and PNG
+save_kable(t1_hourly, "species_table_hourly.html")
+webshot("species_table_hourly.html", here("figures", "species_table_hourly.png"), zoom = 2, vwidth = 1800)
+
+```
+
