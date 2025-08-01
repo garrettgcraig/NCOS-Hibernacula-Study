@@ -1,0 +1,96 @@
+"placename","camera_name","start_date","end_date","deployment_duration","feature_type_methodology","habitat_type","notable_entrances","trail","study_part","latitude","longitude","deployment_id","camera_id","camera_functioning","sensor_height","sensor_orientation","remarks","feature_type_methodology_recoded"
+"H11","C11",2021-02-04,2021-02-09,5,"Constructed Hibernacula","Marsh",5,"no",1,34.42074069,-119.8832652,NA,NA,NA,NA,NA,NA,NA
+"H11","C12",2021-02-04,2021-02-09,5,"Constructed Hibernacula","Marsh",5,"no",1,34.42074069,-119.8832652,NA,NA,NA,NA,NA,NA,NA
+"H12","C11",2021-03-04,2021-03-09,5,"Constructed Hibernacula","Scrub",5,"no",1,34.42041179,-119.8822803,NA,NA,NA,NA,NA,NA,NA
+"H12","C12",2021-03-04,2021-03-09,5,"Constructed Hibernacula","Scrub",5,"no",1,34.42041179,-119.8822803,NA,NA,NA,NA,NA,NA,NA
+"H13","C2",2021-02-11,2021-02-16,5,"Constructed Hibernacula","Marsh",6,"no",1,34.42057299,-119.882581,NA,NA,NA,NA,NA,NA,NA
+"H15","C11",2021-02-11,2021-02-16,5,"Constructed Hibernacula","Marsh",6,"no",1,34.42084744,-119.8813838,NA,NA,NA,NA,NA,NA,NA
+"H15","C12",2021-02-11,2021-02-16,5,"Constructed Hibernacula","Marsh",6,"no",1,34.42084744,-119.8813838,NA,NA,NA,NA,NA,NA,NA
+"H16","C10",2021-03-04,2021-03-09,5,"Constructed Hibernacula","Marsh",10,"no",1,34.420817,-119.8807587,NA,NA,NA,NA,NA,NA,NA
+"H16","C9",2021-03-04,2021-03-09,5,"Constructed Hibernacula","Marsh",10,"no",1,34.420817,-119.8807587,NA,NA,NA,NA,NA,NA,NA
+"H19","C5",2021-02-19,2021-02-23,4,"Constructed Hibernacula","Marsh",2,"no",1,34.42061659,-119.8792463,NA,NA,NA,NA,NA,NA,NA
+"H19","C6",2021-02-18,2021-02-23,5,"Constructed Hibernacula","Marsh",2,"no",1,34.42061659,-119.8792463,NA,NA,NA,NA,NA,NA,NA
+"H20","C5",2021-02-25,2021-03-02,5,"Constructed Hibernacula","Marsh",6,"no",1,34.42036145,-119.8788007,NA,NA,NA,NA,NA,NA,NA
+"H20","C6",2021-02-25,2021-03-02,5,"Constructed Hibernacula","Marsh",6,"no",1,34.42036145,-119.8788007,NA,NA,NA,NA,NA,NA,NA
+"H21","C12",2021-02-18,2021-02-23,5,"Constructed Hibernacula","Marsh",4,"no",1,34.41989886,-119.8774069,NA,NA,NA,NA,NA,NA,NA
+"H22","C3",2021-02-25,2021-03-02,5,"Constructed Hibernacula","Marsh",7,"no",1,34.41943327,-119.8775398,NA,NA,NA,NA,NA,NA,NA
+"H22","C4",2021-02-25,2021-03-02,5,"Constructed Hibernacula","Marsh",7,"no",1,34.41943327,-119.8775398,NA,NA,NA,NA,NA,NA,NA
+"H23","C4",2021-02-04,2021-02-09,5,"Constructed Hibernacula","Marsh",2,"no",1,34.4192715,-119.8770611,NA,NA,NA,NA,NA,NA,NA
+"H24","C2",2021-02-18,2021-02-23,5,"Constructed Hibernacula","Grassland",7,"no",1,34.41857644,-119.8767654,NA,NA,NA,NA,NA,NA,NA
+"H25","C2",2021-02-04,2021-02-09,5,"Constructed Hibernacula","Grassland",4,"no",1,34.41877054,-119.8772229,NA,NA,NA,NA,NA,NA,NA
+"H33","C7",2021-02-04,2021-02-08,4,"Constructed Hibernacula","Grassland",8,"no",1,34.41886055,-119.8777529,NA,NA,NA,NA,NA,NA,NA
+"H33","C8",2021-02-04,2021-02-08,4,"Constructed Hibernacula","Grassland",8,"no",1,34.41886055,-119.8777529,NA,NA,NA,NA,NA,NA,NA
+"H34","C5",2021-02-05,2021-02-09,4,"Constructed Hibernacula","Grassland",6,"no",1,34.41912184,-119.878076,NA,NA,NA,NA,NA,NA,NA
+"H34","C6",2021-02-04,2021-02-09,5,"Constructed Hibernacula","Grassland",6,"no",1,34.41912184,-119.878076,NA,NA,NA,NA,NA,NA,NA
+"H35","C7",2021-02-18,2021-02-23,5,"Constructed Hibernacula","Grassland",13,"no",1,34.41922971,-119.878344,NA,NA,NA,NA,NA,NA,NA
+"H36","C7",2021-02-11,2021-02-16,5,"Constructed Hibernacula","Scrub",4,"no",1,34.41954904,-119.8781983,NA,NA,NA,NA,NA,NA,NA
+"H37","C10",2021-02-25,2021-03-02,5,"Constructed Hibernacula","Scrub",5,"no",1,34.4198996,-119.8778921,NA,NA,NA,NA,NA,NA,NA
+"H37","C9",2021-02-25,2021-03-02,5,"Constructed Hibernacula","Scrub",5,"no",1,34.4198996,-119.8778921,NA,NA,NA,NA,NA,NA,NA
+"H38","C10",2021-02-18,2021-02-23,5,"Constructed Hibernacula","Scrub",5,"no",1,34.42022639,-119.8781835,NA,NA,NA,NA,NA,NA,NA
+"H40","C5",2021-03-04,2021-03-09,5,"Constructed Hibernacula","Marsh",3,"no",1,34.42042213,-119.8794315,NA,NA,NA,NA,NA,NA,NA
+"H40","C6",2021-03-04,2021-03-09,5,"Constructed Hibernacula","Marsh",3,"no",1,34.42042213,-119.8794315,NA,NA,NA,NA,NA,NA,NA
+"H41","C5",2021-02-11,2021-02-16,5,"Constructed Hibernacula","Scrub",3,"no",1,34.42022896,-119.8797953,NA,NA,NA,NA,NA,NA,NA
+"H42","C11",2021-02-25,2021-03-01,4,"Constructed Hibernacula","Scrub",3,"no",1,34.42000085,-119.8802216,NA,NA,NA,NA,NA,NA,NA
+"H42","C12",2021-02-25,2021-03-02,5,"Constructed Hibernacula","Scrub",3,"no",1,34.42000085,-119.8802216,NA,NA,NA,NA,NA,NA,NA
+"H43","C3",2021-02-18,2021-02-23,5,"Constructed Hibernacula","Scrub",3,"no",1,34.42038563,-119.8807865,NA,NA,NA,NA,NA,NA,NA
+"H43","C4",2021-02-18,2021-02-23,5,"Constructed Hibernacula","Scrub",3,"no",1,34.42038563,-119.8807865,NA,NA,NA,NA,NA,NA,NA
+"H47","C7",2021-02-25,2021-03-02,5,"Constructed Hibernacula","Grassland",8,"no",1,34.4197838,-119.880367,NA,NA,NA,NA,NA,NA,NA
+"H47","C8",2021-02-25,2021-03-01,4,"Constructed Hibernacula","Grassland",8,"no",1,34.4197838,-119.880367,NA,NA,NA,NA,NA,NA,NA
+"H48","C10",2021-02-11,2021-02-16,5,"Constructed Hibernacula","Grassland",NA,"no",1,34.41971893,-119.8796668,NA,NA,NA,NA,NA,NA,NA
+"H49","C7",2021-03-04,2021-03-09,5,"Constructed Hibernacula","Grassland",10,"no",1,34.4189041,-119.8783581,NA,NA,NA,NA,NA,NA,NA
+"H49","C8",2021-03-04,2021-03-09,5,"Constructed Hibernacula","Grassland",10,"no",1,34.4189041,-119.8783581,NA,NA,NA,NA,NA,NA,NA
+"H58","C10",2021-02-04,2021-02-09,5,"Constructed Hibernacula","Grassland",11,"no",1,34.41908959,-119.8790581,NA,NA,NA,NA,NA,NA,NA
+"H58","C9",2021-02-05,2021-02-08,3,"Constructed Hibernacula","Grassland",11,"no",1,34.41908959,-119.8790581,NA,NA,NA,NA,NA,NA,NA
+"H59","C3",2021-02-11,2021-02-16,5,"Constructed Hibernacula","Grassland",6,"no",1,34.41928067,-119.8803482,NA,NA,NA,NA,NA,NA,NA
+"H59","C4",2021-02-11,2021-02-15,4,"Constructed Hibernacula","Grassland",6,"no",1,34.41928067,-119.8803482,NA,NA,NA,NA,NA,NA,NA
+"H60","C3",2021-03-04,2021-03-09,5,"Constructed Hibernacula","Grassland",8,"no",1,34.41899735,-119.8801351,NA,NA,NA,NA,NA,NA,NA
+"H60","C4",2021-03-04,2021-03-09,5,"Constructed Hibernacula","Grassland",8,"no",1,34.41899735,-119.8801351,NA,NA,NA,NA,NA,NA,NA
+"H64","C2",2021-02-25,2021-03-01,4,"Constructed Hibernacula","Scrub",5,"no",1,34.42044268,-119.8803909,NA,NA,NA,NA,NA,NA,NA
+"L26","C14",2021-05-20,2021-05-25,5,"Log","Scrub",0,"no",2,34.420364,-119.882728,"L26C14",2028496,"Camera Functioning","Knee height","Parallel",NA,"Log/Boulder"
+"H8","C11",2021-04-29,2021-05-04,5,"Constructed Hibernacula","Grassland",9,"yes",2,34.421972,-119.881253,"H8C11",2028214,"Camera Functioning","Knee height","Parallel",NA,"Constructed Hibernacula"
+"H40","C8",2021-05-13,2021-05-18,5,"Constructed Hibernacula","Marsh",3,"no",2,34.420427,-119.87943,"H40C8",2028039,"Camera Functioning","Knee height","Parallel",NA,"Constructed Hibernacula"
+"H39","C10",2021-04-29,2021-05-04,5,"Constructed Hibernacula","Scrub",4,"no",2,34.419965,-119.878562,"H39C10",2028072,"Camera Functioning","Knee height","Parallel",NA,"Constructed Hibernacula"
+"H9","C12",2021-04-22,2021-04-27,5,"Constructed Hibernacula","Grassland",11,"yes",2,34.421872,-119.88181,"H9C12",2028303,"Camera Functioning","Knee height","Parallel",NA,"Constructed Hibernacula"
+"H17","C5",2021-04-22,2021-04-27,5,"Constructed Hibernacula","Marsh",5,"no",2,34.42077,-119.880326,"H17C5",2028314,"Camera Functioning","Knee height","Parallel",NA,"Constructed Hibernacula"
+"H39","C9",2021-04-29,2021-05-04,5,"Constructed Hibernacula","Scrub",4,"no",2,34.419965,-119.878562,"H39C9",2028071,"Camera Functioning","Knee height","Parallel",NA,"Constructed Hibernacula"
+"B29","C7",2021-05-20,2021-05-25,5,"Boulder","Scrub",1,"no",2,34.419928,-119.8782324,"B29C7",2028036,"Camera Functioning","Knee height","Parallel",NA,"Log/Boulder"
+"H21","C3",2021-05-20,2021-05-25,5,"Constructed Hibernacula","Marsh",4,"no",2,34.419903,-119.877406,"H21C3",2028436,"Camera Functioning","Knee height","Parallel",NA,"Constructed Hibernacula"
+"H36","C5",2021-05-20,2021-05-25,5,"Constructed Hibernacula","Scrub",4,"no",2,34.419551,-119.878198,"H36C5",2028314,"Camera Functioning","Knee height","Parallel",NA,"Constructed Hibernacula"
+"L26","C2",2021-05-20,2021-05-25,5,"Log","Scrub",0,"no",2,34.420364,-119.882728,"L26C2",2028495,"Camera Functioning","Knee height","Parallel",NA,"Log/Boulder"
+"B12","C2",2021-05-13,2021-05-18,5,"Boulder","Marsh",3,"no",2,34.421174,-119.879871,"B12C2",2028495,"Camera Functioning","Knee height","Parallel",NA,"Log/Boulder"
+"B11","C5",2021-04-29,2021-05-04,5,"Boulder","Marsh",1,"no",2,34.421292,-119.881008,"B11C5",2028314,"Camera Functioning","Knee height","Parallel",NA,"Log/Boulder"
+"H9","C11",2021-04-22,2021-04-27,5,"Constructed Hibernacula","Grassland",11,"yes",2,34.421872,-119.88181,"H9C11",2028214,"Camera Functioning","Knee height","Parallel",NA,"Constructed Hibernacula"
+"H7","C12",2021-05-06,2021-05-07,1,"Constructed Hibernacula","Grassland",8,"yes",2,34.4219544,-119.8807533,"H7C12",2028303,"Memory Card","Knee height","Parallel",NA,"Constructed Hibernacula"
+"L30","C9",2021-05-13,2021-05-18,5,"Log","Marsh",1,"no",2,34.420915,-119.880816,"L30C9",2028071,"Camera Functioning","Knee height","Parallel",NA,"Log/Boulder"
+"L45","C4",2021-04-22,2021-04-27,5,"Log","Scrub",1,"no",2,34.420394,-119.879702,"L45C4",2028437,"Camera Functioning","Knee height","Parallel",NA,"Log/Boulder"
+"L59","C10",2021-05-20,2021-05-25,5,"Log","Grassland",9,"no",2,34.4191927,-119.8801078,"L59C10",2028072,"Unknown Failure","Knee height","Parallel",NA,"Log/Boulder"
+"H2","C12",2021-05-13,2021-05-18,5,"Constructed Hibernacula","Marsh",NA,"yes",2,34.419386,-119.874441,"H2C12",2028303,"Camera Functioning","Knee height","Parallel",NA,"Constructed Hibernacula"
+"H4","C12",2021-05-20,2021-05-25,5,"Constructed Hibernacula","Marsh",3,"yes",2,34.4189948,-119.8742022,"H4C12",2028303,"Camera Functioning","Knee height","Parallel",NA,"Constructed Hibernacula"
+"L34","C4",2021-05-06,2021-05-11,5,"Log","Marsh",1,"no",2,34.420634,-119.878862,"L34C4",2028437,"Camera Functioning","Knee height","Parallel",NA,"Log/Boulder"
+"L49","C3",2021-05-13,2021-05-18,5,"Log","Scrub",2,"no",2,34.4196849,-119.8789428,"L49C3",2028436,"Camera Functioning","Knee height","Parallel",NA,"Log/Boulder"
+"L58","C8",2021-04-29,2021-05-04,5,"Log","Scrub",1,"no",2,34.419712,-119.881312,"L58C8",2028039,"Camera Functioning","Knee height","Parallel",NA,"Log/Boulder"
+"H17","C6",2021-04-22,2021-04-27,5,"Constructed Hibernacula","Marsh",5,"no",2,34.42077,-119.880326,"H17C6",2028313,"Camera Functioning","Knee height","Parallel",NA,"Constructed Hibernacula"
+"L30","C10",2021-05-13,2021-05-18,5,"Log","Marsh",1,"no",2,34.420915,-119.880816,"L30C10",2028072,"Camera Functioning","Knee height","Parallel",NA,"Log/Boulder"
+"H46","C2",2021-04-29,2021-05-02,3,"Constructed Hibernacula","Scrub",9,"no",2,34.420141,-119.881389,"H46C2",2028495,"Memory Card","Knee height","Parallel","seems like camera ran out of memory on May 2.","Constructed Hibernacula"
+"L28","C7",2021-05-06,2021-05-11,5,"Log","Marsh",1,"no",2,34.420701,-119.882601,"L28C7",2028036,"Camera Functioning","Knee height","Parallel",NA,"Log/Boulder"
+"H2","C11",2021-05-13,2021-05-18,5,"Constructed Hibernacula","Marsh",NA,"yes",2,34.419386,-119.874441,"H2C11",2028214,"Camera Functioning","Knee height","Parallel",NA,"Constructed Hibernacula"
+"H35","C5",2021-05-13,2021-05-18,5,"Constructed Hibernacula","Grassland",13,"no",2,34.419231,-119.878348,"H35C5",2028314,"Camera Functioning","Knee height","Parallel",NA,"Constructed Hibernacula"
+"H8","C12",2021-04-29,2021-05-04,5,"Constructed Hibernacula","Grassland",9,"yes",2,34.421972,-119.881253,"H8C12",2028303,"Camera Functioning","Knee height","Parallel",NA,"Constructed Hibernacula"
+"L45","C3",2021-04-22,2021-04-27,5,"Log","Scrub",1,"no",2,34.420394,-119.879702,"L45C3",2028436,"Camera Functioning","Knee height","Parallel",NA,"Log/Boulder"
+"H42","C10",2021-05-06,2021-05-11,5,"Constructed Hibernacula","Scrub",3,"no",2,34.420001,-119.8802218,"H42C10",2028072,"Camera Functioning","Knee height","Parallel",NA,"Constructed Hibernacula"
+"H42","C9",2021-05-06,2021-05-11,5,"Constructed Hibernacula","Scrub",3,"no",2,34.420001,-119.8802218,"H42C9",2028071,"Camera Functioning","Knee height","Parallel",NA,"Constructed Hibernacula"
+"B23","C6",2021-05-06,2021-05-11,5,"Boulder","Scrub",1,"no",2,34.419932,-119.878084,"B23C6",2028313,"Camera Functioning","Knee height","Parallel",NA,"Log/Boulder"
+"H7","C11",2021-05-06,2021-05-11,5,"Constructed Hibernacula","Grassland",8,"yes",2,34.4219544,-119.8807533,"H7C11",2028214,"Camera Functioning","Knee height","Parallel",NA,"Constructed Hibernacula"
+"B29","C8",2021-05-20,2021-05-25,5,"Boulder","Scrub",1,"no",2,34.419928,-119.8782324,"B29C8",2028039,"Camera Functioning","Knee height","Parallel",NA,"Log/Boulder"
+"B23","C5",2021-05-06,2021-05-11,5,"Boulder","Scrub",1,"no",2,34.419932,-119.878084,"B23C5",2028314,"Camera Functioning","Knee height","Parallel",NA,"Log/Boulder"
+"B12","C14",2021-05-13,2021-05-18,5,"Boulder","Marsh",3,"no",2,34.421174,-119.879871,"B12C14",2028496,"Camera Functioning","Knee height","Parallel",NA,"Log/Boulder"
+"L49","C4",2021-05-13,2021-05-18,5,"Log","Scrub",2,"no",2,34.4196849,-119.8789428,"L49C4",2028437,"Camera Functioning","Knee height","Parallel",NA,"Log/Boulder"
+"H40","C7",2021-05-13,2021-05-18,5,"Constructed Hibernacula","Marsh",3,"no",2,34.420427,-119.87943,"H40C7",2028036,"Camera Functioning","Knee height","Parallel",NA,"Constructed Hibernacula"
+"H21","C4",2021-05-20,2021-05-25,5,"Constructed Hibernacula","Marsh",4,"no",2,34.419903,-119.877406,"H21C4",2028437,"Camera Functioning","Knee height","Parallel",NA,"Constructed Hibernacula"
+"B2","C10",2021-04-22,2021-04-27,5,"Boulder","Grassland",4,"no",2,34.418968,-119.878594,"B2C10",2028072,"Camera Functioning","Knee height","Parallel",NA,"Log/Boulder"
+"B11","C6",2021-04-29,2021-05-04,5,"Boulder","Marsh",1,"no",2,34.421292,-119.881008,"B11C6",2028313,"Camera Functioning","Knee height","Parallel",NA,"Log/Boulder"
+"H13","C14",2021-05-06,2021-05-11,5,"Constructed Hibernacula","Marsh",6,"no",2,34.420573,-119.882581,"H13C14",2028496,"Camera Functioning","Knee height","Parallel",NA,"Constructed Hibernacula"
+"L34","C3",2021-05-06,2021-05-11,5,"Log","Marsh",1,"no",2,34.420634,-119.878862,"L34C3",2028436,"Camera Functioning","Knee height","Parallel",NA,"Log/Boulder"
+"H35","C6",2021-05-13,2021-05-15,2,"Constructed Hibernacula","Grassland",13,"no",2,34.419231,-119.878348,"H35C6",2028313,"Memory Card","Knee height","Parallel",NA,"Constructed Hibernacula"
+"B2","C9",2021-04-22,2021-04-26,4,"Boulder","Grassland",4,"no",2,34.418968,-119.878594,"B2C9",2028071,"Camera Functioning","Knee height","Parallel","Ran out of memory","Log/Boulder"
+"H46","C14",2021-04-29,2021-05-04,5,"Constructed Hibernacula","Scrub",9,"no",2,34.420141,-119.881389,"H46C14",2028496,"Camera Functioning","Knee height","Parallel",NA,"Constructed Hibernacula"
