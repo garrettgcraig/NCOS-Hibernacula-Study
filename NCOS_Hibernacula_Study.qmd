@@ -1142,6 +1142,12 @@ webshot(here("misc","species_table_pt_2.html"), here("figures","species_table_pt
 #| fig-width: 10
 #| fig-height: 6
 
+# Load NCOS habitat layer from ArcGIS Online
+habitat_url <- "https://services1.arcgis.com/4TXrdeWh0RyCqPgB/arcgis/rest/services/NCOS_Habitats_June2021_Simple/FeatureServer/0/query?where=1%3D1&outFields=*&f=geojson"
+ncos_habitats <- st_read(habitat_url, quiet = TRUE)
+# Transform to WGS84 to match other layers
+ncos_habitats <- st_transform(ncos_habitats, crs = 4326)
+
 # Convert site_summary to sf object
 map_site_sf <- st_as_sf(placename_summary_pt_2, coords = c("longitude", "latitude"), crs = 4326)
 
@@ -1175,7 +1181,10 @@ feature_colors <- c(
 map_main <- ggplot() +
   geom_raster(data = map_rgb_df, aes(x = x, y = y, fill = hex)) +
   scale_fill_identity() +
-  geom_sf(data = map_site_sf, aes(color = feature_type_methodology, size = detections_per_camera_day), 
+  # Add habitat layer
+  geom_sf(data = ncos_habitats, aes(fill = after_scale(alpha("white", 0.3))),
+          color = "yellow", linewidth = 0.8, show.legend = FALSE) +
+  geom_sf(data = map_site_sf, aes(color = feature_type_methodology, size = detections_per_camera_day),
           alpha = 0.9, stroke = 0.5) +
   scale_color_manual(values = feature_colors, name = "Feature Type") +
   scale_size(name = "Avg. Daily Obs.", range = c(2, 6)) +
@@ -1567,14 +1576,21 @@ ggsave(here("figures","species_residency_status_by_feature_type_pt_1_and_2.png")
 
 ## Combined deployment map
 ```{r}
-# Extract the zip file 
-unzip(here("data", "ncos_shp.zip"), exdir = here("data")) 
-# List the extracted files to see what's available 
-list.files(here("data"), pattern = "\\.shp$") 
-# Read the shapefile (replace "filename" with the actual .shp filename) 
+# Extract the zip file
+unzip(here("data", "ncos_shp.zip"), exdir = here("data"))
+# List the extracted files to see what's available
+list.files(here("data"), pattern = "\\.shp$")
+# Read the shapefile (replace "filename" with the actual .shp filename)
 open_space_boundary <- st_read(here("data", "ncos_shp.shp"))
 # Transform boundary to WGS84 to match your study area
 open_space_boundary <- st_transform(open_space_boundary, crs = 4326)
+
+# Load NCOS habitat layer from ArcGIS Online (if not already loaded)
+if (!exists("ncos_habitats")) {
+  habitat_url <- "https://services1.arcgis.com/4TXrdeWh0RyCqPgB/arcgis/rest/services/NCOS_Habitats_June2021_Simple/FeatureServer/0/query?where=1%3D1&outFields=*&f=geojson"
+  ncos_habitats <- st_read(habitat_url, quiet = TRUE)
+  ncos_habitats <- st_transform(ncos_habitats, crs = 4326)
+}
 
 # Create combined dataset from both study parts
 placenames_for_deployment_map_step1 <- bind_rows(
@@ -1627,9 +1643,13 @@ map_rgb_df$hex <- rgb(map_rgb_df$red, map_rgb_df$green, map_rgb_df$blue, maxColo
 map_main <- ggplot() +
   geom_raster(data = map_rgb_df, aes(x = x, y = y, fill = hex)) +
   scale_fill_identity() +
-  
+
+  # Add habitat layer
+  geom_sf(data = ncos_habitats, aes(fill = after_scale(alpha("white", 0.3))),
+          color = "yellow", linewidth = 0.8, show.legend = FALSE) +
+
   # Boundary with legend
-  geom_sf(data = open_space_boundary, 
+  geom_sf(data = open_space_boundary,
           aes(linetype = "NCOS Boundary"),  # <- mapped aesthetic
           color = "yellow", fill = NA, linewidth = 2) +
   
