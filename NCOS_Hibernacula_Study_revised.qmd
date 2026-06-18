@@ -1,0 +1,3044 @@
+---
+title: "NCOS Artificial Refuge Study - Revisions"
+author: "Garrett Craig"
+date: "`r Sys.Date()`"
+format:
+  html:
+    toc: true
+    toc-location: left
+    toc-depth: 3
+    number_sections: true
+    code-fold: true
+    code-tools: true
+    code-summary: "Show Code"
+    embed-resources: true
+    theme: darkly
+    page-layout: full
+    html-math-method: katex
+    fig-width: 10
+    fig-height: 6
+    fig-format: png
+    fig-responsive: true
+  pdf:
+    toc: true
+    number-sections: true
+    fig-width: 10
+    fig-height: 6
+    fig-format: png
+    pdf-engine: lualatex
+    mainfont: "Palatino"
+    code-block: false   # ← hides code blocks from the PDF
+    execute:
+      echo: false
+execute:
+  eval: true
+  message: false
+  warning: false
+editor:
+  markdown:
+    wrap: sentence
+---
+
+# Load packages
+```{r include=FALSE}
+#clean your environment
+rm(list=ls())
+
+# Core utility libraries
+library(here)          # file path management
+library(janitor)       # clean variable names
+library(tidyverse)     # includes ggplot2, dplyr, readr, purrr, tibble, etc.
+library(lubridate)     # date-time parsing (not included in tidyverse)
+library(broom)         # tidy model outputs
+library(knitr)         # reporting and markdown
+library(readxl)        # reading Excel files
+library(kableExtra)
+library(stargazer)
+
+# Data visualization enhancements
+library(ggtext)        # rich text in ggplot
+library(ggsignif)      # significance bars for ggplot
+library(patchwork)     # ggplot combining
+library(scales)        # axis scaling and labeling
+library(webshot2)
+
+# Statistical analysis
+library(effsize)       # for Cohen’s d and other effect sizes
+library(simpleboot)    # for bootstrapping
+library(boot)          # bootstrapping (more general)
+library(car)           # regression tools, including ANOVA, VIF
+library(MASS)          # negative binomial models
+library(MuMIn)         # AICc and model selection
+library(spdep)         # spatial autocorrelation (Moran’s I)
+library(dplyr)        # reloaded to ensure dplyr’s functions are used
+
+# Mapping and spatial
+library(leaflet)       # interactive maps
+library(RColorBrewer)  # color palettes for plots and maps
+library(maptiles)
+library(terra)
+library(sf)
+library(ggplot2)
+library(cowplot)
+library(maps)
+library(ggspatial)
+library(ggnewscale)    # for multiple fill scales in ggplot
+
+# Text and string manipulation
+library(stringi)       # extended string processing
+
+# Table joins
+library(fuzzyjoin)     # fuzzy matching for joins
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("IRanges")
+```
+
+# Part 2:
+## Load Data
+```{r}
+##load study part 2 data from April/May 2021
+raw_pt_2_seq = read_csv(here("data","sequences.csv"))
+raw_pt_2_dep = read_csv(here("data","deployments.csv"))
+
+# Read in the site-to-habitat crosswalk
+site_to_habitat_crosswalk <- read_csv(here("data", "site_to_habitat_crosswalk.csv")) |> 
+  mutate(
+    trail = factor(trail, levels = c("no", "yes")),
+    habitat_type = factor(habitat_type, levels = c("Marsh", "Grassland", "Scrub"))
+  )
+```
+## Clean Data
+```{r}
+raw_pt_2_dep$feature_type_methodology[raw_pt_2_dep$deployment_id == "L30C9"] <- "Log"
+raw_pt_2_dep$feature_type_methodology[raw_pt_2_dep$deployment_id == "H8C11"] <- "Constructed Hibernacula"
+
+# Recode raw CSV value to new terminology
+raw_pt_2_dep$feature_type_methodology[raw_pt_2_dep$feature_type_methodology == "Constructed Hibernacula"] <- "Artificial Refuge (AR)"
+
+clean_pt_2_seq <- raw_pt_2_seq |> 
+  dplyr::select("project_id", "deployment_id", "sequence_id", "is_blank", "identified_by", "wi_taxon_id", 
+         "class", "order", "family", "genus", "species", "common_name", "start_time", "end_time", 
+         "group_size", "individual_animal_notes", "license") |> 
+  clean_names() |> 
+  mutate(
+    start_time = ymd_hms(start_time),  
+    end_time = ymd_hms(end_time),  
+    sequence_duration_sec = as.numeric(difftime(end_time, start_time, units = "secs"))  # Sequence duration in seconds
+  )
+
+clean_pt_2_dep <- raw_pt_2_dep |>
+  dplyr::select(
+    deployment_id, placename, longitude, latitude, start_date, end_date,
+    feature_type_methodology, camera_id, camera_name, camera_functioning,
+    sensor_height, sensor_orientation, remarks
+  ) |>
+  clean_names() |>
+  mutate(
+    end_date = case_when(
+      deployment_id == "H46C2" ~ as.Date("2021-05-02"),
+      deployment_id == "B2C9"  ~ as.Date("2021-04-26"),
+      deployment_id == "H7C12" ~ as.Date("2021-05-07"),
+      deployment_id == "H35C6" ~ as.Date("2021-05-15"),
+      TRUE ~ as.Date(end_date)
+    ),
+    feature_type_methodology_recoded = case_when(
+      feature_type_methodology == "Log" ~ "Log",
+      feature_type_methodology == "Boulder" ~ "Boulder",
+      TRUE ~ "Artificial Refuge (AR)"
+    ),
+    start_date = as.Date(start_date),
+    deployment_duration = as.numeric(difftime(end_date, start_date, units = "days")),
+    study_part = 2
+  ) |>
+  filter(deployment_id != "L56") |>
+  left_join(site_to_habitat_crosswalk, by = c("placename" = "site"))
+
+# join sequences and deployments data
+clean_pt_2_seq_dep <- clean_pt_2_seq |> 
+  full_join(clean_pt_2_dep, by = "deployment_id") |> 
+  filter(
+    class != "No CV Result",
+    is.na(genus) | genus != "Homo",    # Remove humans
+    class != "Insecta",                # Remove insects
+    species != "catus"                 # Remove domestic cats
+  ) |> 
+  mutate(
+    genus_species = paste(genus, species, sep = " "),
+    start_time = ymd_hms(start_time),
+    start_date = as.Date(start_date),
+    end_date = as.Date(end_date),
+    feature_type_methodology = as.factor(feature_type_methodology),
+    obs_start_date = as.Date(start_time),
+    obs_start_time = hms::as_hms(start_time),
+    feature_type_methodology_recoded = case_when(
+      feature_type_methodology == "Log" ~ "Log",
+      feature_type_methodology == "Boulder" ~ "Boulder",
+      TRUE ~ "Artificial Refuge (AR)"
+    ),
+    feature_type_methodology_recoded = factor(
+      feature_type_methodology_recoded,
+      levels = c("Artificial Refuge (AR)", "Boulder", "Log")
+    )
+  )
+```
+
+```{r}
+### This whole section removes overlapping sequences of the same species at the same place on the same date, but different cameras in the May data.
+
+# Step 1: Add row_id based on existing sequence_id
+data_intervals_pt_2 <- clean_pt_2_seq_dep %>%
+  mutate(row_id = sequence_id)
+
+# Step 2: Self-join to find overlapping intervals (same species, place, date; different cameras)
+overlap_pairs_pt_2 <- interval_inner_join(
+ data_intervals_pt_2, data_intervals_pt_2,
+  by = c("start_time", "end_time"),
+  maxgap = 0,
+  type = "any"
+) %>%
+  filter(
+    wi_taxon_id.x == wi_taxon_id.y,
+    placename.x == placename.y,
+    obs_start_date.x == obs_start_date.y,
+    camera_name.x != camera_name.y,
+    row_id.x != row_id.y
+  ) %>%
+   dplyr::select(
+    wi_taxon_id.x, wi_taxon_id.y,
+    placename.x, placename.y,
+    obs_start_date.x, obs_start_date.y,
+    camera_name.x, camera_name.y,
+    row_id.x, row_id.y,
+    common_name.x, common_name.y,
+    group_size.x, group_size.y,
+    start_time.x, start_time.y,
+    end_time.x, end_time.y
+  )
+
+# Step 3: Decide which rows to remove (keep higher group_size; if tied, keep later end_time)
+rows_to_remove_pt_2 <- overlap_pairs_pt_2 %>%
+  mutate(
+    keep_x = if_else(group_size.x > group_size.y, TRUE,
+              if_else(group_size.x < group_size.y, FALSE,
+                end_time.x > end_time.y))  # If tie, later end_time wins
+  ) %>%
+  filter(!keep_x) %>%
+  pull(row_id.x) %>%
+  unique()
+
+# Step 4: Remove the lower-priority overlaps
+clean_pt_2_seq_dep <- clean_pt_2_seq_dep %>%
+  filter(!sequence_id %in% rows_to_remove_pt_2)
+```
+
+## Summarize
+
+### Calculate trapping effort by placename
+```{r}
+#effort
+placename_effort_summary_pt_2 <- clean_pt_2_dep %>%
+  group_by(placename,longitude,latitude,feature_type_methodology, feature_type_methodology_recoded,study_part,habitat_type,trail,notable_entrances) %>%
+  summarise(
+    total_camera_days = sum(deployment_duration, na.rm = TRUE),
+    total_camera_hours = total_camera_days * 24,
+    .groups = "drop"
+  )
+
+#total detections
+placename_detections_summary_pt_2 <- clean_pt_2_seq_dep %>%
+  group_by(placename) %>%
+  summarise(
+    total_detections = sum(group_size, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+#join effort and detections
+placename_summary_pt_2 <- placename_effort_summary_pt_2 %>%
+  left_join(placename_detections_summary_pt_2, by = "placename") %>%
+  mutate(
+    detections_per_camera_day = total_detections / total_camera_days,
+    detections_per_camera_hour = total_detections / total_camera_hours
+  ) %>%
+  arrange(desc(total_detections))
+```
+
+
+## Statistical Analysis (Revised)
+
+### Negative Binomial Models: Predicting Total Detections with Camera Effort as Offset Term
+```{r}
+#| echo: false
+# ============================================================================
+# REVISED ANALYSIS addressing reviewer feedback:
+#   1) Spatial autocorrelation testing (Moran's I)
+#   2) Interaction effects
+#   3) AICc instead of AIC (small-sample correction, n=27)
+#   4) Occam's razor: prefer most parsimonious model within ΔAICc < 2
+# ============================================================================
+
+# --- Additive models (original set) ---
+
+nb_offset_1a <- MASS::glm.nb(
+  total_detections ~ feature_type_methodology_recoded + offset(log(total_camera_hours)),
+  data = placename_summary_pt_2)
+
+nb_offset_1b <- MASS::glm.nb(
+  total_detections ~ trail + offset(log(total_camera_hours)),
+  data = placename_summary_pt_2)
+
+nb_offset_1c <- MASS::glm.nb(
+  total_detections ~ habitat_type + offset(log(total_camera_hours)),
+  data = placename_summary_pt_2)
+
+nb_offset_2a <- MASS::glm.nb(
+  total_detections ~ feature_type_methodology_recoded + trail + offset(log(total_camera_hours)),
+  data = placename_summary_pt_2)
+
+nb_offset_2b <- MASS::glm.nb(
+  total_detections ~ feature_type_methodology_recoded + habitat_type + offset(log(total_camera_hours)),
+  data = placename_summary_pt_2)
+
+nb_offset_2c <- MASS::glm.nb(
+  total_detections ~ trail + habitat_type + offset(log(total_camera_hours)),
+  data = placename_summary_pt_2)
+
+nb_offset_3a <- MASS::glm.nb(
+  total_detections ~ feature_type_methodology_recoded + trail + habitat_type + offset(log(total_camera_hours)),
+  data = placename_summary_pt_2)
+
+# --- Interaction models (NEW - reviewer request) ---
+
+nb_offset_int_ft_hab <- tryCatch(
+  MASS::glm.nb(
+    total_detections ~ feature_type_methodology_recoded * habitat_type + offset(log(total_camera_hours)),
+    data = placename_summary_pt_2),
+  error = function(e) { message("Feature Type * Habitat interaction model failed to converge: ", e$message); NULL }
+)
+
+nb_offset_int_ft_trail <- tryCatch(
+  MASS::glm.nb(
+    total_detections ~ feature_type_methodology_recoded * trail + offset(log(total_camera_hours)),
+    data = placename_summary_pt_2),
+  error = function(e) { message("Feature Type * Trail interaction model failed to converge: ", e$message); NULL }
+)
+
+nb_offset_int_ft_trail_hab <- tryCatch(
+  MASS::glm.nb(
+    total_detections ~ feature_type_methodology_recoded * trail + habitat_type + offset(log(total_camera_hours)),
+    data = placename_summary_pt_2),
+  error = function(e) { message("Feature Type * Trail + Habitat interaction model failed to converge: ", e$message); NULL }
+)
+
+# Report convergence status
+cat("Interaction model convergence:\n")
+cat("  Feature Type x Habitat:", ifelse(!is.null(nb_offset_int_ft_hab), "converged", "FAILED"), "\n")
+cat("  Feature Type x Trail:", ifelse(!is.null(nb_offset_int_ft_trail), "converged", "FAILED"), "\n")
+cat("  Feature Type x Trail + Habitat:", ifelse(!is.null(nb_offset_int_ft_trail_hab), "converged", "FAILED"), "\n")
+```
+
+### AICc Model Comparison (small-sample corrected)
+```{r}
+#| echo: false
+# Build named list of all successfully fitted models
+all_models <- list(
+  "Feature Type" = nb_offset_1a,
+  "Trail" = nb_offset_1b,
+  "Habitat Type" = nb_offset_1c,
+  "Feature Type + Trail" = nb_offset_2a,
+  "Feature Type + Habitat Type" = nb_offset_2b,
+  "Trail + Habitat Type" = nb_offset_2c,
+  "Feature Type + Trail + Habitat Type" = nb_offset_3a
+)
+
+# Add interaction models if they converged
+if (!is.null(nb_offset_int_ft_hab))
+  all_models[["Feature Type x Habitat Type"]] <- nb_offset_int_ft_hab
+if (!is.null(nb_offset_int_ft_trail))
+  all_models[["Feature Type x Trail"]] <- nb_offset_int_ft_trail
+if (!is.null(nb_offset_int_ft_trail_hab))
+  all_models[["Feature Type x Trail + Habitat"]] <- nb_offset_int_ft_trail_hab
+
+# Compute AICc for each model (small-sample correction, n = 27)
+aicc_table <- data.frame(
+  Model = names(all_models),
+  df = sapply(all_models, function(m) attr(logLik(m), "df")),
+  AICc = sapply(all_models, MuMIn::AICc),
+  stringsAsFactors = FALSE
+)
+aicc_table$delta_AICc <- aicc_table$AICc - min(aicc_table$AICc)
+
+# Akaike weights
+aicc_table$rel_likelihood <- exp(-0.5 * aicc_table$delta_AICc)
+aicc_table$akaike_weight <- aicc_table$rel_likelihood / sum(aicc_table$rel_likelihood)
+
+aicc_table <- aicc_table %>%
+  arrange(delta_AICc) %>%
+  dplyr::select(Model, df, AICc, delta_AICc, akaike_weight)
+
+cat("=== AICc Model Comparison ===\n")
+print(aicc_table, digits = 3, row.names = FALSE)
+
+# Sort models to match AICc ranking
+model_order <- match(aicc_table$Model, names(all_models))
+sorted_models <- all_models[model_order]
+sorted_delta_aicc <- aicc_table$delta_AICc
+sorted_weights <- aicc_table$akaike_weight
+
+# Identify best model applying Occam's razor: among models within ΔAICc < 2,
+# prefer the most parsimonious (fewest df)
+competitive_idx <- which(sorted_delta_aicc < 2)
+competitive_df <- sapply(sorted_models[competitive_idx], function(m) attr(logLik(m), "df"))
+best_idx <- competitive_idx[which.min(competitive_df)]
+best_model <- sorted_models[[best_idx]]
+best_model_name <- names(sorted_models)[best_idx]
+
+cat("\n=== Occam's Razor Selection ===\n")
+cat("Models within ΔAICc < 2:\n")
+for (i in competitive_idx) {
+  cat(sprintf("  %s (df=%d, ΔAICc=%.2f, w=%.3f)\n",
+    names(sorted_models)[i],
+    attr(logLik(sorted_models[[i]]), "df"),
+    sorted_delta_aicc[i],
+    sorted_weights[i]))
+}
+cat(sprintf("\nPreferred model (most parsimonious within ΔAICc < 2): %s\n", best_model_name))
+cat("\nBest model summary:\n")
+summary(best_model)
+```
+
+### Spatial Autocorrelation Test (Moran's I)
+```{r}
+#| echo: false
+# Addresses reviewer concern: "The authors did not investigate the role of space"
+
+# Create spatial points from site coordinates
+coords <- placename_summary_pt_2 %>%
+  dplyr::select(longitude, latitude) %>%
+  as.matrix()
+
+# Build spatial weights: inverse distance, k=5 nearest neighbors
+knn <- spdep::knearneigh(coords, k = 5)
+nb_spatial <- spdep::knn2nb(knn)
+listw <- spdep::nb2listw(nb_spatial, style = "W")
+
+# Extract deviance residuals from the best (Occam's razor) model
+dev_resids <- residuals(best_model, type = "deviance")
+
+# Moran's I test on deviance residuals
+moran_result <- spdep::moran.test(dev_resids, listw)
+cat("=== Moran's I Test for Spatial Autocorrelation ===\n")
+cat(sprintf("Model tested: %s\n", best_model_name))
+print(moran_result)
+
+if (moran_result$p.value < 0.05) {
+  cat("\n** Significant spatial autocorrelation detected (p < 0.05). **\n")
+  cat("Consider adding spatial covariates (coordinates) or a spatial random effect.\n")
+} else {
+  cat("\n** No significant spatial autocorrelation detected. **\n")
+  cat("Spatial independence assumption of the GLM is supported.\n")
+}
+
+# Also run Moran's I on the full additive model for comparison
+dev_resids_full <- residuals(nb_offset_3a, type = "deviance")
+moran_full <- spdep::moran.test(dev_resids_full, listw)
+cat("\n=== Moran's I on full additive model (Feature Type + Trail + Habitat Type) ===\n")
+print(moran_full)
+```
+
+### Spatial Sensitivity: Edge vs. Interior Sites
+```{r}
+#| echo: false
+# Reviewer flagged that 5 of 14 artificial refuges are on the periphery near trails
+# The trail variable already captures this, but we can visualize the spatial pattern
+
+placename_summary_pt_2 <- placename_summary_pt_2 %>%
+  mutate(
+    site_position = case_when(
+      trail == "yes" ~ "Edge (trail-adjacent)",
+      TRUE ~ "Interior"
+    )
+  )
+
+cat("=== Site Position Summary ===\n")
+placename_summary_pt_2 %>%
+  group_by(feature_type_methodology_recoded, site_position) %>%
+  summarise(
+    n = n(),
+    mean_detections = mean(total_detections, na.rm = TRUE),
+    sd_detections = sd(total_detections, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  print()
+
+# Spatial plot of residuals to visually inspect clustering
+placename_summary_pt_2$dev_resid_best <- residuals(best_model, type = "deviance")
+
+ggplot(placename_summary_pt_2, aes(x = longitude, y = latitude)) +
+  geom_point(aes(color = dev_resid_best, shape = site_position), size = 4) +
+  scale_color_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0,
+                        name = "Deviance\nResidual") +
+  scale_shape_manual(values = c("Edge (trail-adjacent)" = 17, "Interior" = 16),
+                     name = "Site Position") +
+  labs(
+    title = sprintf("Spatial Distribution of Model Residuals (%s)", best_model_name),
+    x = "Longitude", y = "Latitude"
+  ) +
+  theme_cowplot() +
+  theme(legend.position = "right")
+
+ggsave(here("figures", "spatial_residuals_map.png"), width = 8, height = 6, dpi = 300, bg = "white")
+```
+
+## Tables
+
+```{r}
+#| echo: false
+# Reusable function to build the detailed model table
+create_detailed_model_table <- function(model_list, delta_values, weight_values, observed = NULL) {
+  detailed_data <- data.frame()
+
+  for (i in seq_along(model_list)) {
+    model <- model_list[[i]]
+    model_name <- names(model_list)[i]
+    coef_summary <- summary(model)$coefficients
+    obs <- if (!is.null(observed)) observed else placename_summary_pt_2$total_detections
+    fitted_vals <- fitted(model)
+    rmse <- sqrt(mean((obs - fitted_vals)^2))
+
+    detailed_data <- rbind(detailed_data, data.frame(
+      Model_Name = model_name,
+      Predictor = model_name,
+      Beta = NA_real_,
+      IRR = NA_real_,
+      Pct_Change = NA_real_,
+      P_Value = NA_real_,
+      Delta_AICc = round(delta_values[i], 2),
+      Weight = round(weight_values[i], 3),
+      RMSE = round(rmse, 3),
+      row_type = "header",
+      stringsAsFactors = FALSE
+    ))
+
+    for (j in 1:nrow(coef_summary)) {
+      predictor_name <- rownames(coef_summary)[j]
+      p_value <- coef_summary[j, "Pr(>|z|)"]
+      beta <- coef_summary[j, "Estimate"]
+      irr <- exp(beta)
+      pct_change <- (irr - 1) * 100
+
+      stars <- case_when(
+        p_value < 0.001 ~ "***",
+        p_value < 0.01 ~ "**",
+        p_value < 0.05 ~ "*",
+        TRUE ~ ""
+      )
+
+      clean_predictor <- case_when(
+        predictor_name == "(Intercept)" ~ "Intercept (Reference)",
+        predictor_name == "feature_type_methodology_recodedBoulder" ~ "Boulder",
+        predictor_name == "feature_type_methodology_recodedLog" ~ "Log",
+        predictor_name == "trailyes" ~ "Adjacent to Trail",
+        predictor_name == "habitat_typeGrassland" ~ "Grassland Habitat",
+        predictor_name == "habitat_typeScrub" ~ "Scrub Habitat",
+        grepl(":", predictor_name) ~ gsub(
+          "feature_type_methodology_recoded|habitat_type|trail", "",
+          gsub(":", " x ", predictor_name)),
+        TRUE ~ predictor_name
+      )
+
+      detailed_data <- rbind(detailed_data, data.frame(
+        Model_Name = model_name,
+        Predictor = paste0(clean_predictor, stars),
+        Beta = round(beta, 3),
+        IRR = round(irr, 3),
+        Pct_Change = round(pct_change, 1),
+        P_Value = round(p_value, 3),
+        Delta_AICc = NA_real_,
+        Weight = NA_real_,
+        RMSE = NA_real_,
+        row_type = "predictor",
+        stringsAsFactors = FALSE
+      ))
+    }
+  }
+  return(detailed_data)
+}
+```
+
+### Full Model Comparison Table (AICc)
+```{r}
+#| echo: false
+detailed_model_data <- create_detailed_model_table(sorted_models, sorted_delta_aicc, sorted_weights)
+
+# Format for display: replace NA with "" for clean table
+display_data <- detailed_model_data %>%
+  dplyr::select(-Model_Name) %>%
+  mutate(
+    across(c(Beta, IRR, Pct_Change, P_Value, Delta_AICc, Weight, RMSE), as.character),
+    across(everything(), ~ replace_na(.x, ""))
+  ) %>%
+  mutate(row_type_flag = row_type) %>%
+  dplyr::select(-row_type)
+
+kable(display_data %>% dplyr::select(-row_type_flag),
+      col.names = c("Model / Predictor", "β", "IRR", "% Change", "P-Value", "ΔAICc", "w", "RMSE"),
+      caption = "Table 1. Negative Binomial Model Comparison (AICc). Models ranked by ΔAICc; coefficients shown as β, IRR, and % Change. Reference: AR, not trail-adjacent, marsh habitat.",
+      align = c("l", rep("r", 7)),
+      digits = 3) %>%
+  kable_styling(full_width = FALSE, position = "left",
+                bootstrap_options = c("striped", "hover", "condensed")) %>%
+  row_spec(which(display_data$row_type_flag == "header"),
+           bold = TRUE, background = "#d1ecf1")
+```
+
+### Top Models Table (ΔAICc < 2)
+```{r}
+#| echo: false
+top_idx <- which(sorted_delta_aicc < 2)
+top_models <- sorted_models[top_idx]
+top_delta <- sorted_delta_aicc[top_idx]
+top_weights <- sorted_weights[top_idx]
+
+cat("=== Competitive Model Set (ΔAICc < 2) ===\n")
+cat(sprintf("Number of models within ΔAICc < 2: %d\n", length(top_idx)))
+cat(sprintf("Preferred (most parsimonious): %s\n\n", best_model_name))
+
+top_model_data <- create_detailed_model_table(top_models, top_delta, top_weights)
+
+top_display <- top_model_data %>%
+  dplyr::select(-Model_Name) %>%
+  mutate(
+    across(c(Beta, IRR, Pct_Change, P_Value, Delta_AICc, Weight, RMSE), as.character),
+    across(everything(), ~ replace_na(.x, ""))
+  ) %>%
+  mutate(row_type_flag = row_type) %>%
+  dplyr::select(-row_type)
+
+kable(top_display %>% dplyr::select(-row_type_flag),
+      col.names = c("Model / Predictor", "β", "IRR", "% Change", "P-Value", "ΔAICc", "w", "RMSE"),
+      caption = sprintf("Table 2. Competitive Models (ΔAICc < 2). Preferred (most parsimonious): %s. Reference: AR, not trail-adjacent, marsh habitat.", best_model_name),
+      align = c("l", rep("r", 7)),
+      digits = 3) %>%
+  kable_styling(full_width = FALSE, position = "left",
+                bootstrap_options = c("striped", "hover", "condensed")) %>%
+  row_spec(which(top_display$row_type_flag == "header"),
+           bold = TRUE, background = "#d4edda")
+```
+
+### Coefficient Stability Across Competitive Models
+```{r}
+#| echo: false
+# Addresses reviewer's observation that trail/habitat coefficients are unstable
+# across top models while feature type is stable (CV comparison)
+
+if (length(top_idx) > 1) {
+  coef_names_of_interest <- c(
+    "feature_type_methodology_recodedBoulder",
+    "feature_type_methodology_recodedLog",
+    "trailyes",
+    "habitat_typeGrassland",
+    "habitat_typeScrub"
+  )
+
+  stability_data <- data.frame()
+  for (i in seq_along(top_models)) {
+    coefs <- coef(top_models[[i]])
+    for (cn in coef_names_of_interest) {
+      if (cn %in% names(coefs)) {
+        stability_data <- rbind(stability_data, data.frame(
+          Model = names(top_models)[i],
+          Predictor = cn,
+          IRR = exp(coefs[cn]),
+          stringsAsFactors = FALSE
+        ))
+      }
+    }
+  }
+
+  if (nrow(stability_data) > 0) {
+    cv_summary <- stability_data %>%
+      group_by(Predictor) %>%
+      summarise(
+        n_models = n(),
+        mean_IRR = mean(IRR),
+        sd_IRR = sd(IRR),
+        CV_pct = ifelse(n() > 1, round(sd(IRR) / mean(IRR) * 100, 1), NA),
+        .groups = "drop"
+      ) %>%
+      mutate(Predictor = case_when(
+        Predictor == "feature_type_methodology_recodedBoulder" ~ "Boulder",
+        Predictor == "feature_type_methodology_recodedLog" ~ "Log",
+        Predictor == "trailyes" ~ "Adjacent to Trail",
+        Predictor == "habitat_typeGrassland" ~ "Grassland Habitat",
+        Predictor == "habitat_typeScrub" ~ "Scrub Habitat",
+        TRUE ~ Predictor
+      ))
+
+    cat("=== Coefficient Stability Across Competitive Models ===\n")
+    cat("(CV% = coefficient of variation of IRR across models within ΔAICc < 2)\n\n")
+    print(cv_summary, digits = 3)
+  }
+}
+```
+
+### Sensitivity Analysis: Interior Sites Only
+```{r}
+#| echo: false
+# ============================================================================
+# Exclude the 5 trail-adjacent (edge) sites and rerun model comparison.
+# Addresses reviewer concern that periphery sites may bias results.
+# ============================================================================
+
+interior_data <- placename_summary_pt_2 %>%
+  filter(trail == "no")
+
+cat(sprintf("Interior-only dataset: n = %d sites (excluded %d trail-adjacent sites)\n",
+            nrow(interior_data),
+            nrow(placename_summary_pt_2) - nrow(interior_data)))
+cat("\nFeature type breakdown:\n")
+interior_data %>% count(feature_type_methodology_recoded) %>% print()
+cat("\nHabitat type breakdown:\n")
+interior_data %>% count(habitat_type) %>% print()
+
+# --- Fit models on interior sites only (trail variable dropped since all are interior) ---
+
+nb_int_feat <- tryCatch(
+  MASS::glm.nb(total_detections ~ feature_type_methodology_recoded + offset(log(total_camera_hours)),
+               data = interior_data),
+  error = function(e) { message("Feature Type failed: ", e$message); NULL })
+
+nb_int_hab <- tryCatch(
+  MASS::glm.nb(total_detections ~ habitat_type + offset(log(total_camera_hours)),
+               data = interior_data),
+  error = function(e) { message("Habitat Type failed: ", e$message); NULL })
+
+nb_int_feat_hab <- tryCatch(
+  MASS::glm.nb(total_detections ~ feature_type_methodology_recoded + habitat_type + offset(log(total_camera_hours)),
+               data = interior_data),
+  error = function(e) { message("Feature + Habitat failed: ", e$message); NULL })
+
+nb_int_feat_x_hab <- tryCatch(
+  MASS::glm.nb(total_detections ~ feature_type_methodology_recoded * habitat_type + offset(log(total_camera_hours)),
+               data = interior_data),
+  error = function(e) { message("Feature x Habitat interaction failed: ", e$message); NULL })
+
+# Intercept-only (null) model for reference
+nb_int_null <- tryCatch(
+  MASS::glm.nb(total_detections ~ 1 + offset(log(total_camera_hours)),
+               data = interior_data),
+  error = function(e) { message("Null model failed: ", e$message); NULL })
+
+# Build model list
+interior_models <- list(
+  "Null (intercept only)" = nb_int_null,
+  "Feature Type" = nb_int_feat,
+  "Habitat Type" = nb_int_hab,
+  "Feature Type + Habitat Type" = nb_int_feat_hab,
+  "Feature Type x Habitat Type" = nb_int_feat_x_hab
+)
+interior_models <- interior_models[!sapply(interior_models, is.null)]
+
+# AICc comparison
+int_aicc <- data.frame(
+  Model = names(interior_models),
+  df = sapply(interior_models, function(m) attr(logLik(m), "df")),
+  AICc = sapply(interior_models, MuMIn::AICc),
+  stringsAsFactors = FALSE
+)
+int_aicc$delta_AICc <- int_aicc$AICc - min(int_aicc$AICc)
+int_aicc$rel_likelihood <- exp(-0.5 * int_aicc$delta_AICc)
+int_aicc$akaike_weight <- int_aicc$rel_likelihood / sum(int_aicc$rel_likelihood)
+int_aicc <- int_aicc %>%
+  arrange(delta_AICc) %>%
+  dplyr::select(Model, df, AICc, delta_AICc, akaike_weight)
+
+cat("\n=== Interior-Only AICc Model Comparison (n =", nrow(interior_data), ") ===\n")
+print(int_aicc, digits = 3, row.names = FALSE)
+
+# Preferred model (parsimony within ΔAICc < 2)
+int_competitive <- which(int_aicc$delta_AICc < 2)
+int_competitive_df <- int_aicc$df[int_competitive]
+int_best_idx <- int_competitive[which.min(int_competitive_df)]
+int_best_name <- int_aicc$Model[int_best_idx]
+int_best_model <- interior_models[[int_best_name]]
+
+cat(sprintf("\nPreferred model (parsimony): %s\n", int_best_name))
+cat("\nBest model summary:\n")
+summary(int_best_model)
+```
+
+```{r}
+#| echo: false
+# Detailed table for interior-only models
+int_model_order <- match(int_aicc$Model, names(interior_models))
+int_sorted_models <- interior_models[int_model_order]
+int_sorted_delta <- int_aicc$delta_AICc
+int_sorted_weights <- int_aicc$akaike_weight
+
+int_table_data <- create_detailed_model_table(int_sorted_models, int_sorted_delta, int_sorted_weights,
+                                               observed = interior_data$total_detections)
+
+int_display <- int_table_data %>%
+  dplyr::select(-Model_Name) %>%
+  mutate(
+    across(c(Beta, IRR, Pct_Change, P_Value, Delta_AICc, Weight, RMSE), as.character),
+    across(everything(), ~ replace_na(.x, ""))
+  ) %>%
+  mutate(row_type_flag = row_type) %>%
+  dplyr::select(-row_type)
+
+kable(int_display %>% dplyr::select(-row_type_flag),
+      col.names = c("Model / Predictor", "β", "IRR", "% Change", "P-Value", "ΔAICc", "w", "RMSE"),
+      caption = sprintf("Table 3. Interior Sites Only (n=%d). Models ranked by ΔAICc. Reference: AR, marsh habitat.", nrow(interior_data)),
+      align = c("l", rep("r", 7)),
+      digits = 3) %>%
+  kable_styling(full_width = FALSE, position = "left",
+                bootstrap_options = c("striped", "hover", "condensed")) %>%
+  row_spec(which(int_display$row_type_flag == "header"),
+           bold = TRUE, background = "#fce4ec")
+```
+
+```{r}
+#| echo: false
+# Moran's I on interior-only best model
+int_coords <- interior_data %>%
+  dplyr::select(longitude, latitude) %>%
+  as.matrix()
+
+if (nrow(int_coords) >= 5) {
+  int_knn <- spdep::knearneigh(int_coords, k = min(5, nrow(int_coords) - 1))
+  int_nb <- spdep::knn2nb(int_knn)
+  int_listw <- spdep::nb2listw(int_nb, style = "W")
+  int_resids <- residuals(int_best_model, type = "deviance")
+  int_moran <- spdep::moran.test(int_resids, int_listw)
+
+  cat("=== Moran's I on Interior-Only Best Model ===\n")
+  cat(sprintf("Model: %s, n = %d\n", int_best_name, nrow(interior_data)))
+  print(int_moran)
+
+  if (int_moran$p.value < 0.05) {
+    cat("\n** Significant spatial autocorrelation detected in interior subset. **\n")
+  } else {
+    cat("\n** No significant spatial autocorrelation in interior subset. **\n")
+  }
+}
+```
+
+
+## Figures
+
+### Daily Detections Mean and 95% Confidence Intervals by Feature Type
+```{r fig-daily-detections-mean-ci}
+#| fig-cap: "Average wildlife detections per camera trap day across all two feature types groups—artificial refuges (AR) and logs/boulders. Points represent individual sites, black diamonds indicate mean values, and vertical lines show 95% confidence intervals."
+
+# Step 1: Compute summary stats
+summary_pt_2_by_feature_type_recoded <- placename_summary_pt_2 %>%
+  group_by(feature_type_methodology_recoded) %>%
+  summarise(
+    mean = mean(detections_per_camera_day, na.rm = TRUE),
+    se = sd(detections_per_camera_day, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    lower = mean - qt(0.975, df = n - 1) * se,
+    upper = mean + qt(0.975, df = n - 1) * se
+  )
+
+# Step 2: Plot
+p1 = ggplot(placename_summary_pt_2, aes(x = feature_type_methodology_recoded, y = detections_per_camera_day)) +
+  geom_jitter(aes(color = feature_type_methodology_recoded), width = 0.25, alpha = 0.6, size = 3.5, show.legend = FALSE) +
+  geom_errorbar(data = summary_pt_2_by_feature_type_recoded, aes(x = feature_type_methodology_recoded, y = mean, ymin = lower, ymax = upper),
+                width = 0.15, color = "black", linewidth = 1) +
+  geom_point(data = summary_pt_2_by_feature_type_recoded,
+             aes(x = feature_type_methodology_recoded, y = mean),
+             shape = 23, size = 6, fill = "black", color = "black", stroke = 1.5) +
+  scale_color_manual(values = c("Boulder" = "#66c2a5", "Log" = "#8da0cb", "Artificial Refuge (AR)" = "#fc8d62")) +
+  labs(
+    title = "Detection Rate per Camera Day by Feature Type",
+    x = "Feature Type",
+    y = "Detections per camera day"
+  ) +
+  theme_cowplot() +
+  theme(
+    axis.text.x = element_text(vjust = 1, size = 14),
+    axis.text.y = element_text(size = 12),
+    axis.title.x = element_text(size = 14),
+    axis.title.y = element_text(size = 14),
+    plot.title = element_text(size = 16, face = "bold"),
+    legend.position = "none"
+  )
+
+# Save the plot as a PNG (narrower width)
+ggsave(here("figures","feature_type_detection_rate_pt_2.png"), plot = p1, width = 6, height = 6, dpi = 300, bg = "white")
+p1
+```
+
+### Species by Habitat Type Analysis
+```{r fig-species-by-habitat-type}
+#| fig-cap: "Species detection rates per camera day by habitat type."
+#| fig-pos: 'H'
+
+### Species Lumping
+# Set detection threshold (below which species are lumped by taxonomic class)
+detection_threshold <- 50
+
+# Count total observations by species
+species_counts_pt_2 <- clean_pt_2_seq_dep %>%
+  filter(!is.na(common_name)) %>%
+  count(common_name, name = "total_count")
+
+# Recode class names for grouping
+clean_pt_2_seq_dep_lumped <- clean_pt_2_seq_dep %>%
+  mutate(
+    class_grouped = case_when(
+      class == "Aves" ~ "Birds",
+      class == "Mammalia" ~ "Mammals",
+      class == "Reptilia" ~ "Reptiles",
+      TRUE ~ class
+    )
+  ) %>%
+  left_join(species_counts_pt_2, by = "common_name") %>%
+  mutate(
+    common_name_lumped = case_when(
+      total_count < detection_threshold & !is.na(class_grouped) ~ paste0("Other (", class_grouped, ")"),
+      grepl("other|unidentified", tolower(common_name)) & !is.na(class_grouped) ~ paste0("Other (", class_grouped, ")"),
+      TRUE ~ common_name
+    )
+  )
+
+# Build species palette
+lumped_species_pt_2 <- clean_pt_2_seq_dep_lumped %>%
+  filter(!is.na(common_name_lumped)) %>%
+  distinct(common_name_lumped) %>%
+  mutate(
+    is_other = grepl("^Other", common_name_lumped),
+    sort_key = ifelse(is_other, paste0("zzz_", common_name_lumped), common_name_lumped)
+  ) %>%
+  arrange(sort_key) %>%
+  pull(common_name_lumped)
+
+species_palette_pt_2 <- setNames(
+  colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))(length(lumped_species_pt_2)),
+  lumped_species_pt_2
+)
+
+# summarize effort by habitat type
+habitat_effort_summary_pt_2 <- clean_pt_2_dep %>%
+  group_by(habitat_type) %>%
+  summarise(
+    total_camera_days = sum(deployment_duration, na.rm = TRUE),
+    total_camera_hours = total_camera_days * 24,
+    .groups = "drop"
+  )
+
+habitat_detections_summary_pt_2 <- clean_pt_2_seq_dep %>%
+  group_by(habitat_type) %>%
+  summarise(
+    total_habitat_detections = sum(group_size, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Join effort and detections by habitat type
+habitat_summary_pt_2 <- habitat_effort_summary_pt_2 |>
+  dplyr::left_join(habitat_detections_summary_pt_2, by = "habitat_type") |>
+  dplyr::mutate(
+    habitat_detections_per_camera_day = total_habitat_detections / total_camera_days,
+    habitat_detections_per_camera_hour = total_habitat_detections / total_camera_hours
+  )
+
+# Prepare data for plot: 
+detections_by_habitat_species_pt_2 <- clean_pt_2_seq_dep_lumped %>%
+  group_by(habitat_type, common_name_lumped) %>%
+  summarise(total_species_detections_in_habitat = sum(group_size, na.rm = TRUE), .groups = "drop") %>%
+  arrange(habitat_type, desc(total_species_detections_in_habitat))
+
+detections_by_habitat_species_pt_2 <- clean_pt_2_seq_dep_lumped %>%
+  group_by(habitat_type, common_name_lumped) %>%
+  summarise(total_species_detections_in_habitat = sum(group_size, na.rm = TRUE), .groups = "drop") %>%
+  arrange(habitat_type, desc(total_species_detections_in_habitat)) %>%
+  left_join(habitat_effort_summary_pt_2, by = "habitat_type") |> 
+  mutate(
+  species_detections_per_camera_day = total_species_detections_in_habitat / total_camera_days,
+  species_detections_per_camera_hour = total_species_detections_in_habitat / total_camera_hours
+)
+
+# Set factor levels to order legend manually
+detections_by_habitat_species_pt_2$common_name_lumped <- factor(detections_by_habitat_species_pt_2$common_name_lumped, levels = c(
+  "Brush Rabbit",
+  "California Ground Squirrel",
+  "North American Deermouse",
+  "Western fence lizard",
+  "Other (Birds)",
+  "Other (Mammals)",
+  "Other (Reptiles)"
+))
+
+##stacked bar chart
+p2 = ggplot(detections_by_habitat_species_pt_2 %>%
+              filter(common_name_lumped != "Other (Reptiles)"),
+       aes(x = habitat_type,
+           y = species_detections_per_camera_day,
+           fill = common_name_lumped)) +
+  geom_bar(stat = "identity") +
+  labs(
+    x = "Habitat Type",
+    y = "Detections per Camera Day",
+    fill = "Species",
+    title = ""
+  ) +
+  scale_fill_manual(values = species_palette_pt_2) +
+  scale_y_continuous(breaks = seq(0, 10, by = 2), expand = expansion(mult = c(0, 0.05))) +
+  theme_minimal(base_family = "sans") +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    panel.grid.major.x = element_blank()
+  )
+p2 <- p2 + theme_cowplot() +
+  theme(
+    legend.text = element_text(size = 11),
+    axis.title = element_text(size = 14),
+    axis.text = element_text(size = 12)
+  )
+
+# Save the plot as a PNG
+ggsave(here("figures","habitat_type_species_detection_rates_pt_2.png"), plot = p2, width = 8, height = 6, dpi = 300, bg = "white")
+p2
+
+```
+
+### Four Resident Species by Habitat Type (4-panel)
+```{r fig-4panel-species-habitat}
+#| fig-cap: "Detection rates per camera day for the four resident species across habitat types. Each panel shows one species; bars are colored by habitat type."
+#| fig-width: 10
+#| fig-height: 8
+
+resident_species <- c("Brush Rabbit", "California Ground Squirrel",
+                       "North American Deermouse", "Western fence lizard")
+
+habitat_colors <- c("Marsh" = "#1b9e77", "Grassland" = "#d95f02", "Scrub" = "#7570b3")
+
+resident_habitat_data <- clean_pt_2_seq_dep %>%
+  filter(common_name %in% resident_species) %>%
+  group_by(common_name, habitat_type) %>%
+  summarise(total_detections = sum(group_size, na.rm = TRUE), .groups = "drop") %>%
+  left_join(habitat_effort_summary_pt_2, by = "habitat_type") %>%
+  mutate(detections_per_camera_day = total_detections / total_camera_days)
+
+# Ensure all species x habitat combos exist (fill zeros)
+resident_habitat_data <- resident_habitat_data %>%
+  complete(common_name = resident_species,
+           habitat_type = c("Marsh", "Grassland", "Scrub"),
+           fill = list(total_detections = 0, detections_per_camera_day = 0))
+
+p_4panel <- ggplot(resident_habitat_data,
+       aes(x = habitat_type, y = detections_per_camera_day, fill = habitat_type)) +
+  geom_col(width = 0.7) +
+  facet_wrap(~ common_name, scales = "free_y", ncol = 2) +
+  scale_fill_manual(values = habitat_colors) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
+  labs(
+    x = "Habitat Type",
+    y = "Detections per Camera Day",
+    fill = "Habitat"
+  ) +
+  theme_cowplot() +
+  theme(
+    strip.text = element_text(size = 12, face = "italic"),
+    axis.text = element_text(size = 11),
+    axis.title = element_text(size = 13),
+    legend.position = "bottom",
+    legend.text = element_text(size = 11)
+  )
+
+ggsave(here("figures", "4panel_resident_species_by_habitat.png"),
+       plot = p_4panel, width = 10, height = 8, dpi = 300, bg = "white")
+p_4panel
+```
+
+### Hourly Species Detections by Feature Type
+
+```{r}
+# summarize effort by habitat type
+feature_type_effort_summary_pt_2 <- clean_pt_2_dep %>%
+  group_by(feature_type_methodology) %>%
+  summarise(
+    total_camera_days = sum(deployment_duration, na.rm = TRUE),
+    total_camera_hours = total_camera_days * 24,
+    .groups = "drop"
+  )
+
+# Define all hour levels and updated species levels
+levels_hours <- c("12 AM", sprintf("%02d AM", 1:11), "12 PM", sprintf("%02d PM", 1:11))
+levels_species <- lumped_species_pt_2
+
+# Helper to pad missing combinations by feature type
+pad_hourly <- function(df, feature_type) {
+  df %>%
+    filter(feature_type_methodology == feature_type, !is.na(common_name_lumped)) %>%
+    mutate(
+      hour_am_pm = format(start_time, "%I %p"),
+      hour_am_pm = factor(hour_am_pm, levels = levels_hours),
+      common_name_lumped = factor(common_name_lumped, levels = levels_species)
+    ) %>%
+    count(hour_am_pm, common_name_lumped, name = "detections") %>%
+    complete(hour_am_pm, common_name_lumped, fill = list(count = 0))
+}
+
+# Create padded datasets
+# Boulders
+figs_hourly_boulder <- pad_hourly(clean_pt_2_seq_dep_lumped, "Boulder")
+# Step 1: Extract camera days for Boulder
+boulder_effort <- feature_type_effort_summary_pt_2 |>
+  dplyr::filter(feature_type_methodology == "Boulder") |>
+  dplyr::pull(total_camera_days)
+# Step 2: Normalize the counts
+figs_hourly_boulder <- figs_hourly_boulder |>
+  dplyr::mutate(detections_per_camera_day = detections / boulder_effort)
+
+# Artificial Refuge (AR)
+figs_hourly_hibernacula <- pad_hourly(clean_pt_2_seq_dep_lumped, "Artificial Refuge (AR)")
+hibernacula_effort <- feature_type_effort_summary_pt_2 |>
+  dplyr::filter(feature_type_methodology == "Artificial Refuge (AR)") |>
+  dplyr::pull(total_camera_days)
+figs_hourly_hibernacula <- figs_hourly_hibernacula |>
+  dplyr::mutate(detections_per_camera_day = detections / hibernacula_effort)
+
+# Logs
+figs_hourly_log <- pad_hourly(clean_pt_2_seq_dep_lumped, "Log")
+log_effort <- feature_type_effort_summary_pt_2 |>
+  dplyr::filter(feature_type_methodology == "Log") |>
+  dplyr::pull(total_camera_days)
+figs_hourly_log <- figs_hourly_log |>
+  dplyr::mutate(detections_per_camera_day = detections / log_effort)
+
+# Reusable theme
+shared_theme <- theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+  )
+
+# Set consistent y-axis max
+max_count <- 1
+
+# Plot for Boulder
+figs_plot_boulder <- ggplot(figs_hourly_boulder, aes(x = hour_am_pm, y = detections_per_camera_day, fill = common_name_lumped)) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_fill_manual(values = species_palette_pt_2, name = "Species") +
+  scale_y_continuous(limits = c(0, max_count)) +
+  labs(
+    title = "Boulder Sites",
+    x = "Hour of Day (AM/PM)",
+    y = ""
+  ) +
+  shared_theme
+
+# Plot for Artificial Refuge (AR)
+figs_plot_hibernacula <- ggplot(figs_hourly_hibernacula, aes(x = hour_am_pm, y = detections_per_camera_day, fill = common_name_lumped)) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_fill_manual(values = species_palette_pt_2, name = "Species") +
+  scale_y_continuous(limits = c(0, max_count)) +
+  labs(
+    title = "Artificial Refuge (AR)",
+    x = "",
+    y = "Detections Per Camera Day"
+  ) +
+  shared_theme
+
+# Plot for Log
+figs_plot_log <- ggplot(figs_hourly_log, aes(x = hour_am_pm, y = detections_per_camera_day, fill = common_name_lumped)) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_fill_manual(values = species_palette_pt_2, name = "Species") +
+  scale_y_continuous(limits = c(0, max_count)) +
+  labs(
+    title = "Log Sites",
+    x = "",
+    y = ""
+  ) +
+  shared_theme
+
+# Combine plots using patchwork
+p3 = (figs_plot_hibernacula | figs_plot_boulder | figs_plot_log) +
+  plot_layout(guides = "collect") &
+  theme(legend.position = "bottom")
+
+p3
+
+ggsave(here("figures","diel_species_detection_rates_by_feature_type_pt_2.png"), plot = p3, width = 12, height = 6, dpi = 300, bg = "white")
+```
+
+### Species List
+```{r tbl-species-list}
+#| tbl-cap: "Species List for Part 2 of the Study. Only includes wildlife identified to species level. Table is sorted by class then total number of detections." 
+
+# Calculate total unique features (placename) per feature_type
+total_features_pt_2 <- clean_pt_2_seq_dep %>%
+  distinct(feature_type_methodology, placename) %>%
+  group_by(feature_type_methodology) %>%
+  summarise(total_features_pt_2 = n(), .groups = "drop")
+
+# Summarize sum(group_size) and count unique visited placename per species per feature type
+species_summary_pt_2 <- clean_pt_2_seq_dep %>%
+  group_by(class, common_name, genus_species, feature_type_methodology) %>%
+  summarise(
+    count_observed = sum(group_size, na.rm = TRUE),
+    features_visited = n_distinct(placename),
+    .groups = "drop"
+  )
+
+# Pivot counts wide
+species_counts_wide_pt_2 <- species_summary_pt_2 %>%
+  dplyr::select(-features_visited) %>%
+  pivot_wider(
+    names_from = feature_type_methodology,
+    values_from = count_observed,
+    values_fill = 0,
+    names_prefix = "count_observed_at_"
+  ) |> 
+  clean_names()
+
+# Pivot features visited wide
+species_features_wide_pt_2 <- species_summary_pt_2 %>%
+  dplyr::select(class, common_name, genus_species, feature_type_methodology, features_visited) %>%
+  pivot_wider(
+    names_from = feature_type_methodology,
+    values_from = features_visited,
+    values_fill = 0,
+    names_prefix = "features_visited_at_"
+  ) |> 
+  clean_names()
+
+# Combine counts and features visited
+species_combined_pt_2 <- species_counts_wide_pt_2 %>%
+  full_join(species_features_wide_pt_2, by = c("class", "common_name", "genus_species"))
+
+# Extract total features per feature type as named vector
+total_features_pt_2_vec <- total_features_pt_2 %>%
+  deframe()  # named vector: names are feature_type_methodology, values total_features_pt_2
+
+# Calculate percent visited by species at each feature type
+species_final_pt_2 <- species_combined_pt_2 %>%
+  mutate(
+    percent_hibernacula_visited = 100 * features_visited_at_artificial_refuge_ar / total_features_pt_2_vec["Artificial Refuge (AR)"],
+    percent_boulders_visited = 100 * features_visited_at_boulder / total_features_pt_2_vec["Boulder"],
+    percent_logs_visited = 100 * features_visited_at_log / total_features_pt_2_vec["Log"]
+  )
+
+camera_days_vec <- feature_type_effort_summary_pt_2 %>%
+  dplyr::select(feature_type_methodology, total_camera_days) %>%
+  pull(total_camera_days) %>%
+  setNames(feature_type_effort_summary_pt_2$feature_type_methodology)
+
+total_camera_days_all <- sum(camera_days_vec)
+
+species_final_pt_2 <- species_final_pt_2 %>%
+  mutate(
+    rate_per_cam_day_hibernacula = count_observed_at_artificial_refuge_ar / camera_days_vec["Artificial Refuge (AR)"],
+    rate_per_cam_day_boulder = count_observed_at_boulder / camera_days_vec["Boulder"],
+    rate_per_cam_day_log = count_observed_at_log / camera_days_vec["Log"]
+  )
+
+t1 = species_final_pt_2 %>%
+  # Select and rename columns for a cleaner table
+  dplyr::select(
+    'Class' = class,
+    'Common Name' = common_name,
+    'Scientific Name' = genus_species,
+    'Detections' = count_observed_at_artificial_refuge_ar,
+    '% Visited' = percent_hibernacula_visited,
+    'Per Cam.-Day' = rate_per_cam_day_hibernacula,
+    'Detections ' = count_observed_at_boulder,
+    '% Visited ' = percent_boulders_visited,
+    'Per Cam.-Day ' = rate_per_cam_day_boulder,
+    'Detections  ' = count_observed_at_log,
+    '% Visited  ' = percent_logs_visited,
+    'Per Cam.-Day  ' = rate_per_cam_day_log
+  ) %>%
+  mutate(
+    'Detections   ' = Detections + `Detections ` + `Detections  `,
+    '% Visited   ' = (
+      (`% Visited` * total_features_pt_2_vec["Artificial Refuge (AR)"]) +
+      (`% Visited ` * total_features_pt_2_vec["Boulder"]) +
+      (`% Visited  ` * total_features_pt_2_vec["Log"])
+    ) / sum(total_features_pt_2_vec),
+    'Per Cam.-Day   ' = ((Detections + `Detections ` + `Detections  `) / total_camera_days_all),
+    # Round and format
+    across(starts_with("%"), ~ paste0(round(.x, 2), "%")),
+    across(starts_with("Rate/Day"), ~ round(.x, 2))
+  ) %>%
+  arrange(Class, desc(`Detections   `), `Common Name`) %>%
+  kable(
+    caption = "Species Observations and Percent Feature Visited by Feature Type",
+    align = c("l", "l", "l", rep("c", 12)),
+    digits = 3
+  ) %>%
+  kable_styling(
+    full_width = FALSE,
+    position = "left",
+    bootstrap_options = c("striped", "hover", "condensed")
+  ) %>%
+  add_header_above(c(" " = 3, "Artificial Refuge (AR)" = 3, "Boulders" = 3, "Logs" = 3, "Total" = 3))
+
+# Save the kable as an HTML file
+tryCatch({
+  save_kable(t1, here("misc","species_table_pt_2.html"))
+  webshot(here("misc","species_table_pt_2.html"), here("figures","species_table_pt_2.png"), zoom = 2, vwidth = 1800)
+}, error = function(e) message("Table save/screenshot skipped: ", e$message))
+```
+
+### Map
+```{r fig-deployment-map}
+#| fig-cap: "**Spatial distribution of camera trap deployments at the study site.** Circle color indicates feature type and size reflects the average daily number of wildlife observations. Inset map shows the location within California."
+#| fig-width: 10
+#| fig-height: 6
+
+# Convert site_summary to sf object
+map_site_sf <- st_as_sf(placename_summary_pt_2, coords = c("longitude", "latitude"), crs = 4326)
+
+# Load NCOS habitat layer from local shapefile
+ncos_habitats <- st_read(here("data", "ncos_habitats_june_2021", "NCOS_Habitats_June2021_Simple.shp"))
+
+# Fix invalid geometries and transform to match CRS
+ncos_habitats <- st_make_valid(ncos_habitats)
+ncos_habitats <- st_transform(ncos_habitats, crs = st_crs(map_site_sf))
+
+# Simplify habitat categories and dissolve by group
+ncos_habitats <- ncos_habitats |>
+  mutate(habitat_simple = case_when(
+    str_detect(Habitat, "Grassland") ~ "Grassland",
+    str_detect(Habitat, "Marsh|marsh") ~ "Marsh",
+    str_detect(Habitat, "Scrub") ~ "Scrub",
+    TRUE ~ "Other"
+  )) |>
+  group_by(habitat_simple) |>
+  summarise(geometry = st_union(geometry), .groups = "drop")
+
+# Load NCOS boundary and convert to lines (so clipping doesn't create false polygon edges)
+ncos_boundary <- st_read(here("data", "ncos_shp", "ncos_shp.shp"))
+ncos_boundary <- st_make_valid(ncos_boundary)
+ncos_boundary <- st_transform(ncos_boundary, crs = st_crs(map_site_sf))
+ncos_boundary_lines <- st_cast(ncos_boundary, "MULTILINESTRING")
+
+# Get bounding box and expand slightly
+bbox <- st_bbox(map_site_sf)
+padding <- 0.01  # Reduced padding for tighter view
+west_shift <- 0.0  # Adjust this value to shift more/less west
+bbox_expanded <- c(
+  xmin = bbox["xmin"] - padding - west_shift,
+  xmax = bbox["xmax"] + padding - west_shift,
+  ymin = bbox["ymin"] - padding,
+  ymax = bbox["ymax"] + padding
+)
+
+# Download satellite tiles (Esri)
+map_basemap <- get_tiles(map_site_sf, provider = "Esri.WorldImagery", zoom = 18)
+
+# Clip habitat layer and boundary lines to satellite basemap extent
+ncos_habitats <- st_crop(ncos_habitats, st_bbox(map_basemap))
+ncos_boundary_lines <- st_crop(ncos_boundary_lines, st_bbox(map_basemap))
+
+# Convert raster to data.frame for ggplot
+map_rgb_df <- as.data.frame(map_basemap, xy = TRUE)
+colnames(map_rgb_df) <- c("x", "y", "red", "green", "blue")
+map_rgb_df$hex <- rgb(map_rgb_df$red, map_rgb_df$green, map_rgb_df$blue, maxColorValue = 255)
+
+# Set feature type colors
+feature_colors <- c(
+  "Boulder" = brewer.pal(3, "Set2")[1],
+  "Artificial Refuge (AR)" = brewer.pal(3, "Set2")[2],
+  "Log" = brewer.pal(3, "Set2")[3]
+)
+
+# Define simplified habitat colors (excluding "Other")
+habitat_colors <- c(
+  "Grassland" = "#9ACD32",
+  "Marsh" = "#2E8B57",
+  "Scrub" = "#9370DB"
+)
+
+# Filter out "Other" habitat type
+ncos_habitats_filtered <- ncos_habitats |> filter(habitat_simple != "Other")
+
+# Main satellite deployment map with habitat layer
+map_main <- ggplot() +
+  geom_raster(data = map_rgb_df, aes(x = x, y = y, fill = hex)) +
+  scale_fill_identity() +
+  # Add NCOS boundary (yellow outline, no fill)
+  geom_sf(data = ncos_boundary_lines |> mutate(boundary = "NCOS Boundary"),
+          aes(linetype = boundary), color = "yellow", linewidth = 1) +
+  scale_linetype_manual(values = "solid", name = NULL) +
+  # Add habitat polygons (semi-transparent overlay on satellite)
+  ggnewscale::new_scale_fill() +
+  geom_sf(data = ncos_habitats_filtered, aes(fill = habitat_simple), color = NA, alpha = 0.5) +
+  scale_fill_manual(values = habitat_colors, name = "Habitat Type") +
+  # Add camera deployment points
+  ggnewscale::new_scale_fill() +
+  geom_sf(data = map_site_sf, aes(fill = feature_type_methodology, size = detections_per_camera_day),
+          shape = 21, color = "black", stroke = 0.8, alpha = 0.9) +
+  scale_fill_manual(values = feature_colors, name = "Feature Type") +
+  scale_size(name = "Avg. Daily Obs.", range = c(2, 6)) +
+  coord_sf(xlim = c(bbox_expanded["xmin"], bbox_expanded["xmax"]),
+           ylim = c(bbox_expanded["ymin"], bbox_expanded["ymax"]),
+           clip = "on") +
+  annotation_scale(
+    location = "bl",      # bottom left
+    pad_x = unit(0.45, "in"),
+    pad_y = unit(0.3, "in"),
+    width_hint = 0.25,
+    text_col = "white"   # White text
+  ) +
+  annotation_north_arrow(
+    location = "br",      # bottom right
+    which_north = "true",
+    pad_x = unit(0.35, "in"),
+    pad_y = unit(0.23, "in"),
+    style = north_arrow_fancy_orienteering
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    panel.grid = element_blank(),
+    legend.position = "bottom",
+    axis.title = element_blank(),
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    legend.box = "vertical",
+    legend.box.spacing = unit(0, "cm"),
+    legend.spacing.y = unit(0, "cm"),
+    legend.margin = margin(t = 0, b = 0),
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 9),
+    legend.key.height = unit(0.4, "cm")
+  ) +
+  guides(
+    linetype = guide_legend(order = 1, override.aes = list(color = "yellow", linewidth = 1)),
+    fill = guide_legend(order = 2, nrow = 1, override.aes = list(alpha = 0.9, size = 4, shape = 21, stroke = 0.8)),
+    size = guide_legend(order = 3, nrow = 1, override.aes = list(fill = "black", shape = 21, stroke = 0.8))
+  )
+
+# Calculate study area centroid
+map_centroid_coords <- map_site_sf %>%
+  st_coordinates() %>%
+  as.data.frame() %>%
+  summarise(longitude = mean(X), latitude = mean(Y))
+
+# Overview map of CA with study area location
+map_CA <- map("state", plot = FALSE, fill = TRUE) %>%
+  st_as_sf() %>%
+  filter(ID == "california")
+
+map_overview <- ggplot() +
+  geom_sf(data = map_CA, fill = "gray90", color = "gray60", size = 0.3) +
+  geom_point(data = map_centroid_coords, aes(x = longitude, y = latitude), 
+             color = "red", size = 3, shape = 15) +
+  theme_void() +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, size = 0.5),
+    plot.background = element_rect(fill = "white", color = NA)
+  )
+
+# Combine maps with proper positioning
+map_final <- ggdraw() +
+  draw_plot(map_main) +
+  draw_plot(map_overview, x = 0.68, y = 0.647, width = 0.3, height = 0.3)
+
+map_final
+
+ggsave(here("figures","deployment_map_pt_2.png"), plot = map_final, width = 10, height = 6, dpi = 300, bg = "white")
+```
+### Map v 2 (Spring study — full NCOS boundary, shape-encoded features)
+```{r fig-deployment-map-2}
+#| fig-cap: "**Spring study: spatial distribution of camera trap deployments.** Point shape indicates feature type; point size reflects average daily wildlife detections. Habitat polygons shown as semi-transparent overlays."
+#| fig-width: 10
+#| fig-height: 6
+
+# Convert site summary to sf
+map_site_sf <- st_as_sf(placename_summary_pt_2, coords = c("longitude", "latitude"), crs = 4326)
+
+# Load and process habitat layer
+ncos_habitats <- st_read(here("data", "ncos_habitats_june_2021", "NCOS_Habitats_June2021_Simple.shp"))
+ncos_habitats <- st_make_valid(ncos_habitats)
+ncos_habitats <- st_transform(ncos_habitats, crs = st_crs(map_site_sf))
+ncos_habitats <- ncos_habitats |>
+  mutate(habitat_simple = case_when(
+    str_detect(Habitat, "Grassland") ~ "Grassland",
+    Habitat == "Upland Mosaic" ~ "Grassland",
+    str_detect(Habitat, "Marsh|marsh") ~ "Marsh",
+    str_detect(Habitat, "Scrub") ~ "Scrub",
+    Habitat == "Oak Woodland/Chaparral" ~ "Scrub",
+    TRUE ~ "Other"
+  )) |>
+  group_by(habitat_simple) |>
+  summarise(geometry = st_union(geometry), .groups = "drop")
+
+# Load NCOS boundary
+ncos_boundary <- st_read(here("data", "ncos_shp", "ncos_shp.shp"))
+ncos_boundary <- st_make_valid(ncos_boundary)
+ncos_boundary <- st_transform(ncos_boundary, crs = st_crs(map_site_sf))
+ncos_boundary_lines <- st_cast(ncos_boundary, "MULTILINESTRING")
+
+# Bbox from NCOS boundary (not site points)
+bbox_expanded <- st_bbox(ncos_boundary)
+bbox_sf <- st_as_sfc(bbox_expanded)
+
+# Download satellite tiles covering full boundary
+map_basemap <- get_tiles(bbox_sf, provider = "Esri.WorldImagery", zoom = 18)
+
+# Clip layers to basemap extent
+ncos_habitats <- st_crop(ncos_habitats, st_bbox(map_basemap))
+ncos_boundary_lines <- st_crop(ncos_boundary_lines, st_bbox(map_basemap))
+
+# Convert raster for ggplot
+map_rgb_df <- as.data.frame(map_basemap, xy = TRUE)
+colnames(map_rgb_df) <- c("x", "y", "red", "green", "blue")
+map_rgb_df$hex <- rgb(map_rgb_df$red, map_rgb_df$green, map_rgb_df$blue, maxColorValue = 255)
+
+habitat_colors <- c("Grassland" = "#9ACD32", "Marsh" = "#2E8B57", "Scrub" = "#9370DB")
+ncos_habitats_filtered <- ncos_habitats |> filter(habitat_simple != "Other")
+
+# Shape encoding: square=AR, triangle=boulder, circle=log
+point_shapes_pt2 <- c("Artificial Refuge (AR)" = 15, "Boulder" = 2, "Log" = 1)
+
+map_main <- ggplot() +
+  geom_raster(data = map_rgb_df, aes(x = x, y = y, fill = hex)) +
+  scale_fill_identity() +
+  geom_sf(data = ncos_boundary_lines |> mutate(boundary = "NCOS Boundary"),
+          aes(linetype = boundary), color = "yellow", linewidth = 1) +
+  scale_linetype_manual(values = "solid", name = NULL) +
+  ggnewscale::new_scale_fill() +
+  geom_sf(data = ncos_habitats_filtered, aes(fill = habitat_simple), color = NA, alpha = 0.5) +
+  scale_fill_manual(values = habitat_colors, name = "Habitat Type") +
+  geom_sf(data = map_site_sf,
+          aes(shape = feature_type_methodology, size = detections_per_camera_day),
+          color = "black", stroke = 1.2) +
+  scale_shape_manual(values = point_shapes_pt2, name = "Feature Type") +
+  scale_size(name = "Avg. Daily Obs.", range = c(2, 6)) +
+  coord_sf(expand = TRUE) +
+  annotation_scale(location = "bl", pad_x = unit(0.45, "in"), pad_y = unit(0.3, "in"),
+                   width_hint = 0.25, text_col = "white") +
+  annotation_north_arrow(location = "br", which_north = "true",
+                         pad_x = unit(0.35, "in"), pad_y = unit(0.23, "in"),
+                         style = north_arrow_fancy_orienteering) +
+  theme_minimal(base_size = 12) +
+  theme(
+    panel.grid = element_blank(),
+    legend.position = "bottom",
+    axis.title = element_blank(),
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    legend.box = "vertical",
+    legend.box.spacing = unit(0, "cm"),
+    legend.spacing.y = unit(0, "cm"),
+    legend.margin = margin(t = 0, b = 0),
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 9),
+    legend.key.height = unit(0.4, "cm")
+  ) +
+  guides(
+    linetype = guide_legend(order = 1, override.aes = list(color = "yellow", linewidth = 1)),
+    fill = guide_legend(order = 2, override.aes = list(alpha = 0.7, shape = 22, color = NA, size = 5)),
+    shape = guide_legend(order = 3, override.aes = list(size = 4, stroke = 1.2)),
+    size = guide_legend(order = 4, override.aes = list(shape = 16, stroke = 0.8))
+  )
+
+# CA inset
+map_centroid_coords <- map_site_sf %>%
+  st_coordinates() %>%
+  as.data.frame() %>%
+  summarise(longitude = mean(X), latitude = mean(Y))
+
+map_CA <- map("state", plot = FALSE, fill = TRUE) %>%
+  st_as_sf() %>%
+  filter(ID == "california")
+
+map_overview <- ggplot() +
+  geom_sf(data = map_CA, fill = "gray90", color = "gray60", size = 0.3) +
+  geom_point(data = map_centroid_coords, aes(x = longitude, y = latitude),
+             color = "red", size = 3, shape = 15) +
+  theme_void() +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, size = 0.5),
+    plot.background = element_rect(fill = "white", color = NA)
+  )
+
+map_final <- ggdraw() +
+  draw_plot(map_main) +
+  draw_plot(map_overview, x = 0.68, y = 0.647, width = 0.3, height = 0.3)
+
+map_final
+
+ggsave(here("figures", "deployment_map_pt_2_v2.png"), plot = map_final, width = 10, height = 6, dpi = 300, bg = "white")
+```
+
+
+# Part 1:
+
+## Load Data
+```{r}
+##load study part 1 data from February 2021
+clean_pt_1_obs <- read_excel(here("data","originalMasterHibernaculaAnalysis.xlsx"), sheet = "Master.Data.Cleaned")
+
+# Recode raw Excel value to new terminology
+clean_pt_1_obs$feature_type_methodology[clean_pt_1_obs$feature_type_methodology == "Constructed Hibernacula"] <- "Artificial Refuge (AR)"
+
+#load AR site coordinates
+hibernacula_coords <- read_csv(here("data", "hibernacula_coordinates.csv")) |> 
+  mutate(placename = str_to_upper(placename))
+```
+
+## Clean and Prepare Data
+```{r}
+#join AR site coordinates to clean_pt_1_obs
+clean_pt_1_obs <- clean_pt_1_obs |> 
+  left_join(hibernacula_coords, by = c("placename"))|> 
+  filter(!is.na(common_name)) |> 
+  mutate(
+    obs_start_time = hms::as_hms(obs_start_time),
+    common_name = common_name |>
+      str_replace_all("Racoon", "Northern Raccoon") |>
+      str_replace_all("California Towee", "California Towhee") |>
+      str_replace_all("Says Phoebe", "Say's Phoebe") |>
+      str_replace_all("Coopers Hawk", "Cooper's Hawk") |>
+      str_replace_all("Hermit thrush", "Hermit Thrush") |>
+      str_replace_all("Spotted Skunk", "Western Spotted Skunk") |>
+      str_replace_all("Western Skink", "Western skink") |>
+      str_replace_all("Mouse", "North American Deermouse") |>
+      str_replace_all("Western Fence Lizard", "Western fence lizard") |> 
+      str_replace_all("American Pipit", "Buff-bellied Pipit")
+  ) |> 
+  left_join(site_to_habitat_crosswalk, by = c("placename" = "site")) |> 
+  mutate(
+    deployment_duration = 5, ## ASSUMES ALL FEBRUARY DEPLOYMENTS WERE 5 DAYS LONG
+    study_part = 1 ## tags all of these sequences as part of the first part of the study
+  ) |> 
+  group_by(placename,camera_name) |> 
+  mutate(
+    start_date = min(obs_start_date, na.rm = TRUE),
+    end_date = max(obs_start_date, na.rm = TRUE),
+    calculated_deployment_duration = as.numeric(end_date - start_date) ### this shows that some sites may not have had 5 full days of trapping: H12, H13, H33, H48, H64 (4 days each); H25 (3 days), H21 2 (days)
+  ) |> 
+  ungroup() |> 
+  mutate( ## manual corrections for start/end dates based on review of first/last recorded images
+    start_date = case_when(
+      placename == "H21" & camera_name == "C12" & study_part == 1 ~ as.Date("2021-02-18"),
+      placename == "H25" & camera_name == "C2" & study_part == 1 ~ as.Date("2021-02-04"),
+      placename == "H48" & camera_name == "C10" & study_part == 1 ~ as.Date("2021-02-11"),
+      placename == "H11" & camera_name == "C11" & study_part == 1 ~ as.Date("2021-02-04"),
+      placename == "H11" & camera_name == "C12" & study_part == 1 ~ as.Date("2021-02-04"),
+      placename == "H58" & camera_name == "C09" & study_part == 1 ~ as.Date("2021-02-04"),
+      placename == "H19" & camera_name == "C05" & study_part == 1 ~ as.Date("2021-02-18"),
+      placename == "H34" & camera_name == "C05" & study_part == 1 ~ as.Date("2021-02-04"),
+      TRUE ~ start_date
+    ),
+    end_date = case_when(
+      placename == "H21" & camera_name == "C12" & study_part == 1 ~ as.Date("2021-02-23"),
+      placename == "H25" & camera_name == "C2" & study_part == 1 ~ as.Date("2021-02-09"),
+      placename == "H12" & camera_name == "C11" & study_part == 1 ~ as.Date("2021-03-09"),
+      placename == "H12" & camera_name == "C12" & study_part == 1 ~ as.Date("2021-03-09"),
+      placename == "H13" & camera_name == "C2" & study_part == 1 ~ as.Date("2021-02-16"),
+      placename == "H16" & camera_name == "C9" & study_part == 1 ~ as.Date("2021-03-09"),
+      placename == "H11" & camera_name == "C12" & study_part == 1 ~ as.Date("2021-02-09"),
+      placename == "H58" & camera_name == "C09" & study_part == 1 ~ as.Date("2021-02-09"),
+      placename == "H47" & camera_name == "C08" & study_part == 1 ~ as.Date("2021-03-02"),
+      placename == "H59" & camera_name == "C04" & study_part == 1 ~ as.Date("2021-02-16"),
+      TRUE ~ end_date
+    )
+  ) |> 
+   group_by(placename,camera_name) |> 
+  mutate(
+    calculated_deployment_duration = as.numeric(end_date - start_date),
+    deployment_duration = calculated_deployment_duration) |> 
+  ungroup() |> 
+filter(!(placename == "H41" & camera_name == "C6"), ## removing deployment b/c camera was set at bad angle)
+       !(placename == "H23" & camera_name == "C3"),  ## emoving deployment b/c camera was set at bad angle)
+       !(placename == "H24" & camera_name == "C1")) |>  ## removing  deployment because it failed on day 1
+  dplyr::select(-calculated_deployment_duration)
+
+clean_pt_1_obs <- clean_pt_1_obs |> 
+  mutate(row_id = row_number())
+```
+
+
+```{r}
+## REMOVING OBSERVATIONS BY DIFFERENT CAMERAS AT THE SAME PLACE, DATE, AND MINUTE 
+  clean_pt_1_obs <- clean_pt_1_obs |> 
+    mutate(
+      row_id = row_number(),
+      start_time = as.POSIXct(obs_start_date) + as.numeric(obs_start_time),
+      truncated_time = floor_date(start_time, unit = "minute"),
+      end_time = start_time + seconds(60)  # assume we want to remove duplicates within the minute
+    )
+
+  # Self-join within group to find same-minute, same-species, different-camera overlaps
+  overlap_pairs_part_1 <- clean_pt_1_obs |> 
+    inner_join(clean_pt_1_obs, by = c("placename", "obs_start_date", "truncated_time", "common_name")) |> 
+    filter(
+      camera_name.x != camera_name.y,
+      row_id.x != row_id.y
+    ) |> 
+    distinct(row_id.x, row_id.y, .keep_all = TRUE)
+  
+  rows_to_remove_part_1 <- overlap_pairs_part_1 |> 
+    mutate(
+      keep_x = if_else(group_size.x > group_size.y, TRUE,
+                if_else(group_size.x < group_size.y, FALSE,
+                  end_time.x > end_time.y))  # later end_time wins if tie
+    ) |> 
+    filter(!keep_x) |> 
+    pull(row_id.x) |> 
+    unique()
+  
+  clean_pt_1_obs <- clean_pt_1_obs |> 
+    filter(!row_id %in% rows_to_remove_part_1)
+
+## analyze how long each February deployment lasted
+placename_summary_pt_1 <- clean_pt_1_obs |> 
+  filter(!str_detect(camera_name, "&|,")) |> 
+  group_by(
+    placename, camera_name, start_date, end_date, deployment_duration,
+    feature_type_methodology, habitat_type, notable_entrances, trail, study_part,latitude,longitude
+  ) |> 
+  summarize(.groups = "drop")
+
+##SUMMARIZE FEBRUARY OBSERVATIONS BY SPECIES PER HOUR PER PLACE
+hourly_presence_pt_1 <- clean_pt_1_obs |>
+  # Create hour-block and date
+  mutate(
+    obs_hour = hour(obs_start_time),
+    obs_day = as.Date(obs_start_date)
+  ) |> 
+  #Count unique species per hour block, day, and place
+  group_by(placename, obs_day, obs_hour, feature_type_methodology,common_name,habitat_type,notable_entrances,trail,study_part,start_date,end_date,deployment_duration) |> 
+  summarize(n = 1, .groups = "drop")  # Forces 1 row per unique species in each hour/day block
+```
+
+# Combining Study Parts 1 and 2 
+```{r}
+## full join placename_summary_pt_1 and deployment_data_clean to get all deployments in one spot
+deployments_summary_pt_1_and_2 <- placename_summary_pt_1 |> 
+  full_join(clean_pt_2_dep, by = c("placename", "camera_name","start_date", "end_date", "deployment_duration", "feature_type_methodology", "habitat_type","notable_entrances", "trail", "study_part","latitude","longitude"))
+
+write.csv(deployments_summary_pt_1_and_2, here("data","deployments_summary_pt_1_and_2.csv"), row.names = FALSE)
+
+
+### reducing May observations to hourly presence
+hourly_presence_pt_2 <- clean_pt_2_seq_dep |>
+  mutate(
+    obs_hour = hour(obs_start_time),
+    obs_day = as.Date(obs_start_date)
+  ) |>
+  group_by(
+    placename,
+    obs_day,
+    obs_hour,
+    feature_type_methodology,
+    common_name,
+    habitat_type,
+    notable_entrances,
+    trail,
+    study_part,
+    start_date,
+    end_date,
+    deployment_duration
+  ) |>
+  summarize(n = 1, .groups = "drop")
+
+## combining hourly presence data from February and May
+hourly_presence_pt_1_and_2 <- bind_rows(hourly_presence_pt_1, hourly_presence_pt_2)
+
+# Count unique species per hour, feature, and study period
+hourly_presence_pt_1_and_2_summary <- hourly_presence_pt_1_and_2 |>
+  group_by(study_part, feature_type_methodology, obs_hour) |>
+  summarise(species_detections = n(), .groups = "drop")
+
+feature_type_effort_summary_pt_1 <- placename_summary_pt_1 %>%
+    group_by(feature_type_methodology) %>%
+    summarize(
+        total_camera_days = sum(deployment_duration, na.rm = TRUE),
+        total_camera_hours = total_camera_days * 24,
+        .groups = "drop"
+    )
+```
+
+## Data Visualizations:
+### Species Residency Status by Feature Type
+
+```{r fig-residency-status-by-feature}
+#| fig-label: fig-residency-status-by-feature
+#| fig-cap: "**Species residency status by feature type.** Detection rates (avg. # of hours each species is detected per camera day) for resident and transient species across different feature types. Points represent individual species. Species with detection rates above 0.25 detections per camera day are classified as residents. Resident species are colored, Black diamonds show mean detection rates with 95% confidence intervals."
+
+# 1. Camera effort summed across study parts
+
+feature_type_effort_summary_pt_1_and_2 <- bind_rows(
+    feature_type_effort_summary_pt_1 %>% mutate(study_part = 1),
+    feature_type_effort_summary_pt_2 %>% mutate(study_part = 2)) |> 
+  group_by(feature_type_methodology)
+
+feature_type_effort_combined_summary_pt_1_and_2 <- feature_type_effort_summary_pt_1_and_2 %>%
+  group_by(feature_type_methodology) %>%
+  summarize(total_camera_days = sum(total_camera_days, na.rm = TRUE),
+ total_camera_hours = sum(total_camera_hours, na.rm = TRUE), .groups = "drop")
+
+# 2. Calculate detections per camera hour for each species-feature combo
+species_hourly_presence_by_feature_pt_1_and_2 <- hourly_presence_pt_1_and_2 %>%
+  group_by(feature_type_methodology, common_name) %>%
+  summarise(detections = n(), .groups = "drop") %>%
+  left_join(feature_type_effort_combined_summary_pt_1_and_2, by = "feature_type_methodology") %>%
+  mutate(detections_per_camera_day = detections / total_camera_days)
+
+# 3. Assign residency status
+residency_threshold <- 0.25
+species_hourly_presence_by_feature_pt_1_and_2 <- species_hourly_presence_by_feature_pt_1_and_2 %>%
+  mutate(residency_status = ifelse(detections_per_camera_day > residency_threshold, "resident", "transient"))
+
+
+# 5. Calculate summary statistics (mean, CI) for each feature type and residency status
+summary_stats_species_hourly_presence_by_feature_pt_1_and_2 <- species_hourly_presence_by_feature_pt_1_and_2 %>%
+  group_by(feature_type_methodology, residency_status) %>%
+  summarise(
+    mean = mean(detections_per_camera_day, na.rm = TRUE),
+    se = sd(detections_per_camera_day, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    lower = mean - qt(0.975, df = n - 1) * se,
+    upper = mean + qt(0.975, df = n - 1) * se,
+    .groups = "drop"
+  )
+
+max_y <- max(species_hourly_presence_by_feature_pt_1_and_2$detections_per_camera_day, na.rm = TRUE)
+max_y <- ceiling(max_y * 1.3 * 10) / 10  # 20% buffer and round to nearest 0.1
+
+# 6. Create a plot for each feature type
+feature_types <- c("Artificial Refuge (AR)", "Boulder", "Log")
+
+# Step 1: Assign "Other" label to species not in the palette
+species_hourly_presence_by_feature_pt_1_and_2 <- species_hourly_presence_by_feature_pt_1_and_2 %>%
+  mutate(
+    species_fill = ifelse(common_name %in% names(species_palette_pt_2),
+                          common_name,
+                          "Other")
+  )
+
+# Step 2: Reorder species so "Other" comes last
+species_levels <- c(sort(setdiff(unique(species_hourly_presence_by_feature_pt_1_and_2$species_fill), "Other")), "Other")
+species_hourly_presence_by_feature_pt_1_and_2 <- species_hourly_presence_by_feature_pt_1_and_2 %>%
+  mutate(species_fill = factor(species_fill, levels = species_levels))
+
+# Step 2: Add 'Other' color to palette
+extended_palette <- species_palette_pt_2
+if (!"Other" %in% names(extended_palette)) {
+  extended_palette["Other"] <- "#a6cee3"
+}
+
+extended_palette <- extended_palette[species_levels]
+
+plots <- lapply(seq_along(feature_types), function(i) {
+  ft <- feature_types[i]
+
+  p <- ggplot(
+    species_hourly_presence_by_feature_pt_1_and_2 %>% filter(feature_type_methodology == ft),
+    aes(x = residency_status, y = detections_per_camera_day)
+  ) +
+    geom_jitter(aes(fill = species_fill, shape = species_fill), color = "black", width = 0.25, alpha = .85, size = 5, show.legend = TRUE) +
+    geom_errorbar(
+      data = summary_stats_species_hourly_presence_by_feature_pt_1_and_2 %>% filter(feature_type_methodology == ft),
+      aes(y = mean, ymin = lower, ymax = upper),
+      width = 0.5, color = "black", linewidth = 0.7
+    ) +
+    geom_point(
+      data = summary_stats_species_hourly_presence_by_feature_pt_1_and_2 %>% filter(feature_type_methodology == ft),
+      aes(y = mean),
+      shape = 9, size = 5,
+      fill = "white", color = "black", stroke = 1.2
+    ) +
+    scale_fill_manual(values = extended_palette, name="Species") +
+    scale_shape_manual(values = c(21, 22, 23, 24, 25), name="Species") +
+    scale_y_continuous(limits = c(0, max_y)) +
+    labs(
+      title = paste(ft)
+    ) +
+    theme_minimal() +
+    theme(
+      axis.text.x = element_text(vjust = 1),
+      plot.title = element_text(hjust = 0.5, size = 12, face = "bold")  # Center and style the title
+    )
+  
+  # Only add y-axis label to the first (leftmost) plot
+  if(i == 1) {
+    p <- p + labs(y = "Avg. # of Hours Detected per Camera Day")
+  } else {
+    p <- p + labs(y = "")
+  }
+  
+  # Only add x-axis label to the middle chart
+  middle_index <- ceiling(length(feature_types) / 2)
+  if(i == middle_index) {
+    p <- p + labs(x = "Residency Status")
+  } else {
+    p <- p + labs(x = "")
+  }
+  
+  return(p)
+})
+
+# 7. Display all plots side by side
+p4 <- wrap_plots(plots, guides = "collect") &
+  theme_minimal(base_size = 16) &  # bigger text everywhere
+  theme(
+    axis.text.x = element_text(size = 18, angle = 0, vjust = 0.5),
+    axis.text.y = element_text(size = 16),
+    axis.title.x = element_text(size = 18, face = "bold"),
+    axis.title.y = element_text(size = 18, face = "bold"),
+    plot.title = element_text(size = 20, face = "bold", hjust = 0.5),
+    legend.position = "bottom",
+    legend.box = "horizontal",
+    legend.title = element_text(size = 16),
+    legend.text = element_text(size = 14)
+  ) &
+  guides(fill = guide_legend(nrow = 1, byrow = TRUE))
+p4
+ggsave(here("figures","species_residency_status_by_feature_type_pt_1_and_2.png"), 
+       plot = p4, 
+       width = 12, height = 6, dpi = 300, bg = "white")
+```
+
+## Combined deployment map
+```{r}
+# Extract the zip file 
+unzip(here("data", "ncos_shp.zip"), exdir = here("data")) 
+# List the extracted files to see what's available 
+list.files(here("data"), pattern = "\\.shp$") 
+# Read the shapefile (replace "filename" with the actual .shp filename) 
+open_space_boundary <- st_read(here("data", "ncos_shp.shp"))
+# Transform boundary to WGS84 to match your study area
+open_space_boundary <- st_transform(open_space_boundary, crs = 4326)
+
+# Create combined dataset from both study parts
+placenames_for_deployment_map_step1 <- bind_rows(
+    placename_summary_pt_1 %>%
+      group_by(placename, latitude, longitude, feature_type_methodology, habitat_type) %>%
+      summarise(study_part = first(study_part), .groups = "drop"),
+    placename_summary_pt_2 %>%
+      group_by(placename, latitude, longitude, feature_type_methodology, habitat_type) %>%
+      summarise(study_part = first(study_part), .groups = "drop")
+  )
+
+
+# Combined Map for Both Parts of the Study
+placenames_for_deployment_map <- placenames_for_deployment_map_step1 %>%
+  mutate(
+    latitude = round(latitude, 4),
+    longitude = round(longitude, 4)
+  ) %>%
+  group_by(placename, latitude, longitude, feature_type_methodology) %>%
+  summarise(
+    study_part_combined = if_else(n() > 1, "both", as.character(min(study_part))),
+    .groups = "drop"
+  )
+
+
+# Convert site_summary to sf object
+map_site_sf <- st_as_sf(placenames_for_deployment_map, coords = c("longitude", "latitude"), crs = 4326)
+
+# Get bbox from shapefile and expand
+bbox_expanded <- st_bbox(open_space_boundary)
+buffer_val <- 0  # tweak this until boundary fits comfortably
+bbox_expanded <- bbox_expanded + c(-buffer_val, -buffer_val, buffer_val, buffer_val)
+
+# Convert to sf polygon for tile download
+bbox_sf <- st_as_sfc(bbox_expanded)
+
+# Download satellite tiles using expanded bbox
+map_basemap <- get_tiles(bbox_sf, provider = "Esri.WorldImagery", zoom = 18)
+
+# Load and process habitat layer
+ncos_habitats <- st_read(here("data", "ncos_habitats_june_2021", "NCOS_Habitats_June2021_Simple.shp"))
+ncos_habitats <- st_make_valid(ncos_habitats)
+ncos_habitats <- st_transform(ncos_habitats, crs = 4326)
+
+# Simplify habitat categories and dissolve by group
+ncos_habitats <- ncos_habitats |>
+  mutate(habitat_simple = case_when(
+    str_detect(Habitat, "Grassland") ~ "Grassland",
+    Habitat == "Upland Mosaic" ~ "Grassland",
+    str_detect(Habitat, "Marsh|marsh") ~ "Marsh",
+    str_detect(Habitat, "Scrub") ~ "Scrub",
+    Habitat == "Oak Woodland/Chaparral" ~ "Scrub",
+    TRUE ~ "Other"
+  )) |>
+  group_by(habitat_simple) |>
+  summarise(geometry = st_union(geometry), .groups = "drop")
+
+# Clip habitat layer to NCOS boundary
+ncos_habitats <- st_intersection(ncos_habitats, open_space_boundary)
+
+# Filter out "Other" habitat type
+ncos_habitats_filtered <- ncos_habitats |> filter(habitat_simple != "Other")
+
+# Define simplified habitat colors
+habitat_colors <- c(
+  "Grassland" = "#9ACD32",
+  "Marsh" = "#2E8B57",
+  "Scrub" = "#9370DB"
+)
+
+# Convert raster to data.frame for ggplot
+map_rgb_df <- as.data.frame(map_basemap, xy = TRUE)
+colnames(map_rgb_df) <- c("x", "y", "red", "green", "blue")
+map_rgb_df$hex <- rgb(map_rgb_df$red, map_rgb_df$green, map_rgb_df$blue, maxColorValue = 255)
+
+  # Create combined shape variable: feature type + study participation
+  # Reviewer: squares for AR (open=one study, filled=both), triangles for boulders, circles for logs
+  map_site_sf <- map_site_sf %>%
+    mutate(
+      point_label = case_when(
+        feature_type_methodology == "Artificial Refuge (AR)" & study_part_combined == "both" ~ "AR (both studies)",
+        feature_type_methodology == "Artificial Refuge (AR)" ~ "AR (one study)",
+        feature_type_methodology == "Boulder" ~ "Boulder",
+        feature_type_methodology == "Log" ~ "Log",
+        TRUE ~ as.character(feature_type_methodology)
+      ),
+      point_label = factor(point_label, levels = c(
+        "AR (both studies)", "AR (one study)", "Boulder", "Log"
+      ))
+    )
+
+  # Shape encoding: filled square=15, open square=0, triangle=2, circle=1
+  point_shapes <- c(
+    "AR (both studies)" = 15,
+    "AR (one study)" = 0,
+    "Boulder" = 2,
+    "Log" = 1
+  )
+
+  # Main satellite deployment map
+  map_main <- ggplot() +
+    geom_raster(data = map_rgb_df, aes(x = x, y = y, fill = hex)) +
+    scale_fill_identity() +
+
+    # Habitat polygons
+    ggnewscale::new_scale_fill() +
+    geom_sf(data = ncos_habitats_filtered, aes(fill = habitat_simple), color = NA, alpha = 0.5) +
+    scale_fill_manual(values = habitat_colors, name = "Habitat Type",
+                      guide = guide_legend(order = 2)) +
+
+    # NCOS boundary
+    geom_sf(data = open_space_boundary, aes(linetype = "NCOS Boundary"),
+            color = "yellow", fill = NA, linewidth = 2) +
+
+    # Deployment points — shape only, no fill color
+    geom_sf(data = map_site_sf, aes(shape = point_label),
+            color = "black", size = 4, stroke = 1.2) +
+
+    scale_shape_manual(
+      name = "Feature Type",
+      values = point_shapes
+    ) +
+    scale_linetype_manual(
+      name = "",
+      values = c("NCOS Boundary" = "solid")
+    ) +
+
+    coord_sf(expand = TRUE) +
+    annotation_scale(location = "bl", pad_x = unit(0.45, "in"), pad_y = unit(0.3, "in"),
+                     width_hint = 0.25, text_col = "white") +
+    annotation_north_arrow(location = "tr", which_north = "true",
+                           pad_x = unit(0.40, "in"), pad_y = unit(0.35, "in"),
+                           style = north_arrow_fancy_orienteering(
+                             fill = c("white", "white"),
+                             line_col = "white",
+                             text_col = "white"
+                           )) +
+
+    theme_minimal(base_size = 12) +
+    theme(
+      panel.grid = element_blank(),
+      legend.position = "bottom",
+      legend.box = "horizontal",
+      legend.box.just = "center",
+      legend.box.margin = margin(t = -20, r = 0, b = 0, l = 0),
+      plot.margin = margin(t = 5, r = 5, b = 5, l = 5),
+      axis.title = element_blank(),
+      axis.text = element_blank(),
+      axis.ticks = element_blank(),
+      legend.title = element_text(size = 14, face = "bold"),
+      legend.text = element_text(size = 12),
+      legend.spacing.x = unit(0.5, "cm"),
+      legend.direction = "vertical"
+    ) +
+
+    guides(
+      shape = guide_legend(order = 1, override.aes = list(size = 4, stroke = 1.2)),
+      fill = guide_legend(order = 2, override.aes = list(alpha = 0.7, shape = 22, color = NA, size = 5)),
+      linetype = guide_legend(order = 3, override.aes = list(color = "yellow", linewidth = 2))
+    )
+
+# Calculate study area centroid
+map_centroid_coords <- map_site_sf %>%
+  st_coordinates() %>%
+  as.data.frame() %>%
+  summarise(longitude = mean(X), latitude = mean(Y))
+
+# Overview map of CA with study area location
+map_CA <- map("state", plot = FALSE, fill = TRUE) %>%
+  st_as_sf() %>%
+  filter(ID == "california")
+
+map_overview <- ggplot() +
+  geom_sf(data = map_CA, fill = "gray90", color = "gray60", size = 0.3) +
+  geom_point(data = map_centroid_coords, aes(x = longitude, y = latitude), 
+             color = "red", size = 3, shape = 15) +
+  theme_void() +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, size = 0.5),
+    plot.background = element_rect(fill = "white", color = NA)
+  )
+
+# Combine maps with proper positioning
+map_final <- ggdraw() +
+  draw_plot(map_main) +
+  draw_plot(map_overview, x = 0.69, y = .25 , width = 0.3, height = 0.3)
+
+map_final
+
+ggsave(here("figures","deployment_map_combined.png"), plot = map_final, width = 10, height = 6, dpi = 300, bg = "white")
+```
+
+### Two-Panel Map (Winter / Spring)
+```{r fig-deployment-map-2panel}
+#| fig-cap: "**Camera trap deployment locations during winter (left) and spring (right) studies.** Point shape indicates feature type: square = artificial refuge (AR), triangle = boulder, circle = log. Habitat types shown as semi-transparent overlays. Inset shows study location within California."
+#| fig-width: 14
+#| fig-height: 7
+
+# Split sites by study period (use step1 data which has separate rows per study_part)
+sites_winter <- placenames_for_deployment_map_step1 %>%
+  filter(study_part == 1) %>%
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326)
+
+sites_spring <- placenames_for_deployment_map_step1 %>%
+  filter(study_part == 2) %>%
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326)
+
+# Shape encoding
+point_shapes_map <- c("Artificial Refuge (AR)" = 15, "Boulder" = 2, "Log" = 1)
+
+# Shared map-building function
+build_panel <- function(site_data, panel_title) {
+  ggplot() +
+    geom_raster(data = map_rgb_df, aes(x = x, y = y, fill = hex)) +
+    scale_fill_identity() +
+    ggnewscale::new_scale_fill() +
+    geom_sf(data = ncos_habitats_filtered, aes(fill = habitat_simple), color = NA, alpha = 0.5) +
+    scale_fill_manual(values = habitat_colors, name = "Habitat Type") +
+    geom_sf(data = open_space_boundary, color = "yellow", fill = NA, linewidth = 1.5) +
+    geom_sf(data = site_data, aes(shape = feature_type_methodology), color = "black", size = 3.5, stroke = 1.2) +
+    scale_shape_manual(values = point_shapes_map, name = "Feature Type") +
+    coord_sf(expand = TRUE) +
+    labs(title = panel_title) +
+    annotation_scale(location = "bl", pad_x = unit(0.3, "in"), pad_y = unit(0.2, "in"),
+                     width_hint = 0.2, text_col = "white") +
+    theme_minimal(base_size = 11) +
+    theme(
+      panel.grid = element_blank(),
+      axis.title = element_blank(),
+      axis.text = element_blank(),
+      axis.ticks = element_blank(),
+      plot.title = element_text(size = 14, face = "bold", hjust = 0.5),
+      legend.position = "none"
+    )
+}
+
+panel_winter <- build_panel(sites_winter, "Winter (Feb–Mar 2021)")
+panel_spring <- build_panel(sites_spring, "Spring (Apr–May 2021)")
+
+# Shared legend from spring panel (has all 3 feature types)
+legend_plot <- ggplot() +
+  geom_raster(data = map_rgb_df[1, ], aes(x = x, y = y, fill = hex)) +
+  scale_fill_identity() +
+  ggnewscale::new_scale_fill() +
+  geom_sf(data = ncos_habitats_filtered, aes(fill = habitat_simple), color = NA, alpha = 0.5) +
+  scale_fill_manual(values = habitat_colors, name = "Habitat Type") +
+  geom_sf(data = sites_spring, aes(shape = feature_type_methodology), color = "black", size = 3.5, stroke = 1.2) +
+  scale_shape_manual(values = point_shapes_map, name = "Feature Type") +
+  theme(legend.position = "bottom", legend.box = "horizontal",
+        legend.title = element_text(size = 11, face = "bold"),
+        legend.text = element_text(size = 10)) +
+  guides(
+    fill = guide_legend(order = 1, override.aes = list(alpha = 0.7, shape = 22, color = NA, size = 5)),
+    shape = guide_legend(order = 2, override.aes = list(size = 4, stroke = 1.2))
+  )
+
+shared_legend <- cowplot::get_legend(legend_plot)
+
+# CA inset
+map_overview_small <- ggplot() +
+  geom_sf(data = map_CA, fill = "gray90", color = "gray60", size = 0.3) +
+  geom_point(data = map_centroid_coords, aes(x = longitude, y = latitude),
+             color = "red", size = 2.5, shape = 15) +
+  theme_void() +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, size = 0.5),
+    plot.background = element_rect(fill = "white", color = NA)
+  )
+
+# Assemble: two panels side by side, shared legend below, CA inset overlaid
+two_panels <- plot_grid(panel_winter, panel_spring, ncol = 2, rel_widths = c(1, 1))
+map_2panel <- plot_grid(two_panels, shared_legend, ncol = 1, rel_heights = c(1, 0.08))
+
+map_2panel_final <- ggdraw(map_2panel) +
+  draw_plot(map_overview_small, x = 0.82, y = 0.75, width = 0.16, height = 0.22)
+
+map_2panel_final
+
+ggsave(here("figures", "deployment_map_2panel.png"), plot = map_2panel_final,
+       width = 14, height = 7, dpi = 300, bg = "white")
+```
+
+## # of Entrances by Feature Type
+
+```{r fig-entrances-by-feature}
+#| fig-label: fig-entrances-by-feature
+#| fig-cap: "**Number of entrances by feature type.** Boxplots show the distribution of the number of entrances per feature type. Points represent individual features. The horizontal line indicates the median number of entrances."
+
+placename_summary_pt_1_and_2 <- deployments_summary_pt_1_and_2 %>%
+  filter(!is.na(notable_entrances)) %>%
+  group_by(placename, feature_type_methodology,latitude,longitude) %>%
+  summarise(
+    notable_entrances = max(notable_entrances),
+    .groups = "drop"
+  )
+
+# Step 1: Summarize the table
+entrances_by_feature_type <- placename_summary_pt_1_and_2 %>%
+  group_by(feature_type_methodology) %>%
+  summarise(
+    mean_entrances = mean(notable_entrances, na.rm = TRUE),
+    median_entrances = median(notable_entrances, na.rm = TRUE),
+    sd_entrances = sd(notable_entrances, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  )
+
+# Step 2: Define output paths
+html_file <- here("misc", "entrances_by_feature_type_table.html")
+png_file  <- here("figures", "entrances_by_feature_type_table_pt_1_and_2.png")
+
+# Step 3: Create and save HTML kable
+kable(entrances_by_feature_type, format = "html", digits = 2, caption = "Entrances by Feature Type") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = F) %>%
+  save_kable(file = html_file)
+
+# Step 4: Save as PNG using webshot
+tryCatch(
+  webshot(html_file, file = png_file, zoom = 2, vwidth = 800, vheight = 600),
+  error = function(e) message("Webshot skipped: ", e$message)
+)
+
+# Create the boxplot
+p5 <- ggplot(placename_summary_pt_1_and_2, aes(x = feature_type_methodology, y = notable_entrances)) +
+  geom_boxplot(outlier.shape = NA, fill = "lightgray", alpha = 0.7) +
+  geom_jitter(aes(color = feature_type_methodology), size = 2, alpha = 0.6, width = 0.2) +
+  # Add dashed median lines for each feature type
+  geom_segment(
+    data = entrances_by_feature_type,
+    aes(
+      x = feature_type_methodology, xend = feature_type_methodology,
+      y = median_entrances, yend = median_entrances
+    ),
+    inherit.aes = FALSE,
+    linetype = "dashed", color = "red", linewidth = 1
+  ) +
+  labs(
+    title = "Number of Entrances by Feature Type",
+    x = "Feature Type",
+    y = "Number of Entrances"
+  ) +
+  scale_color_manual(values = c("Artificial Refuge (AR)" = "#fc8d62", "Boulder" = "#66c2a5", "Log" = "#8da0cb")) +
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "none",)
+
+p5
+
+ggsave(here("figures","entrances_by_feature_type_pt_1_and_2.png"), 
+       plot = p5, 
+       width = 8, height = 6, dpi = 300, bg = "white")
+```
+
+```{r}
+# Statistical test: Pairwise Wilcoxon test for number of entrances by feature type
+pairwise.wilcox.test(
+    placename_summary_pt_1_and_2$notable_entrances,
+    placename_summary_pt_1_and_2$feature_type_methodology,
+    p.adjust.method = "holm"
+)
+```
+    
+## Species List for Part 1
+
+```{r tbl-species-list-pt1}
+#| tbl-cap: "Species List for Part 1 of the Study. Only includes wildlife identified to species level. Table is sorted by number of detections." 
+
+# Calculate total unique features (placename) per feature_type
+total_features_pt_1 <- clean_pt_1_obs %>%
+  distinct(feature_type_methodology, placename) %>%
+  group_by(feature_type_methodology) %>%
+  summarise(total_features_pt_1 = n(), .groups = "drop")
+
+# Summarize sum(group_size) and count unique visited placename per species per feature type
+species_summary_pt_1 <- clean_pt_1_obs %>%
+  group_by(common_name, feature_type_methodology) %>%
+  summarise(
+    count_observed = sum(group_size, na.rm = TRUE),
+    features_visited = n_distinct(placename),
+    .groups = "drop"
+  )
+
+# Pivot counts wide
+species_counts_wide_pt_1 <- species_summary_pt_1 %>%
+  dplyr::select(-features_visited) %>%
+  pivot_wider(
+    names_from = feature_type_methodology,
+    values_from = count_observed,
+    values_fill = 0,
+    names_prefix = "count_observed_at_"
+  ) |> 
+  clean_names()
+
+# Pivot features visited wide
+species_features_wide_pt_1 <- species_summary_pt_1 %>%
+  dplyr::select(common_name, feature_type_methodology, features_visited) %>%
+  pivot_wider(
+    names_from = feature_type_methodology,
+    values_from = features_visited,
+    values_fill = 0,
+    names_prefix = "features_visited_at_"
+  ) |> 
+  clean_names()
+
+# Combine counts and features visited
+species_combined_pt_1 <- species_counts_wide_pt_1 %>%
+  full_join(species_features_wide_pt_1, by = c("common_name"))
+
+# Extract total features per feature type as named vector
+total_features_pt_1_vec <- total_features_pt_1 %>%
+  deframe()  # named vector: names are feature_type_methodology, values total_features_pt_1
+
+# Calculate percent visited by species at each feature type
+species_final_pt_1 <- species_combined_pt_1 %>%
+  mutate(
+    percent_hibernacula_visited = 100 * features_visited_at_artificial_refuge_ar / total_features_pt_1_vec["Artificial Refuge (AR)"]
+  )
+
+camera_days_vec_pt_1 <- feature_type_effort_summary_pt_1 %>%
+  dplyr::select(feature_type_methodology, total_camera_days) %>%
+  pull(total_camera_days) %>%
+  setNames(feature_type_effort_summary_pt_1$feature_type_methodology)
+
+total_camera_days_pt_1 <- sum(camera_days_vec_pt_1)
+
+species_final_pt_1 <- species_final_pt_1 %>%
+  mutate(
+    rate_per_cam_day_hibernacula = count_observed_at_artificial_refuge_ar / camera_days_vec_pt_1["Artificial Refuge (AR)"]
+  )
+
+# Create formatted table
+t1_pt1 = species_final_pt_1 %>%
+  dplyr::select(
+  #  'Class' = class,
+    'Common Name' = common_name,
+  #  'Scientific Name' = genus_species,
+    'Detections' = count_observed_at_artificial_refuge_ar,
+    '% Visited' = percent_hibernacula_visited,
+    'Per Cam.-Day' = rate_per_cam_day_hibernacula,
+  ) %>%
+  arrange(desc(`Detections`), `Common Name`) %>%
+  kable(
+    caption = "Species Observations and Percent Feature Visited by Feature Type (Part 1)",
+    align = c("l", "l", "l", rep("c", 12)),
+    digits = 3
+  ) %>%
+  kable_styling(
+    full_width = FALSE,
+    position = "left",
+    bootstrap_options = c("striped", "hover", "condensed")
+  ) %>%
+  add_header_above(c(" " = 1, "Artificial Refuge (AR)" = 3))
+
+tryCatch({
+  save_kable(t1_pt1, here("misc","species_table_pt1.html"))
+  webshot(here("misc","species_table_pt1.html"), here("figures","species_table_pt1.png"), zoom = 2, vwidth = 550)
+}, error = function(e) message("Table save/screenshot skipped: ", e$message))
+
+```
+    
+## Species List with Hourly Presence Data (Parts 1 and 2 Combined)
+```{r}
+#| label: tbl-species-list-hourly_pt_1_and_2
+#| tbl-cap: "Species List from Hourly Presence Data (Parts 1 and 2 Combined). Includes species-level wildlife identifications, sorted by class then total detections." 
+
+# Calculate total unique features (placename) per feature_type
+total_features_hourly <- hourly_presence_pt_1_and_2 %>%
+  distinct(feature_type_methodology, placename) %>%
+  group_by(feature_type_methodology) %>%
+  summarise(total_features_hourly = n(), .groups = "drop")
+
+# Summarize total detections and number of unique features visited
+species_summary_hourly <- hourly_presence_pt_1_and_2 %>%
+  group_by(common_name,feature_type_methodology) %>%
+  summarise(
+    count_observed = sum(n, na.rm = TRUE),
+    features_visited = n_distinct(placename),
+    .groups = "drop"
+  )
+
+# Pivot detection counts wide
+species_counts_wide_hourly <- species_summary_hourly %>%
+  dplyr::select(-features_visited) %>%
+  pivot_wider(
+    names_from = feature_type_methodology,
+    values_from = count_observed,
+    values_fill = 0,
+    names_prefix = "count_observed_at_"
+  ) %>%
+  clean_names()
+
+# Pivot features visited wide
+species_features_wide_hourly <- species_summary_hourly %>%
+  dplyr::select(common_name, feature_type_methodology, features_visited) %>%
+  pivot_wider(
+    names_from = feature_type_methodology,
+    values_from = features_visited,
+    values_fill = 0,
+    names_prefix = "features_visited_at_"
+  ) %>%
+  clean_names()
+
+# Combine counts and features visited
+species_combined_hourly <- species_counts_wide_hourly %>%
+  full_join(species_features_wide_hourly, by = c("common_name"))
+
+# Named vector of total features per feature type
+total_features_hourly_vec <- total_features_hourly %>%
+  deframe()
+
+# Calculate percent visited for each feature type
+species_final_hourly <- species_combined_hourly %>%
+  mutate(
+    percent_hibernacula_visited = 100 * features_visited_at_artificial_refuge_ar / total_features_hourly_vec["Artificial Refuge (AR)"],
+    percent_boulders_visited = 100 * features_visited_at_boulder / total_features_hourly_vec["Boulder"],
+    percent_logs_visited = 100 * features_visited_at_log / total_features_hourly_vec["Log"]
+  )
+
+# Camera effort vector for denominator in rates
+camera_days_vec_hourly <- feature_type_effort_combined_summary_pt_1_and_2 %>%
+  dplyr::select(feature_type_methodology, total_camera_days) %>%
+  pull(total_camera_days) %>%
+  setNames(feature_type_effort_combined_summary_pt_1_and_2 $feature_type_methodology)
+
+total_camera_days_hourly <- sum(camera_days_vec_hourly)
+
+# Add detection rate per camera day
+species_final_hourly <- species_final_hourly %>%
+  mutate(
+    rate_per_cam_day_hibernacula = count_observed_at_artificial_refuge_ar / camera_days_vec_hourly["Artificial Refuge (AR)"],
+    rate_per_cam_day_boulder = count_observed_at_boulder / camera_days_vec_hourly["Boulder"],
+    rate_per_cam_day_log = count_observed_at_log / camera_days_vec_hourly["Log"]
+  )
+
+species_final_hourly <- species_final_hourly %>%
+  left_join(
+    clean_pt_2_seq_dep_lumped %>%
+      dplyr::select(common_name, genus_species, class_grouped) %>%
+      distinct(),   # in case there are duplicates
+    by = "common_name"
+  )
+
+# Then manually patch the missing ones
+species_final_hourly <- species_final_hourly %>%
+  mutate(
+    genus_species = case_when(
+      common_name == "Western Meadowlark"    ~ "Sturnella neglecta",
+      common_name == "American Pipit"        ~ "Anthus rubescens",
+      common_name == "Wren"                  ~ "Troglodytes spp.",
+      common_name == "Grey Fox"              ~ "Urocyon cinereoargenteus",
+      common_name == "Western Spotted Skunk"         ~ "Spilogale leucoparia",
+      common_name == "California Towhee"     ~ "Melozone crissalis",
+      common_name == "Common Garter Snake"   ~ "Thamnophis sirtalis",
+      common_name == "Cooper's Hawk"         ~ "Astur cooperii",
+      TRUE ~ genus_species   # keep existing values
+    ),
+    class_grouped = case_when(
+      common_name %in% c("Western Meadowlark", "American Pipit", "Wren", 
+                         "California Towhee", "Cooper's Hawk") ~ "Birds",
+      common_name %in% c("Grey Fox", "Spotted Skunk") ~ "Mammals",
+      common_name == "Common Garter Snake" ~ "Reptiles",
+      TRUE ~ class_grouped   # keep existing values
+    )
+  )
+
+# Format final table
+t1_hourly <- species_final_hourly %>%
+  dplyr::select(
+    'Class' = class_grouped,
+    'Common Name' = common_name,
+    'Scientific Name' = genus_species,
+    'Detections' = count_observed_at_artificial_refuge_ar,
+    '% Visited' = percent_hibernacula_visited,
+    'Per Cam.-Day' = rate_per_cam_day_hibernacula,
+    'Detections ' = count_observed_at_boulder,
+    '% Visited ' = percent_boulders_visited,
+    'Per Cam.-Day ' = rate_per_cam_day_boulder,
+    'Detections  ' = count_observed_at_log,
+    '% Visited  ' = percent_logs_visited,
+    'Per Cam.-Day  ' = rate_per_cam_day_log
+  ) %>%
+  mutate(
+    'Detections   ' = Detections + `Detections ` + `Detections  `,
+    '% Visited   ' = (
+      (`% Visited` * total_features_hourly_vec["Artificial Refuge (AR)"]) +
+      (`% Visited ` * total_features_hourly_vec["Boulder"]) +
+      (`% Visited  ` * total_features_hourly_vec["Log"])
+    ) / sum(total_features_hourly_vec),
+    'Per Cam.-Day   ' = ((Detections + `Detections ` + `Detections  `) / total_camera_days_hourly),
+    across(starts_with("%"), ~ paste0(round(.x, 2), "%")),
+    across(starts_with("Per Cam.-Day"), ~ round(.x, 3))
+  ) %>%
+  arrange(desc(`Detections   `), `Common Name`) %>%
+  kable(
+    caption = "Unique Hours Present and Percent Feature Visited by Feature Type (Hourly Presence)",
+    align = c("l", "l", "l", rep("c", 12)),
+    digits = 3
+  ) %>%
+  kable_styling(
+    full_width = FALSE,
+    position = "left",
+    bootstrap_options = c("striped", "hover", "condensed")
+  ) %>%
+  add_header_above(c(" " = 3, "Artificial Refuge (AR)" = 3, "Boulders" = 3, "Logs" = 3, "Total" = 3))
+
+tryCatch({
+  save_kable(t1_hourly, here("misc","species_table_hourly_pt_1_and_2_combined.html"))
+  webshot(here("misc","species_table_hourly_pt_1_and_2_combined.html"), here("figures", "species_table_hourly_pt_1_and_2_combined.png"), zoom = 2, vwidth = 1800)
+}, error = function(e) message("Table save/screenshot skipped: ", e$message))
+```
+## Species List with Hourly Presence Data (Parts 1 and 2 Separated)
+
+```{r}
+#| label: tbl-species-list-hourly_pt_1_and_2_separated
+#| tbl-cap: "Species List from Hourly Presence Data (Parts 1 and 2 Separated). Includes species-level wildlife identifications, sorted by class then total detections."
+
+# ---- Totals per feature_type x study_part ----
+total_features_hourly <- hourly_presence_pt_1_and_2 %>%
+  distinct(feature_type_methodology, placename, study_part) %>%
+  count(feature_type_methodology, study_part, name = "total_features_hourly")
+
+# camera effort per feature_type x study_part
+effort_by_ft_part <- feature_type_effort_summary_pt_1_and_2 %>%
+  group_by(feature_type_methodology, study_part) %>%
+  summarise(total_camera_days = sum(total_camera_days, na.rm = TRUE), .groups = "drop")
+
+# ---- Species summaries per feature_type x study_part ----
+species_summary_hourly <- hourly_presence_pt_1_and_2 %>%
+  group_by(common_name, feature_type_methodology, study_part) %>%
+  summarise(
+    count_observed   = sum(n, na.rm = TRUE),
+    features_visited = n_distinct(placename),
+    .groups = "drop"
+  )
+
+# ---- Pivot wide (keep study_part as an id col) ----
+species_counts_wide_hourly <- species_summary_hourly %>%
+  dplyr::select(common_name, study_part, feature_type_methodology, count_observed) %>%
+  pivot_wider(
+    id_cols   = c(common_name, study_part),
+    names_from  = feature_type_methodology,
+    values_from = count_observed,
+    values_fill = 0,
+    names_prefix = "count_observed_at_"
+  ) %>%
+  clean_names()
+
+species_features_wide_hourly <- species_summary_hourly %>%
+  dplyr::select(common_name, study_part, feature_type_methodology, features_visited) %>%
+  pivot_wider(
+    id_cols   = c(common_name, study_part),
+    names_from  = feature_type_methodology,
+    values_from = features_visited,
+    values_fill = 0,
+    names_prefix = "features_visited_at_"
+  ) %>%
+  clean_names()
+
+# ---- Pivot totals/effort wide so we can divide per-part ----
+total_features_wide <- total_features_hourly %>%
+  pivot_wider(
+    id_cols   = study_part,
+    names_from  = feature_type_methodology,
+    values_from = total_features_hourly,
+    names_prefix = "total_features_"
+  ) %>%
+  clean_names()
+
+effort_wide <- effort_by_ft_part %>%
+  pivot_wider(
+    id_cols   = study_part,
+    names_from  = feature_type_methodology,
+    values_from = total_camera_days,
+    values_fill = 0,
+    names_prefix = "cam_days_"
+  ) %>%
+  clean_names()
+
+# ---- Combine all, keyed by common_name + study_part ----
+species_combined_hourly <- species_counts_wide_hourly %>%
+  full_join(species_features_wide_hourly, by = c("common_name","study_part")) %>%
+  left_join(total_features_wide, by = "study_part") %>%
+  left_join(effort_wide, by = "study_part")
+
+# Helper: safely divide (avoid Inf/NaN when denom==0 or NA)
+safe_div <- function(num, den) ifelse(is.na(den) | den == 0, NA_real_, num / den)
+
+# ---- Compute per-feature % visited and rates (per-part) ----
+species_final_hourly <- species_combined_hourly %>%
+  mutate(
+    # Percent visited (×100)
+    percent_hibernacula_visited = 100 * safe_div(
+      features_visited_at_artificial_refuge_ar, total_features_artificial_refuge_ar
+    ),
+    percent_boulders_visited = 100 * safe_div(
+      features_visited_at_boulder, total_features_boulder
+    ),
+    percent_logs_visited = 100 * safe_div(
+      features_visited_at_log, total_features_log
+    ),
+
+    # Rates per cam-day
+    rate_per_cam_day_hibernacula = safe_div(
+      count_observed_at_artificial_refuge_ar, cam_days_artificial_refuge_ar
+    ),
+    rate_per_cam_day_boulder = safe_div(
+      count_observed_at_boulder, cam_days_boulder
+    ),
+    rate_per_cam_day_log = safe_div(
+      count_observed_at_log, cam_days_log
+    ),
+
+    # Totals across feature types (per part)
+    detections_total = rowSums(across(c(count_observed_at_artificial_refuge_ar,
+                                        count_observed_at_boulder,
+                                        count_observed_at_log)), na.rm = TRUE),
+    total_features_all = rowSums(across(c(total_features_artificial_refuge_ar,
+                                          total_features_boulder,
+                                          total_features_log)), na.rm = TRUE),
+    total_cam_days_all = rowSums(across(c(cam_days_artificial_refuge_ar,
+                                          cam_days_boulder,
+                                          cam_days_log)), na.rm = TRUE),
+
+    percent_visited_all = 100 * safe_div(
+      rowSums(across(c(features_visited_at_artificial_refuge_ar,
+                       features_visited_at_boulder,
+                       features_visited_at_log)), na.rm = TRUE),
+      total_features_all
+    ),
+    rate_per_cam_day_all = safe_div(detections_total, total_cam_days_all)
+  )
+
+# ---- Add scientific names to species_final_hourly ----
+species_final_hourly <- species_final_hourly %>%
+  left_join(
+    clean_pt_2_seq_dep_lumped %>%
+      dplyr::select(common_name, genus_species, class_grouped) %>%
+      distinct(),
+    by = "common_name"
+  ) %>%
+  # Manually patch missing ones (Part 1 species and incomplete taxonomy)
+  mutate(
+    genus_species = case_when(
+      common_name == "Western Meadowlark"    ~ "Sturnella neglecta",
+      common_name == "American Pipit"        ~ "Anthus rubescens",
+      common_name == "Wren"                  ~ "Troglodytidae",  # Family name
+      common_name == "Grey Fox"              ~ "Urocyon cinereoargenteus",
+      common_name == "Western Spotted Skunk" ~ "Spilogale gracilis",
+      common_name == "California Towhee"     ~ "Melozone crissalis",
+      common_name == "Common Garter Snake"   ~ "Thamnophis sirtalis",
+      common_name == "Cooper's Hawk"         ~ "Accipiter cooperii",
+      TRUE ~ genus_species
+    ),
+    # Update Wren common name to "Wren sp."
+    common_name = ifelse(common_name == "Wren", "Wren sp.", common_name)
+  )
+
+# ---- Build wide table with Part headers (no Study Part column) ----
+# Start from species_final_hourly created above
+
+# 1) Keep just the display metrics
+metrics_long <- species_final_hourly %>%
+  transmute(
+    common_name, study_part,
+    # Artificial Refuge (AR)
+    detections_hib = count_observed_at_artificial_refuge_ar,
+    pct_hib       = percent_hibernacula_visited,
+    rate_hib      = rate_per_cam_day_hibernacula,
+    # Boulders
+    detections_bld = count_observed_at_boulder,
+    pct_bld        = percent_boulders_visited,
+    rate_bld       = rate_per_cam_day_boulder,
+    # Logs
+    detections_log = count_observed_at_log,
+    pct_log        = percent_logs_visited,
+    rate_log       = rate_per_cam_day_log,
+    # Totals
+    detections_tot = detections_total,
+    pct_tot        = percent_visited_all,
+    rate_tot       = rate_per_cam_day_all
+  ) %>%
+  tidyr::pivot_longer(
+    cols = -c(common_name, study_part),
+    names_to = "metric",
+    values_to = "value"
+  )
+
+# 2) Go wide by study_part so columns repeat under Part 1 and Part 2
+metrics_wide <- metrics_long %>%
+  tidyr::pivot_wider(
+    id_cols = common_name,
+    names_from = c(study_part, metric),
+    values_from = value,
+    names_glue = "part_{study_part}__{metric}"
+  )
+
+# --- figure out which metrics actually exist per part ---
+present_feats <- metrics_long %>%
+  dplyr::group_by(study_part, metric) %>%
+  dplyr::summarise(all_na = all(is.na(value) | value == 0), .groups = "drop") %>%
+  dplyr::mutate(feature = sub("^(detections|pct|rate)_(.*)$", "\\2", metric)) %>%
+  dplyr::group_by(study_part, feature) %>%
+  dplyr::summarise(all_zero = all(all_na), .groups = "drop")
+
+# features to drop (all-zero across all metrics)
+drop_feats <- present_feats %>%
+  dplyr::filter(all_zero) %>%
+  dplyr::mutate(prefix = paste0("__", feature)) %>%
+  dplyr::pull(prefix)
+
+# 3) Order columns: Part 1 (Hib, Bld, Log, Total) then Part 2 (same order)
+col_order <- c(
+  # Part 1
+  "part_1__detections_hib","part_1__pct_hib","part_1__rate_hib",
+  # Part 2
+  "part_2__detections_hib","part_2__pct_hib","part_2__rate_hib",
+  "part_2__detections_bld","part_2__pct_bld","part_2__rate_bld",
+  "part_2__detections_log","part_2__pct_log","part_2__rate_log",
+  "part_2__detections_tot","part_2__pct_tot","part_2__rate_tot"
+)
+
+# filter col_order so we remove those
+col_order <- col_order[!vapply(drop_feats, function(df) grepl(df, col_order), logical(length(col_order)))]
+
+
+# some columns may be missing if a feature type is absent in a part; keep only those that exist
+col_order <- col_order[col_order %in% names(metrics_wide)]
+
+# for safety, no rename yet
+col_keep <- intersect(col_order, names(metrics_wide))
+
+# --- rebuild display_tbl with stable sort key (totals across parts) ---
+display_tbl <- metrics_wide %>%
+  dplyr::left_join(
+    dplyr::transmute(
+      metrics_wide,
+      common_name,
+      total_all = rowSums(dplyr::across(tidyselect::matches("^part_\\d+__detections_tot$")), na.rm = TRUE)
+    ),
+    by = "common_name"
+  ) %>%
+  # Join scientific names
+  dplyr::left_join(
+    species_final_hourly %>%
+      dplyr::select(common_name, genus_species) %>%
+      dplyr::distinct(),
+    by = "common_name"
+  ) %>%
+  dplyr::select(common_name, genus_species, all_of(col_keep), total_all) %>%
+  dplyr::arrange(dplyr::desc(total_all), common_name) %>%
+  dplyr::select(-total_all) %>%
+  dplyr::mutate(
+    dplyr::across(tidyselect::matches("__pct_"),
+                  ~ round(.x, 2)),  # Remove paste0(..., "%")
+    dplyr::across(tidyselect::matches("__rate_"), ~ round(.x, 3))
+  ) %>%
+  dplyr::rename(`Common Name` = common_name, `Scientific Name` = genus_species)
+
+# --- build leaf (bottom) labels to pass via kable(col.names=...) ---
+metric_label_map <- c(
+  detections_hib = "Hrs",  pct_hib = "%",  rate_hib = "Rate",
+  detections_bld = "Hrs",  pct_bld = "%",  rate_bld = "Rate",
+  detections_log = "Hrs",  pct_log = "%",  rate_log = "Rate",
+  detections_tot = "Hrs",  pct_tot = "%",  rate_tot = "Rate"
+)
+
+leaf_labels <- c(
+  "Common Name",
+  "Scientific Name",
+  vapply(col_keep, function(x) {
+    key <- sub("^part_\\d+__", "", x)                 # e.g., "pct_hib"
+    lbl <- unname(metric_label_map[key])
+    if (is.na(lbl)) key else lbl
+  }, character(1))
+)
+
+# --- compute feature spans per part from the actual columns kept ---
+count_for <- function(part, suf)
+  sum(grepl(paste0("^part_", part, "__.*_", suf, "$"), col_keep))
+
+build_feature_spans <- function(part) {
+  out <- c()
+  n <- count_for(part, "hib"); if (n > 0) out <- c(out, "Artificial Refuge (AR)" = n)
+  n <- count_for(part, "bld"); if (n > 0) out <- c(out, "Boulders"               = n)
+  n <- count_for(part, "log"); if (n > 0) out <- c(out, "Logs"                    = n)
+  n <- count_for(part, "tot"); if (n > 0) out <- c(out, "Total"                   = n)
+  out
+}
+
+feature_header <- c(" " = 2, build_feature_spans(1), build_feature_spans(2))  # 2 for Common Name + Scientific Name
+
+n_part1 <- sum(grepl("^part_1__", col_keep))
+n_part2 <- sum(grepl("^part_2__", col_keep))
+top_header <- c(" " = 2, if (n_part1 > 0) c("Winter" = n_part1), if (n_part2 > 0) c("Spring" = n_part2))  # 2 for Common Name + Scientific Name
+
+# --- render: leaf labels via col.names; only TWO header rows above ---
+t1_hourly <- display_tbl %>%
+  kable(
+    caption = "Species List from Hourly Presence Data (Parts 1 and 2 Separated). Scientific names follow Wildlife Insights taxonomy (https://www.wildlifeinsights.org/get-started/taxonomy). Hrs = Hours detected; % = Percent of features visited (percentage values); Rate = Detections per camera-day.",
+    col.names = leaf_labels,
+    align = c("l", "l", rep("c", ncol(display_tbl) - 2)),  # Left-align first two cols (common + scientific), center rest
+    digits = 3,
+    escape = FALSE
+  ) %>%
+  kable_styling(full_width = FALSE, position = "left",
+                bootstrap_options = c("striped", "hover", "condensed"),
+                font_size = 10) %>%
+  add_header_above(feature_header) %>%
+  add_header_above(top_header) |>
+  column_spec((2 + n_part1), border_right = TRUE)  # Adjust border: now 2 columns before Part 2
+
+tryCatch({
+  save_kable(t1_hourly, here("misc","species_table_hourly_pt_1_and_2_separated.html"))
+  webshot(here("misc","species_table_hourly_pt_1_and_2_separated.html"),
+          here("figures","species_table_hourly_pt_1_and_2_separated2.png"),
+          zoom = 2, vwidth = 1800)
+}, error = function(e) message("Table save/screenshot skipped: ", e$message))
+
+readr::write_csv(display_tbl, here("misc","species_table_hourly_pt_1_and_2_separated.csv"))
+
+```
+
+
+
+# APPROPRIATENESS TESTS: 
+```{r}
+# ==============================================================================
+# NEGATIVE BINOMIAL MODEL DIAGNOSTICS
+# ==============================================================================
+
+# Load additional packages for diagnostics
+library(performance)  # for model performance metrics
+library(DHARMa)       # for residual diagnostics
+library(car)          # for outlier tests and VIF
+
+# 1. OVERDISPERSION TEST
+# ==============================================================================
+# Test if negative binomial is appropriate vs Poisson
+cat("=== OVERDISPERSION ASSESSMENT ===\n")
+cat("Raw variance-to-mean ratio:", var(placename_summary_pt_2$total_detections) / mean(placename_summary_pt_2$total_detections), "\n")
+
+# Compare Poisson vs Negative Binomial for best model
+poisson_model <- glm(total_detections ~ feature_type_methodology_recoded + trail + habitat_type + offset(log(total_camera_hours)), 
+                     family = poisson(), data = placename_summary_pt_2)
+
+# Overdispersion test
+overdispersion_test <- performance::check_overdispersion(poisson_model)
+print(overdispersion_test)
+
+# 2. MODEL SELECTION DIAGNOSTICS
+# ==============================================================================
+# Create list of all models for comparison
+all_models <- list(
+  "Feature Type" = nb_offset_1a,
+  "Trail" = nb_offset_1b,
+  "Habitat Type" = nb_offset_1c,
+  "Feature Type + Trail" = nb_offset_2a,
+  "Feature Type + Habitat Type" = nb_offset_2b,
+  "Trail + Habitat Type" = nb_offset_2c,
+  "Full Model" = nb_offset_3a
+)
+
+# Comprehensive model comparison
+model_comparison <- data.frame(
+  Model = names(all_models),
+  AIC = sapply(all_models, AIC),
+  BIC = sapply(all_models, BIC),
+  LogLik = sapply(all_models, logLik),
+  Deviance = sapply(all_models, deviance),
+  Theta = sapply(all_models, function(x) x$theta),
+  df = sapply(all_models, function(x) x$df.residual)
+) %>%
+  mutate(
+    Delta_AIC = AIC - min(AIC),
+    Delta_BIC = BIC - min(BIC),
+    AIC_weight = exp(-0.5 * Delta_AIC) / sum(exp(-0.5 * Delta_AIC))
+  ) %>%
+  arrange(AIC)
+
+print("=== MODEL COMPARISON TABLE ===")
+print(model_comparison)
+
+# Likelihood ratio tests for nested models
+cat("\n=== LIKELIHOOD RATIO TESTS ===\n")
+cat("Feature Type vs Full Model:\n")
+print(anova(nb_offset_1a, nb_offset_3a))
+
+cat("\nTrail vs Full Model:\n")
+print(anova(nb_offset_1b, nb_offset_3a))
+
+cat("\nHabitat vs Full Model:\n")
+print(anova(nb_offset_1c, nb_offset_3a))
+
+# 3. RESIDUAL DIAGNOSTICS
+# ==============================================================================
+# Use the best model (lowest AIC)
+best_model <- all_models[[which.min(sapply(all_models, AIC))]]
+cat("\n=== RESIDUAL DIAGNOSTICS FOR BEST MODEL ===\n")
+cat("Best model:", names(all_models)[which.min(sapply(all_models, AIC))], "\n")
+
+# DHARMa residuals (recommended for GLMMs and count models)
+simulationOutput <- simulateResiduals(fittedModel = best_model, plot = FALSE)
+
+# Create diagnostic plots
+par(mfrow = c(2, 2))
+
+# QQ plot of residuals
+plotQQunif(simulationOutput, main = "QQ Plot of Scaled Residuals")
+
+# Residuals vs fitted
+plotResiduals(simulationOutput, main = "Residuals vs Fitted")
+
+# Additional diagnostic plots
+plot(best_model, which = 1, main = "Residuals vs Fitted (Base R)")
+plot(best_model, which = 2, main = "Normal Q-Q Plot")
+
+par(mfrow = c(1, 1))
+
+# Formal tests
+cat("\nFormal diagnostic tests:\n")
+cat("Shapiro-Wilk test for normality of residuals: p =", shapiro.test(residuals(best_model))$p.value, "\n")
+cat("Kolmogorov-Smirnov test (DHARMa):\n")
+print(testResiduals(simulationOutput))
+
+# 4. OUTLIER AND INFLUENCE DIAGNOSTICS
+# ==============================================================================
+cat("\n=== OUTLIER AND INFLUENCE DIAGNOSTICS ===\n")
+
+# Cook's distance
+cooks_d <- cooks.distance(best_model)
+cat("Observations with Cook's D > 4/n:\n")
+influential_obs <- which(cooks_d > 4/nrow(placename_summary_pt_2))
+if(length(influential_obs) > 0) {
+  print(placename_summary_pt_2[influential_obs, c("placename", "total_detections", "feature_type_methodology_recoded")])
+} else {
+  cat("No highly influential observations detected.\n")
+}
+
+# Outlier test
+outlier_test <- car::outlierTest(best_model)
+cat("\nBonferroni outlier test:\n")
+print(outlier_test)
+
+# 5. COLLINEARITY DIAGNOSTICS (for models with multiple predictors)
+# ==============================================================================
+if(length(coef(best_model)) > 2) {  # More than just intercept + one predictor
+  cat("\n=== COLLINEARITY DIAGNOSTICS ===\n")
+  
+  # VIF (only for models with multiple predictors)
+  vif_values <- car::vif(best_model)
+  cat("Variance Inflation Factors:\n")
+  print(vif_values)
+  
+  if(any(vif_values > 5)) {
+    cat("WARNING: VIF > 5 detected, indicating potential collinearity issues.\n")
+  }
+}
+
+# 6. GOODNESS OF FIT MEASURES
+# ==============================================================================
+cat("\n=== GOODNESS OF FIT MEASURES ===\n")
+
+# Pseudo R-squared
+null_deviance <- best_model$null.deviance
+residual_deviance <- best_model$deviance
+mcfadden_r2 <- 1 - (residual_deviance / null_deviance)
+
+cat("McFadden's Pseudo R-squared:", round(mcfadden_r2, 3), "\n")
+cat("Theta parameter (dispersion):", round(best_model$theta, 3), "\n")
+cat("Standard error of theta:", round(best_model$SE.theta, 3), "\n")
+
+# 7. PREDICTION ACCURACY (if desired)
+# ==============================================================================
+cat("\n=== PREDICTION ACCURACY ===\n")
+
+# Fitted vs observed
+fitted_vals <- fitted(best_model)
+observed_vals <- placename_summary_pt_2$total_detections
+
+# Correlation between fitted and observed
+correlation <- cor(fitted_vals, observed_vals)
+cat("Correlation between fitted and observed:", round(correlation, 3), "\n")
+
+# Mean Absolute Error
+mae <- mean(abs(fitted_vals - observed_vals))
+cat("Mean Absolute Error:", round(mae, 2), "\n")
+
+# Root Mean Squared Error
+rmse <- sqrt(mean((fitted_vals - observed_vals)^2))
+cat("Root Mean Squared Error:", round(rmse, 2), "\n")
+
+# 8. SAVE DIAGNOSTIC PLOTS
+# ==============================================================================
+# Create a comprehensive diagnostic plot
+png(here("figures", "model_diagnostics_nb_offset.png"), width = 12, height = 8, units = "in", res = 300)
+par(mfrow = c(2, 3))
+
+# Plot 1: Residuals vs Fitted
+plot(fitted(best_model), residuals(best_model, type = "pearson"), 
+     main = "Residuals vs Fitted", xlab = "Fitted Values", ylab = "Pearson Residuals")
+abline(h = 0, col = "red", lty = 2)
+
+# Plot 2: QQ plot
+qqnorm(residuals(best_model, type = "pearson"), main = "Normal Q-Q Plot")
+qqline(residuals(best_model, type = "pearson"), col = "red")
+
+# Plot 3: Cook's distance
+plot(cooks_d, type = "h", main = "Cook's Distance", ylab = "Cook's Distance")
+abline(h = 4/nrow(placename_summary_pt_2), col = "red", lty = 2)
+
+# Plot 4: Fitted vs Observed
+plot(observed_vals, fitted_vals, main = "Fitted vs Observed",
+     xlab = "Observed", ylab = "Fitted")
+abline(0, 1, col = "red", lty = 2)
+
+# Plot 5: Histogram of residuals
+hist(residuals(best_model, type = "pearson"), main = "Histogram of Residuals",
+     xlab = "Pearson Residuals", breaks = 10)
+
+# Plot 6: Scale-location plot
+sqrt_abs_resid <- sqrt(abs(residuals(best_model, type = "pearson")))
+plot(fitted(best_model), sqrt_abs_resid, 
+     main = "Scale-Location Plot", xlab = "Fitted Values", ylab = "√|Residuals|")
+
+dev.off()
+par(mfrow = c(1, 1))
+
+cat("\nDiagnostic plots saved to: figures/model_diagnostics_nb_offset.png\n")
+```
+
