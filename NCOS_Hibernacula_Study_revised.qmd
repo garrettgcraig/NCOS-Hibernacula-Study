@@ -1,5 +1,5 @@
 ---
-title: "NCOS Artificial Refuge Study - Revisions"
+title: "NCOS Constructed Refugia Study - Revisions"
 author: "Garrett Craig"
 date: "`r Sys.Date()`"
 format:
@@ -115,7 +115,7 @@ raw_pt_2_dep$feature_type_methodology[raw_pt_2_dep$deployment_id == "L30C9"] <- 
 raw_pt_2_dep$feature_type_methodology[raw_pt_2_dep$deployment_id == "H8C11"] <- "Constructed Hibernacula"
 
 # Recode raw CSV value to new terminology
-raw_pt_2_dep$feature_type_methodology[raw_pt_2_dep$feature_type_methodology == "Constructed Hibernacula"] <- "Artificial Refuge (AR)"
+raw_pt_2_dep$feature_type_methodology[raw_pt_2_dep$feature_type_methodology == "Constructed Hibernacula"] <- "Constructed Refugium"
 
 clean_pt_2_seq <- raw_pt_2_seq |> 
   dplyr::select("project_id", "deployment_id", "sequence_id", "is_blank", "identified_by", "wi_taxon_id", 
@@ -143,10 +143,13 @@ clean_pt_2_dep <- raw_pt_2_dep |>
       deployment_id == "H35C6" ~ as.Date("2021-05-15"),
       TRUE ~ as.Date(end_date)
     ),
-    feature_type_methodology_recoded = case_when(
-      feature_type_methodology == "Log" ~ "Log",
-      feature_type_methodology == "Boulder" ~ "Boulder",
-      TRUE ~ "Artificial Refuge (AR)"
+    feature_type_methodology_recoded = factor(
+      case_when(
+        feature_type_methodology == "Log" ~ "Log",
+        feature_type_methodology == "Boulder" ~ "Boulder",
+        TRUE ~ "Constructed Refugium"
+      ),
+      levels = c("Constructed Refugium", "Boulder", "Log")
     ),
     start_date = as.Date(start_date),
     deployment_duration = as.numeric(difftime(end_date, start_date, units = "days")),
@@ -175,11 +178,11 @@ clean_pt_2_seq_dep <- clean_pt_2_seq |>
     feature_type_methodology_recoded = case_when(
       feature_type_methodology == "Log" ~ "Log",
       feature_type_methodology == "Boulder" ~ "Boulder",
-      TRUE ~ "Artificial Refuge (AR)"
+      TRUE ~ "Constructed Refugium"
     ),
     feature_type_methodology_recoded = factor(
       feature_type_methodology_recoded,
-      levels = c("Artificial Refuge (AR)", "Boulder", "Log")
+      levels = c("Constructed Refugium", "Boulder", "Log")
     )
   )
 ```
@@ -404,6 +407,62 @@ for (i in competitive_idx) {
     sorted_weights[i]))
 }
 cat(sprintf("\nPreferred model (most parsimonious within ΔAICc < 2): %s\n", best_model_name))
+
+top_weight_idx <- competitive_idx[which.max(sorted_weights[competitive_idx])]
+top_weight_name <- names(sorted_models)[top_weight_idx]
+top_weight_val <- sorted_weights[top_weight_idx]
+
+cat("\n=== Akaike Weight Interpretation ===\n")
+cat(sprintf("Highest Akaike weight among competitive models: %s (w = %.3f)\n", top_weight_name, top_weight_val))
+if (top_weight_name != best_model_name) {
+  cat(sprintf("Note: %s has the highest evidence ratio despite having more parameters than %s.\n", top_weight_name, best_model_name))
+  cat("The Akaike weight represents the probability that a given model is the best approximating model\n")
+  cat("in the candidate set. While parsimony favors the simpler model, the weight indicates the\n")
+  cat("data provide stronger support for the more complex model.\n")
+}
+
+er <- top_weight_val / sorted_weights[competitive_idx[which(names(sorted_models)[competitive_idx] != top_weight_name)[1]]]
+cat(sprintf("\nEvidence ratio (best weight / next competitive): %.2f\n", er))
+
+cat("\n=== Model-Averaged Coefficients (weighted by Akaike weights) ===\n")
+cat("Using full model averaging across the competitive set (ΔAICc < 2).\n")
+cat("Note: model averaging is common but debated in ecology (see Cade 2015, Banner & Higgs 2017).\n\n")
+
+top_idx <- competitive_idx
+top_models <- sorted_models[top_idx]
+top_weights_raw <- sorted_weights[top_idx]
+top_weights_rescaled <- top_weights_raw / sum(top_weights_raw)
+
+all_coef_names <- unique(unlist(lapply(top_models, function(m) names(coef(m)))))
+
+avg_coefs <- data.frame(
+  Coefficient = all_coef_names,
+  Averaged_Beta = NA_real_,
+  Averaged_IRR = NA_real_,
+  N_Models = 0L,
+  stringsAsFactors = FALSE
+)
+
+for (j in seq_along(all_coef_names)) {
+  cn <- all_coef_names[j]
+  beta_sum <- 0
+  w_sum <- 0
+  n_present <- 0L
+  for (k in seq_along(top_models)) {
+    cc <- coef(top_models[[k]])
+    if (cn %in% names(cc)) {
+      beta_sum <- beta_sum + cc[cn] * top_weights_rescaled[k]
+      w_sum <- w_sum + top_weights_rescaled[k]
+      n_present <- n_present + 1L
+    }
+  }
+  avg_coefs$Averaged_Beta[j] <- beta_sum / w_sum
+  avg_coefs$Averaged_IRR[j] <- exp(beta_sum / w_sum)
+  avg_coefs$N_Models[j] <- n_present
+}
+
+print(avg_coefs, digits = 3)
+
 cat("\nBest model summary:\n")
 summary(best_model)
 ```
@@ -450,7 +509,7 @@ print(moran_full)
 ### Spatial Sensitivity: Edge vs. Interior Sites
 ```{r}
 #| echo: false
-# Reviewer flagged that 5 of 14 artificial refuges are on the periphery near trails
+# Reviewer flagged that 5 of 14 constructed refugia are on the periphery near trails
 # The trail variable already captures this, but we can visualize the spatial pattern
 
 placename_summary_pt_2 <- placename_summary_pt_2 %>%
@@ -584,7 +643,7 @@ display_data <- detailed_model_data %>%
 
 kable(display_data %>% dplyr::select(-row_type_flag),
       col.names = c("Model / Predictor", "β", "IRR", "% Change", "P-Value", "ΔAICc", "w", "RMSE"),
-      caption = "Table 1. Negative Binomial Model Comparison (AICc). Models ranked by ΔAICc; coefficients shown as β, IRR, and % Change. Reference: AR, not trail-adjacent, marsh habitat.",
+      caption = "Table 1. Negative Binomial Model Comparison (AICc). Models ranked by ΔAICc; coefficients shown as β, IRR, and % Change. Reference: Constructed Refugium, not trail-adjacent, marsh habitat.",
       align = c("l", rep("r", 7)),
       digits = 3) %>%
   kable_styling(full_width = FALSE, position = "left",
@@ -618,7 +677,7 @@ top_display <- top_model_data %>%
 
 kable(top_display %>% dplyr::select(-row_type_flag),
       col.names = c("Model / Predictor", "β", "IRR", "% Change", "P-Value", "ΔAICc", "w", "RMSE"),
-      caption = sprintf("Table 2. Competitive Models (ΔAICc < 2). Preferred (most parsimonious): %s. Reference: AR, not trail-adjacent, marsh habitat.", best_model_name),
+      caption = sprintf("Table 2. Competitive Models (ΔAICc < 2). Preferred (most parsimonious): %s. Reference: Constructed Refugium, not trail-adjacent, marsh habitat.", best_model_name),
       align = c("l", rep("r", 7)),
       digits = 3) %>%
   kable_styling(full_width = FALSE, position = "left",
@@ -681,6 +740,77 @@ if (length(top_idx) > 1) {
     print(cv_summary, digits = 3)
   }
 }
+```
+
+### DHARMa Diagnostics for Competitive Models
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 4
+library(DHARMa)
+
+cat("=== DHARMa Residual Diagnostics for All Models with ΔAICc < 2 ===\n\n")
+
+for (i in seq_along(top_models)) {
+  mod_name <- names(top_models)[i]
+  mod <- top_models[[i]]
+
+  cat(sprintf("--- %s (ΔAICc = %.2f, w = %.3f, df = %d) ---\n",
+              mod_name,
+              sorted_delta_aicc[top_idx[i]],
+              sorted_weights[top_idx[i]],
+              attr(logLik(mod), "df")))
+
+  sim_out <- tryCatch(
+    simulateResiduals(fittedModel = mod, plot = FALSE, n = 1000),
+    error = function(e) { message("DHARMa failed for ", mod_name, ": ", e$message); NULL })
+
+  if (!is.null(sim_out)) {
+    dharma_tests <- tryCatch(testResiduals(sim_out, plot = FALSE), error = function(e) NULL)
+
+    if (!is.null(dharma_tests)) {
+      ks_p <- dharma_tests$uniformity$p.value
+      disp_p <- dharma_tests$dispersion$p.value
+      outlier_p <- dharma_tests$outliers$p.value
+
+      cat(sprintf("  KS uniformity test:    p = %.4f %s\n", ks_p, ifelse(ks_p < 0.05, "**", "")))
+      cat(sprintf("  Dispersion test:       p = %.4f %s\n", disp_p, ifelse(disp_p < 0.05, "**", "")))
+      cat(sprintf("  Outlier test:          p = %.4f %s\n", outlier_p, ifelse(outlier_p < 0.05, "**", "")))
+
+      if (any(c(ks_p, disp_p, outlier_p) < 0.05)) {
+        cat("  >> One or more diagnostic tests flagged (p < 0.05). Consider down-weighting this model.\n")
+      } else {
+        cat("  >> All diagnostics pass.\n")
+      }
+    }
+    cat("\n")
+  }
+}
+```
+
+```{r}
+#| echo: false
+#| fig-width: 12
+#| fig-height: 4
+#| fig-cap: "DHARMa residual diagnostics for all competitive models (ΔAICc < 2). QQ plot and residuals vs. predicted for each model."
+
+n_top <- length(top_models)
+par(mfrow = c(1, n_top * 2), mar = c(4, 3, 3, 1))
+
+for (i in seq_along(top_models)) {
+  mod_name <- names(top_models)[i]
+  mod <- top_models[[i]]
+  sim_out <- tryCatch(
+    simulateResiduals(fittedModel = mod, plot = FALSE, n = 1000),
+    error = function(e) NULL)
+
+  if (!is.null(sim_out)) {
+    plotQQunif(sim_out, main = paste0(mod_name, "\nQQ Plot"))
+    plotResiduals(sim_out, main = paste0(mod_name, "\nResid vs Pred"))
+  }
+}
+
+par(mfrow = c(1, 1))
 ```
 
 ### Sensitivity Analysis: Interior Sites Only
@@ -791,7 +921,7 @@ int_display <- int_table_data %>%
 
 kable(int_display %>% dplyr::select(-row_type_flag),
       col.names = c("Model / Predictor", "β", "IRR", "% Change", "P-Value", "ΔAICc", "w", "RMSE"),
-      caption = sprintf("Table 3. Interior Sites Only (n=%d). Models ranked by ΔAICc. Reference: AR, marsh habitat.", nrow(interior_data)),
+      caption = sprintf("Table 3. Interior Sites Only (n=%d). Models ranked by ΔAICc. Reference: Constructed Refugium, marsh habitat.", nrow(interior_data)),
       align = c("l", rep("r", 7)),
       digits = 3) %>%
   kable_styling(full_width = FALSE, position = "left",
@@ -831,7 +961,7 @@ if (nrow(int_coords) >= 5) {
 
 ### Daily Detections Mean and 95% Confidence Intervals by Feature Type
 ```{r fig-daily-detections-mean-ci}
-#| fig-cap: "Average wildlife detections per camera trap day across all two feature types groups—artificial refuges (AR) and logs/boulders. Points represent individual sites, black diamonds indicate mean values, and vertical lines show 95% confidence intervals."
+#| fig-cap: "Average wildlife detections per camera trap day across all three feature type groups—constructed refugia, boulders, and logs. Points represent individual sites, black diamonds indicate mean values, and vertical lines show 95% confidence intervals."
 
 # Step 1: Compute summary stats
 summary_pt_2_by_feature_type_recoded <- placename_summary_pt_2 %>%
@@ -855,7 +985,7 @@ p1 = ggplot(placename_summary_pt_2, aes(x = feature_type_methodology_recoded, y 
   geom_point(data = summary_pt_2_by_feature_type_recoded,
              aes(x = feature_type_methodology_recoded, y = mean),
              shape = 23, size = 6, fill = "black", color = "black", stroke = 1.5) +
-  scale_color_manual(values = c("Boulder" = "#66c2a5", "Log" = "#8da0cb", "Artificial Refuge (AR)" = "#fc8d62")) +
+  scale_color_manual(values = c("Boulder" = "#66c2a5", "Log" = "#8da0cb", "Constructed Refugium" = "#fc8d62")) +
   labs(
     title = "Detection Rate per Camera Day by Feature Type",
     x = "Feature Type",
@@ -1099,9 +1229,9 @@ figs_hourly_boulder <- figs_hourly_boulder |>
   dplyr::mutate(detections_per_camera_day = detections / boulder_effort)
 
 # Artificial Refuge (AR)
-figs_hourly_hibernacula <- pad_hourly(clean_pt_2_seq_dep_lumped, "Artificial Refuge (AR)")
+figs_hourly_hibernacula <- pad_hourly(clean_pt_2_seq_dep_lumped, "Constructed Refugium")
 hibernacula_effort <- feature_type_effort_summary_pt_2 |>
-  dplyr::filter(feature_type_methodology == "Artificial Refuge (AR)") |>
+  dplyr::filter(feature_type_methodology == "Constructed Refugium") |>
   dplyr::pull(total_camera_days)
 figs_hourly_hibernacula <- figs_hourly_hibernacula |>
   dplyr::mutate(detections_per_camera_day = detections / hibernacula_effort)
@@ -1141,7 +1271,7 @@ figs_plot_hibernacula <- ggplot(figs_hourly_hibernacula, aes(x = hour_am_pm, y =
   scale_fill_manual(values = species_palette_pt_2, name = "Species") +
   scale_y_continuous(limits = c(0, max_count)) +
   labs(
-    title = "Artificial Refuge (AR)",
+    title = "Constructed Refugium",
     x = "",
     y = "Detections Per Camera Day"
   ) +
@@ -1221,7 +1351,7 @@ total_features_pt_2_vec <- total_features_pt_2 %>%
 # Calculate percent visited by species at each feature type
 species_final_pt_2 <- species_combined_pt_2 %>%
   mutate(
-    percent_hibernacula_visited = 100 * features_visited_at_artificial_refuge_ar / total_features_pt_2_vec["Artificial Refuge (AR)"],
+    percent_hibernacula_visited = 100 * features_visited_at_constructed_refugium / total_features_pt_2_vec["Constructed Refugium"],
     percent_boulders_visited = 100 * features_visited_at_boulder / total_features_pt_2_vec["Boulder"],
     percent_logs_visited = 100 * features_visited_at_log / total_features_pt_2_vec["Log"]
   )
@@ -1235,7 +1365,7 @@ total_camera_days_all <- sum(camera_days_vec)
 
 species_final_pt_2 <- species_final_pt_2 %>%
   mutate(
-    rate_per_cam_day_hibernacula = count_observed_at_artificial_refuge_ar / camera_days_vec["Artificial Refuge (AR)"],
+    rate_per_cam_day_hibernacula = count_observed_at_constructed_refugium / camera_days_vec["Constructed Refugium"],
     rate_per_cam_day_boulder = count_observed_at_boulder / camera_days_vec["Boulder"],
     rate_per_cam_day_log = count_observed_at_log / camera_days_vec["Log"]
   )
@@ -1246,7 +1376,7 @@ t1 = species_final_pt_2 %>%
     'Class' = class,
     'Common Name' = common_name,
     'Scientific Name' = genus_species,
-    'Detections' = count_observed_at_artificial_refuge_ar,
+    'Detections' = count_observed_at_constructed_refugium,
     '% Visited' = percent_hibernacula_visited,
     'Per Cam.-Day' = rate_per_cam_day_hibernacula,
     'Detections ' = count_observed_at_boulder,
@@ -1259,7 +1389,7 @@ t1 = species_final_pt_2 %>%
   mutate(
     'Detections   ' = Detections + `Detections ` + `Detections  `,
     '% Visited   ' = (
-      (`% Visited` * total_features_pt_2_vec["Artificial Refuge (AR)"]) +
+      (`% Visited` * total_features_pt_2_vec["Constructed Refugium"]) +
       (`% Visited ` * total_features_pt_2_vec["Boulder"]) +
       (`% Visited  ` * total_features_pt_2_vec["Log"])
     ) / sum(total_features_pt_2_vec),
@@ -1279,7 +1409,7 @@ t1 = species_final_pt_2 %>%
     position = "left",
     bootstrap_options = c("striped", "hover", "condensed")
   ) %>%
-  add_header_above(c(" " = 3, "Artificial Refuge (AR)" = 3, "Boulders" = 3, "Logs" = 3, "Total" = 3))
+  add_header_above(c(" " = 3, "Constructed Refugia" = 3, "Boulders" = 3, "Logs" = 3, "Total" = 3))
 
 # Save the kable as an HTML file
 tryCatch({
@@ -1347,7 +1477,7 @@ map_rgb_df$hex <- rgb(map_rgb_df$red, map_rgb_df$green, map_rgb_df$blue, maxColo
 # Set feature type colors
 feature_colors <- c(
   "Boulder" = brewer.pal(3, "Set2")[1],
-  "Artificial Refuge (AR)" = brewer.pal(3, "Set2")[2],
+  "Constructed Refugium" = brewer.pal(3, "Set2")[2],
   "Log" = brewer.pal(3, "Set2")[3]
 )
 
@@ -1497,8 +1627,8 @@ map_rgb_df$hex <- rgb(map_rgb_df$red, map_rgb_df$green, map_rgb_df$blue, maxColo
 habitat_colors <- c("Grassland" = "#9ACD32", "Marsh" = "#2E8B57", "Scrub" = "#9370DB")
 ncos_habitats_filtered <- ncos_habitats |> filter(habitat_simple != "Other")
 
-# Shape encoding: square=AR, triangle=boulder, circle=log
-point_shapes_pt2 <- c("Artificial Refuge (AR)" = 15, "Boulder" = 2, "Log" = 1)
+# Shape encoding: square=refugium, triangle=boulder, circle=log
+point_shapes_pt2 <- c("Constructed Refugium" = 15, "Boulder" = 2, "Log" = 1)
 
 map_main <- ggplot() +
   geom_raster(data = map_rgb_df, aes(x = x, y = y, fill = hex)) +
@@ -1580,7 +1710,7 @@ ggsave(here("figures", "deployment_map_pt_2_v2.png"), plot = map_final, width = 
 clean_pt_1_obs <- read_excel(here("data","originalMasterHibernaculaAnalysis.xlsx"), sheet = "Master.Data.Cleaned")
 
 # Recode raw Excel value to new terminology
-clean_pt_1_obs$feature_type_methodology[clean_pt_1_obs$feature_type_methodology == "Constructed Hibernacula"] <- "Artificial Refuge (AR)"
+clean_pt_1_obs$feature_type_methodology[clean_pt_1_obs$feature_type_methodology == "Constructed Hibernacula"] <- "Constructed Refugium"
 
 #load AR site coordinates
 hibernacula_coords <- read_csv(here("data", "hibernacula_coordinates.csv")) |> 
@@ -1809,7 +1939,7 @@ max_y <- max(species_hourly_presence_by_feature_pt_1_and_2$detections_per_camera
 max_y <- ceiling(max_y * 1.3 * 10) / 10  # 20% buffer and round to nearest 0.1
 
 # 6. Create a plot for each feature type
-feature_types <- c("Artificial Refuge (AR)", "Boulder", "Log")
+feature_types <- c("Constructed Refugium", "Boulder", "Log")
 
 # Step 1: Assign "Other" label to species not in the palette
 species_hourly_presence_by_feature_pt_1_and_2 <- species_hourly_presence_by_feature_pt_1_and_2 %>%
@@ -1992,21 +2122,21 @@ map_rgb_df$hex <- rgb(map_rgb_df$red, map_rgb_df$green, map_rgb_df$blue, maxColo
   map_site_sf <- map_site_sf %>%
     mutate(
       point_label = case_when(
-        feature_type_methodology == "Artificial Refuge (AR)" & study_part_combined == "both" ~ "AR (both studies)",
-        feature_type_methodology == "Artificial Refuge (AR)" ~ "AR (one study)",
+        feature_type_methodology == "Constructed Refugium" & study_part_combined == "both" ~ "Refugium (both studies)",
+        feature_type_methodology == "Constructed Refugium" ~ "Refugium (one study)",
         feature_type_methodology == "Boulder" ~ "Boulder",
         feature_type_methodology == "Log" ~ "Log",
         TRUE ~ as.character(feature_type_methodology)
       ),
       point_label = factor(point_label, levels = c(
-        "AR (both studies)", "AR (one study)", "Boulder", "Log"
+        "Refugium (both studies)", "Refugium (one study)", "Boulder", "Log"
       ))
     )
 
   # Shape encoding: filled square=15, open square=0, triangle=2, circle=1
   point_shapes <- c(
-    "AR (both studies)" = 15,
-    "AR (one study)" = 0,
+    "Refugium (both studies)" = 15,
+    "Refugium (one study)" = 0,
     "Boulder" = 2,
     "Log" = 1
   )
@@ -2106,7 +2236,7 @@ ggsave(here("figures","deployment_map_combined.png"), plot = map_final, width = 
 
 ### Two-Panel Map (Winter / Spring)
 ```{r fig-deployment-map-2panel}
-#| fig-cap: "**Camera trap deployment locations during winter (left) and spring (right) studies.** Point shape indicates feature type: square = artificial refuge (AR), triangle = boulder, circle = log. Habitat types shown as semi-transparent overlays. Inset shows study location within California."
+#| fig-cap: "**Camera trap deployment locations during winter (left) and spring (right) studies.** Point shape indicates feature type: square = constructed refugium, triangle = boulder, circle = log. Habitat types shown as semi-transparent overlays. Inset shows study location within California."
 #| fig-width: 14
 #| fig-height: 7
 
@@ -2120,7 +2250,7 @@ sites_spring <- placenames_for_deployment_map_step1 %>%
   st_as_sf(coords = c("longitude", "latitude"), crs = 4326)
 
 # Shape encoding
-point_shapes_map <- c("Artificial Refuge (AR)" = 15, "Boulder" = 2, "Log" = 1)
+point_shapes_map <- c("Constructed Refugium" = 15, "Boulder" = 2, "Log" = 1)
 
 # Shared map-building function
 build_panel <- function(site_data, panel_title) {
@@ -2253,7 +2383,7 @@ p5 <- ggplot(placename_summary_pt_1_and_2, aes(x = feature_type_methodology, y =
     x = "Feature Type",
     y = "Number of Entrances"
   ) +
-  scale_color_manual(values = c("Artificial Refuge (AR)" = "#fc8d62", "Boulder" = "#66c2a5", "Log" = "#8da0cb")) +
+  scale_color_manual(values = c("Constructed Refugium" = "#fc8d62", "Boulder" = "#66c2a5", "Log" = "#8da0cb")) +
   theme_minimal(base_size = 14) +
   theme(
     legend.position = "none",)
@@ -2327,7 +2457,7 @@ total_features_pt_1_vec <- total_features_pt_1 %>%
 # Calculate percent visited by species at each feature type
 species_final_pt_1 <- species_combined_pt_1 %>%
   mutate(
-    percent_hibernacula_visited = 100 * features_visited_at_artificial_refuge_ar / total_features_pt_1_vec["Artificial Refuge (AR)"]
+    percent_hibernacula_visited = 100 * features_visited_at_constructed_refugium / total_features_pt_1_vec["Constructed Refugium"]
   )
 
 camera_days_vec_pt_1 <- feature_type_effort_summary_pt_1 %>%
@@ -2339,7 +2469,7 @@ total_camera_days_pt_1 <- sum(camera_days_vec_pt_1)
 
 species_final_pt_1 <- species_final_pt_1 %>%
   mutate(
-    rate_per_cam_day_hibernacula = count_observed_at_artificial_refuge_ar / camera_days_vec_pt_1["Artificial Refuge (AR)"]
+    rate_per_cam_day_hibernacula = count_observed_at_constructed_refugium / camera_days_vec_pt_1["Constructed Refugium"]
   )
 
 # Create formatted table
@@ -2348,7 +2478,7 @@ t1_pt1 = species_final_pt_1 %>%
   #  'Class' = class,
     'Common Name' = common_name,
   #  'Scientific Name' = genus_species,
-    'Detections' = count_observed_at_artificial_refuge_ar,
+    'Detections' = count_observed_at_constructed_refugium,
     '% Visited' = percent_hibernacula_visited,
     'Per Cam.-Day' = rate_per_cam_day_hibernacula,
   ) %>%
@@ -2363,7 +2493,7 @@ t1_pt1 = species_final_pt_1 %>%
     position = "left",
     bootstrap_options = c("striped", "hover", "condensed")
   ) %>%
-  add_header_above(c(" " = 1, "Artificial Refuge (AR)" = 3))
+  add_header_above(c(" " = 1, "Constructed Refugia" = 3))
 
 tryCatch({
   save_kable(t1_pt1, here("misc","species_table_pt1.html"))
@@ -2425,7 +2555,7 @@ total_features_hourly_vec <- total_features_hourly %>%
 # Calculate percent visited for each feature type
 species_final_hourly <- species_combined_hourly %>%
   mutate(
-    percent_hibernacula_visited = 100 * features_visited_at_artificial_refuge_ar / total_features_hourly_vec["Artificial Refuge (AR)"],
+    percent_hibernacula_visited = 100 * features_visited_at_constructed_refugium / total_features_hourly_vec["Constructed Refugium"],
     percent_boulders_visited = 100 * features_visited_at_boulder / total_features_hourly_vec["Boulder"],
     percent_logs_visited = 100 * features_visited_at_log / total_features_hourly_vec["Log"]
   )
@@ -2441,7 +2571,7 @@ total_camera_days_hourly <- sum(camera_days_vec_hourly)
 # Add detection rate per camera day
 species_final_hourly <- species_final_hourly %>%
   mutate(
-    rate_per_cam_day_hibernacula = count_observed_at_artificial_refuge_ar / camera_days_vec_hourly["Artificial Refuge (AR)"],
+    rate_per_cam_day_hibernacula = count_observed_at_constructed_refugium / camera_days_vec_hourly["Constructed Refugium"],
     rate_per_cam_day_boulder = count_observed_at_boulder / camera_days_vec_hourly["Boulder"],
     rate_per_cam_day_log = count_observed_at_log / camera_days_vec_hourly["Log"]
   )
@@ -2483,7 +2613,7 @@ t1_hourly <- species_final_hourly %>%
     'Class' = class_grouped,
     'Common Name' = common_name,
     'Scientific Name' = genus_species,
-    'Detections' = count_observed_at_artificial_refuge_ar,
+    'Detections' = count_observed_at_constructed_refugium,
     '% Visited' = percent_hibernacula_visited,
     'Per Cam.-Day' = rate_per_cam_day_hibernacula,
     'Detections ' = count_observed_at_boulder,
@@ -2496,7 +2626,7 @@ t1_hourly <- species_final_hourly %>%
   mutate(
     'Detections   ' = Detections + `Detections ` + `Detections  `,
     '% Visited   ' = (
-      (`% Visited` * total_features_hourly_vec["Artificial Refuge (AR)"]) +
+      (`% Visited` * total_features_hourly_vec["Constructed Refugium"]) +
       (`% Visited ` * total_features_hourly_vec["Boulder"]) +
       (`% Visited  ` * total_features_hourly_vec["Log"])
     ) / sum(total_features_hourly_vec),
@@ -2515,7 +2645,7 @@ t1_hourly <- species_final_hourly %>%
     position = "left",
     bootstrap_options = c("striped", "hover", "condensed")
   ) %>%
-  add_header_above(c(" " = 3, "Artificial Refuge (AR)" = 3, "Boulders" = 3, "Logs" = 3, "Total" = 3))
+  add_header_above(c(" " = 3, "Constructed Refugia" = 3, "Boulders" = 3, "Logs" = 3, "Total" = 3))
 
 tryCatch({
   save_kable(t1_hourly, here("misc","species_table_hourly_pt_1_and_2_combined.html"))
@@ -2604,7 +2734,7 @@ species_final_hourly <- species_combined_hourly %>%
   mutate(
     # Percent visited (×100)
     percent_hibernacula_visited = 100 * safe_div(
-      features_visited_at_artificial_refuge_ar, total_features_artificial_refuge_ar
+      features_visited_at_constructed_refugium, total_features_constructed_refugium
     ),
     percent_boulders_visited = 100 * safe_div(
       features_visited_at_boulder, total_features_boulder
@@ -2615,7 +2745,7 @@ species_final_hourly <- species_combined_hourly %>%
 
     # Rates per cam-day
     rate_per_cam_day_hibernacula = safe_div(
-      count_observed_at_artificial_refuge_ar, cam_days_artificial_refuge_ar
+      count_observed_at_constructed_refugium, cam_days_constructed_refugium
     ),
     rate_per_cam_day_boulder = safe_div(
       count_observed_at_boulder, cam_days_boulder
@@ -2625,18 +2755,18 @@ species_final_hourly <- species_combined_hourly %>%
     ),
 
     # Totals across feature types (per part)
-    detections_total = rowSums(across(c(count_observed_at_artificial_refuge_ar,
+    detections_total = rowSums(across(c(count_observed_at_constructed_refugium,
                                         count_observed_at_boulder,
                                         count_observed_at_log)), na.rm = TRUE),
-    total_features_all = rowSums(across(c(total_features_artificial_refuge_ar,
+    total_features_all = rowSums(across(c(total_features_constructed_refugium,
                                           total_features_boulder,
                                           total_features_log)), na.rm = TRUE),
-    total_cam_days_all = rowSums(across(c(cam_days_artificial_refuge_ar,
+    total_cam_days_all = rowSums(across(c(cam_days_constructed_refugium,
                                           cam_days_boulder,
                                           cam_days_log)), na.rm = TRUE),
 
     percent_visited_all = 100 * safe_div(
-      rowSums(across(c(features_visited_at_artificial_refuge_ar,
+      rowSums(across(c(features_visited_at_constructed_refugium,
                        features_visited_at_boulder,
                        features_visited_at_log)), na.rm = TRUE),
       total_features_all
@@ -2677,7 +2807,7 @@ metrics_long <- species_final_hourly %>%
   transmute(
     common_name, study_part,
     # Artificial Refuge (AR)
-    detections_hib = count_observed_at_artificial_refuge_ar,
+    detections_hib = count_observed_at_constructed_refugium,
     pct_hib       = percent_hibernacula_visited,
     rate_hib      = rate_per_cam_day_hibernacula,
     # Boulders
@@ -2794,7 +2924,7 @@ count_for <- function(part, suf)
 
 build_feature_spans <- function(part) {
   out <- c()
-  n <- count_for(part, "hib"); if (n > 0) out <- c(out, "Artificial Refuge (AR)" = n)
+  n <- count_for(part, "hib"); if (n > 0) out <- c(out, "Constructed Refugium" = n)
   n <- count_for(part, "bld"); if (n > 0) out <- c(out, "Boulders"               = n)
   n <- count_for(part, "log"); if (n > 0) out <- c(out, "Logs"                    = n)
   n <- count_for(part, "tot"); if (n > 0) out <- c(out, "Total"                   = n)
