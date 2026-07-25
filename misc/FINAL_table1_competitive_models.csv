@@ -1,0 +1,17 @@
+Model / Predictor,Beta,IRR,Pct_Change,P_Value,delta_AICc,w,RMSE
+Feature Type,,,,,0,0.339,58.011
+Intercept (Reference)***,-0.88,,,0,,,
+Boulder,-0.865,0.421,-57.9,0.056,,,
+Log,-0.61,0.543,-45.7,0.114,,,
+Trail,,,,,1.34,0.174,63.074
+Intercept (Reference)***,-1.129,,,0,,,
+Adjacent to Trail,-0.165,0.848,-15.2,0.72,,,
+Feature Type + Trail,,,,,1.63,0.15,57.132
+Intercept (Reference)*,-0.707,,,0.012,,,
+Boulder*,-1.038,0.354,-64.6,0.029,,,
+Log,-0.783,0.457,-54.3,0.058,,,
+Adjacent to Trail,-0.586,0.557,-44.3,0.216,,,
+Habitat Type,,,,,1.83,0.136,60.869
+Intercept (Reference)***,-1.501,,,0,,,
+Grassland Habitat,0.681,1.976,97.6,0.133,,,
+Scrub Habitat,0.42,1.522,52.2,0.283,,,

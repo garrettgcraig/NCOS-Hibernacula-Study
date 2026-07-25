@@ -1,0 +1,7 @@
+Predictor,Beta,SE,IRR,Pct_Change,IRR_CI_Lower,IRR_CI_Upper
+"Intercept (Artificial Refuge, Marsh, Interior)",-1.007,0.365,,,,
+Boulder,-0.918,0.491,0.399,-60.1,0.152,1.046
+Log,-0.663,0.423,0.515,-48.5,0.225,1.181
+Trail-adjacent,-0.36,0.534,0.698,-30.2,0.245,1.986
+Grassland,0.681,0.477,1.976,97.6,0.775,5.036
+Scrub,0.42,0.412,1.522,52.2,0.679,3.411
