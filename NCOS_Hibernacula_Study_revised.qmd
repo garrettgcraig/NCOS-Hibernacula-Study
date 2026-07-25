@@ -44,6 +44,10 @@ editor:
 #clean your environment
 rm(list=ls())
 
+# Render NA as an empty cell in every kable() table rather than the literal
+# string "NA" (e.g. ratio columns that are intentionally blank for intercept rows).
+options(knitr.kable.NA = "")
+
 # Core utility libraries
 library(here)          # file path management
 library(janitor)       # clean variable names
@@ -492,18 +496,26 @@ if (!is.null(model_avg_result)) {
         Coefficient == "feature_type_methodology_recodedLog:trailyes" ~ "Log × Trail-adjacent",
         TRUE ~ Coefficient
       ),
-      IRR = exp(Estimate),
-      Pct_Change = round((IRR - 1) * 100, 1),
-      CI_Lower = exp(Estimate - 1.96 * `Std. Error`),
-      CI_Upper = exp(Estimate + 1.96 * `Std. Error`)
+      # As in Table 1: exp(beta) is a rate ratio only for contrast terms. The
+      # intercept exponentiates to the baseline rate itself, so the ratio, %
+      # change and ratio CI columns are left blank for that row.
+      is_intercept = Coefficient == "(Intercept)",
+      IRR = ifelse(is_intercept, NA_real_, exp(Estimate)),
+      Pct_Change = ifelse(is_intercept, NA_real_, round((exp(Estimate) - 1) * 100, 1)),
+      CI_Lower = ifelse(is_intercept, NA_real_, exp(Estimate - 1.96 * `Std. Error`)),
+      CI_Upper = ifelse(is_intercept, NA_real_, exp(Estimate + 1.96 * `Std. Error`))
     )
+
+  # Baseline rate for the reference condition, reported in the caption.
+  baseline_rate_hr  <- exp(avg_display$Estimate[avg_display$is_intercept])
+  baseline_rate_day <- baseline_rate_hr * 24
 
   avg_display %>%
     dplyr::select(Predictor, Estimate, `Std. Error`, IRR, Pct_Change, CI_Lower, CI_Upper) %>%
     kable(
       col.names = c("Predictor", "β", "SE", "IRR", "% Change", "IRR 95% CI Lower", "IRR 95% CI Upper"),
       digits = 3,
-      caption = sprintf("Model-Averaged Coefficients (conditional averaging via MuMIn, %d competitive models, ΔAICc < 2). Unconditional SEs account for model selection uncertainty. Reference: Artificial Refuge, not trail-adjacent, marsh habitat.", length(top_models)),
+      caption = sprintf("Model-Averaged Coefficients (conditional averaging via MuMIn, %d competitive models, ΔAICc < 2). Unconditional SEs account for model selection uncertainty. Reference: Artificial Refuge, not trail-adjacent, marsh habitat. Ratio columns are blank for the intercept: exp(β) there is the baseline detection rate (%.3f per camera hour, %.1f per camera day) rather than a ratio.", length(top_models), baseline_rate_hr, baseline_rate_day),
       align = c("l", "r", "r", "r", "r", "r", "r")
     ) %>%
     kable_styling(
@@ -651,8 +663,14 @@ create_detailed_model_table <- function(model_list, delta_values, weight_values,
       predictor_name <- rownames(coef_summary)[j]
       p_value <- coef_summary[j, "Pr(>|z|)"]
       beta <- coef_summary[j, "Estimate"]
-      irr <- exp(beta)
-      pct_change <- (irr - 1) * 100
+      is_intercept <- predictor_name == "(Intercept)"
+
+      # exp(beta) is an incidence rate RATIO only for contrast terms. For the
+      # intercept it is the baseline rate itself (detections per camera hour,
+      # given the log(camera hours) offset) - there is nothing it is a ratio to,
+      # so the ratio and "% change" columns are left blank for that row.
+      irr <- if (is_intercept) NA_real_ else exp(beta)
+      pct_change <- if (is_intercept) NA_real_ else (exp(beta) - 1) * 100
 
       stars <- case_when(
         p_value < 0.001 ~ "***",
@@ -710,7 +728,7 @@ display_data <- detailed_model_data %>%
 
 kable(display_data %>% dplyr::select(-row_type_flag),
       col.names = c("Model / Predictor", "β", "IRR", "% Change", "P-Value", "ΔAICc", "w", "RMSE"),
-      caption = "Table 1. Negative Binomial Model Comparison (AICc). Models ranked by ΔAICc; coefficients shown as β, IRR, and % Change. Reference: Artificial Refuge, not trail-adjacent, marsh habitat.",
+      caption = "Table 1. Negative Binomial Model Comparison (AICc). Models ranked by ΔAICc; coefficients shown as β, IRR, and % Change. Reference: Artificial Refuge, not trail-adjacent, marsh habitat. IRR and % Change are blank for intercept rows, where exp(β) is the baseline rate rather than a ratio.",
       align = c("l", rep("r", 7)),
       digits = 3) %>%
   kable_styling(full_width = FALSE, position = "left",
@@ -744,7 +762,7 @@ top_display <- top_model_data %>%
 
 kable(top_display %>% dplyr::select(-row_type_flag),
       col.names = c("Model / Predictor", "β", "IRR", "% Change", "P-Value", "ΔAICc", "w", "RMSE"),
-      caption = sprintf("Table 2. Competitive Models (ΔAICc < 2). Preferred (lowest AICc, highest weight): %s. Reference: Artificial Refuge, not trail-adjacent, marsh habitat.", best_model_name),
+      caption = sprintf("Table 2. Competitive Models (ΔAICc < 2). Preferred (lowest AICc, highest weight): %s. Reference: Artificial Refuge, not trail-adjacent, marsh habitat. IRR and %% Change are blank for intercept rows, where exp(β) is the baseline rate rather than a ratio.", best_model_name),
       align = c("l", rep("r", 7)),
       digits = 3) %>%
   kable_styling(full_width = FALSE, position = "left",
@@ -989,7 +1007,7 @@ int_display <- int_table_data %>%
 
 kable(int_display %>% dplyr::select(-row_type_flag),
       col.names = c("Model / Predictor", "β", "IRR", "% Change", "P-Value", "ΔAICc", "w", "RMSE"),
-      caption = sprintf("Table 3. Interior Sites Only (n=%d). Models ranked by ΔAICc. Reference: Artificial Refuge, marsh habitat.", nrow(interior_data)),
+      caption = sprintf("Table 3. Interior Sites Only (n=%d). Models ranked by ΔAICc. Reference: Artificial Refuge, marsh habitat. IRR and %% Change are blank for intercept rows, where exp(β) is the baseline rate rather than a ratio.", nrow(interior_data)),
       align = c("l", rep("r", 7)),
       digits = 3) %>%
   kable_styling(full_width = FALSE, position = "left",
@@ -3407,12 +3425,19 @@ ggsave(here("figures", "FINAL_fig5_species_residency_by_feature_type.png"),
 ```{r tbl-final-competitive}
 #| echo: false
 
+# Also write a CSV so the table can be pulled straight into Word/Excel as an
+# editable table rather than re-typed from the rendered HTML.
+top_display %>%
+  dplyr::select(-row_type_flag) %>%
+  setNames(c("Model / Predictor", "Beta", "IRR", "Pct_Change", "P_Value", "delta_AICc", "w", "RMSE")) %>%
+  readr::write_csv(here("misc", "FINAL_table1_competitive_models.csv"), na = "")
+
 top_display %>%
   dplyr::select(-row_type_flag) %>%
   kable(
     col.names = c("Model / Predictor", "β", "IRR", "% Change", "P-Value", "ΔAICc", "w", "RMSE"),
     digits = 3,
-    caption = sprintf("Table 1. Negative binomial models within ΔAICc < 2 of the top-ranked model (n = %d camera stations). Models are ranked by ΔAICc; Akaike weights (w) give the relative probability that each model is the best approximating model in the candidate set. Coefficients are shown as β, incidence rate ratios (IRR), and %% change. All models include log(camera hours) as an offset. Reference conditions: artificial refuge, not trail-adjacent, marsh habitat.", nrow(placename_summary_pt_2)),
+    caption = sprintf("Table 1. Negative binomial models within ΔAICc < 2 of the top-ranked model (n = %d camera stations). Models are ranked by ΔAICc; Akaike weights (w) give the relative probability that each model is the best approximating model in the candidate set. Coefficients are shown as β, incidence rate ratios (IRR), and %% change relative to the reference condition. All models include log(camera hours) as an offset. Reference conditions: artificial refuge, not trail-adjacent, marsh habitat. IRR and %% change are blank for intercept rows, where exp(β) is the baseline detection rate per camera hour rather than a ratio.", nrow(placename_summary_pt_2)),
     align = c("l", "r", "r", "r", "r", "r", "r", "r")
   ) %>%
   kable_styling(full_width = FALSE,
@@ -3427,6 +3452,14 @@ top_display %>%
 #| echo: false
 
 if (exists("avg_display")) {
+  # Round on the way out: write_csv would otherwise emit full floating-point
+  # precision, unlike the kable() rendering below which honours digits = 3.
+  avg_display %>%
+    dplyr::select(Predictor, Estimate, `Std. Error`, IRR, Pct_Change, CI_Lower, CI_Upper) %>%
+    mutate(across(where(is.numeric), ~ round(.x, 3))) %>%
+    setNames(c("Predictor", "Beta", "SE", "IRR", "Pct_Change", "IRR_CI_Lower", "IRR_CI_Upper")) %>%
+    readr::write_csv(here("misc", "FINAL_table2_model_averaged.csv"), na = "")
+
   avg_display %>%
     dplyr::select(Predictor, Estimate, `Std. Error`, IRR, Pct_Change, CI_Lower, CI_Upper) %>%
     kable(
