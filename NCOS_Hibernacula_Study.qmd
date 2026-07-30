@@ -1889,8 +1889,7 @@ map_main <- ggplot() +
   ggnewscale::new_scale_fill() +
   geom_sf(data = ncos_habitats_filtered, aes(fill = habitat_simple), color = NA, alpha = 0.5) +
   scale_fill_manual(values = habitat_colors, name = "Habitat Type",
-                  guide = guide_legend(order = 1)) +  # Add this
-  
+                  guide = guide_legend(order = 3)) +  
 
   # Add NCOS boundary
   geom_sf(data = open_space_boundary, aes(linetype = "NCOS Boundary"),
@@ -1943,9 +1942,9 @@ theme(
 
 # Force legend order with vertical stacking within each legend
 guides(
-  fill = guide_legend(order = 2, override.aes = list(alpha = 0.9, shape = 21, color = "black", stroke = 0.8, size = 4)),
-  shape = guide_legend(order = 3, override.aes = list(size = 4, fill = "black", color = "black", stroke = 0.8)),
-  linetype = guide_legend(order = 4, override.aes = list(color = "yellow", linewidth = 2))
+  fill = guide_legend(order = 1, override.aes = list(alpha = 0.9, shape = 21, color = "black", stroke = 0.8, size = 4)),  # Feature Type - points
+  shape = guide_legend(order = 2, override.aes = list(size = 4, fill = "black", color = "black", stroke = 0.8)),  # Study Part - points
+  linetype = guide_legend(order = 4, override.aes = list(color = "yellow", linewidth = 2))  # NCOS Boundary - lines
 )
 
 # Calculate study area centroid
