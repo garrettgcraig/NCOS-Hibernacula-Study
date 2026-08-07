@@ -111,7 +111,9 @@ raw_pt_2_dep = read_csv(here("data","deployments.csv"))
 site_to_habitat_crosswalk <- read_csv(here("data", "site_to_habitat_crosswalk.csv")) |> 
   mutate(
     trail = factor(trail, levels = c("no", "yes")),
-    habitat_type = factor(habitat_type, levels = c("Marsh", "Grassland", "Scrub"))
+    # Grassland is the reference level: it is the habitat with the highest
+    # observed activity, so marsh and scrub read as contrasts against it.
+    habitat_type = factor(habitat_type, levels = c("Grassland", "Marsh", "Scrub"))
   )
 ```
 ## Clean Data
@@ -486,11 +488,11 @@ if (!is.null(model_avg_result)) {
     filter(!is.na(Estimate)) %>%
     mutate(
       Predictor = case_when(
-        Coefficient == "(Intercept)" ~ "Intercept (Artificial Refuge, Marsh, Interior)",
+        Coefficient == "(Intercept)" ~ "Intercept (Artificial Refuge, Grassland, Interior)",
         Coefficient == "feature_type_methodology_recodedBoulder" ~ "Boulder",
         Coefficient == "feature_type_methodology_recodedLog" ~ "Log",
         Coefficient == "trailyes" ~ "Trail-adjacent",
-        Coefficient == "habitat_typeGrassland" ~ "Grassland",
+        Coefficient == "habitat_typeMarsh" ~ "Marsh",
         Coefficient == "habitat_typeScrub" ~ "Scrub",
         Coefficient == "feature_type_methodology_recodedBoulder:trailyes" ~ "Boulder × Trail-adjacent",
         Coefficient == "feature_type_methodology_recodedLog:trailyes" ~ "Log × Trail-adjacent",
@@ -515,7 +517,7 @@ if (!is.null(model_avg_result)) {
     kable(
       col.names = c("Predictor", "β", "SE", "IRR", "% Change", "IRR 95% CI Lower", "IRR 95% CI Upper"),
       digits = 3,
-      caption = sprintf("Model-Averaged Coefficients (conditional averaging via MuMIn, %d competitive models, ΔAICc < 2). Unconditional SEs account for model selection uncertainty. Reference: Artificial Refuge, not trail-adjacent, marsh habitat. Ratio columns are blank for the intercept: exp(β) there is the baseline detection rate (%.3f per camera hour, %.1f per camera day) rather than a ratio.", length(top_models), baseline_rate_hr, baseline_rate_day),
+      caption = sprintf("Model-Averaged Coefficients (conditional averaging via MuMIn, %d competitive models, ΔAICc < 2). Unconditional SEs account for model selection uncertainty. Reference: Artificial Refuge, not trail-adjacent, grassland habitat. Ratio columns are blank for the intercept: exp(β) there is the baseline detection rate (%.3f per camera hour, %.1f per camera day) rather than a ratio.", length(top_models), baseline_rate_hr, baseline_rate_day),
       align = c("l", "r", "r", "r", "r", "r", "r")
     ) %>%
     kable_styling(
@@ -543,9 +545,10 @@ nb_spatial <- spdep::knn2nb(knn)
 listw <- spdep::nb2listw(nb_spatial, style = "W")
 
 # Moran's I on all competitive models (ΔAICc < 2)
-cat("=== Moran's I Test for Spatial Autocorrelation (all competitive models) ===\n\n")
+cat("=== Moran's I Test for Spatial Autocorrelation (all candidate models) ===\n\n")
 
-competitive_models <- sorted_models[competitive_idx]
+# Assessed before selection, so run over the full candidate set (see DHARMa note).
+competitive_models <- sorted_models
 moran_results <- data.frame(
   Model = character(),
   Morans_I = numeric(),
@@ -568,7 +571,8 @@ for (i in seq_along(competitive_models)) {
     stringsAsFactors = FALSE
   ))
 
-  cat(sprintf("--- %s ---\n", mod_name))
+  cat(sprintf("--- %s (ΔAICc = %.2f)%s ---\n", mod_name, sorted_delta_aicc[i],
+              ifelse(sorted_delta_aicc[i] < 2, "  [competitive]", "")))
   cat(sprintf("  Moran's I = %.4f, p = %.4f %s\n\n",
       moran_test$estimate["Moran I statistic"],
       moran_test$p.value,
@@ -576,7 +580,7 @@ for (i in seq_along(competitive_models)) {
 }
 
 if (all(moran_results$P_Value >= 0.05)) {
-  cat("No significant spatial autocorrelation detected in any competitive model.\n")
+  cat("No significant spatial autocorrelation detected in any candidate model.\n")
   cat("Spatial independence assumption of the GLMs is supported.\n")
 } else {
   sig_models <- moran_results$Model[moran_results$P_Value < 0.05]
@@ -684,7 +688,7 @@ create_detailed_model_table <- function(model_list, delta_values, weight_values,
         predictor_name == "feature_type_methodology_recodedBoulder" ~ "Boulder",
         predictor_name == "feature_type_methodology_recodedLog" ~ "Log",
         predictor_name == "trailyes" ~ "Adjacent to Trail",
-        predictor_name == "habitat_typeGrassland" ~ "Grassland Habitat",
+        predictor_name == "habitat_typeMarsh" ~ "Marsh Habitat",
         predictor_name == "habitat_typeScrub" ~ "Scrub Habitat",
         grepl(":", predictor_name) ~ gsub(
           "feature_type_methodology_recoded|habitat_type|trail", "",
@@ -728,7 +732,7 @@ display_data <- detailed_model_data %>%
 
 kable(display_data %>% dplyr::select(-row_type_flag),
       col.names = c("Model / Predictor", "β", "IRR", "% Change", "P-Value", "ΔAICc", "w", "RMSE"),
-      caption = "Table 1. Negative Binomial Model Comparison (AICc). Models ranked by ΔAICc; coefficients shown as β, IRR, and % Change. Reference: Artificial Refuge, not trail-adjacent, marsh habitat. IRR and % Change are blank for intercept rows, where exp(β) is the baseline rate rather than a ratio.",
+      caption = "Table 1. Negative Binomial Model Comparison (AICc). Models ranked by ΔAICc; coefficients shown as β, IRR, and % Change. Reference: Artificial Refuge, not trail-adjacent, grassland habitat. IRR and % Change are blank for intercept rows, where exp(β) is the baseline rate rather than a ratio.",
       align = c("l", rep("r", 7)),
       digits = 3) %>%
   kable_styling(full_width = FALSE, position = "left",
@@ -762,7 +766,7 @@ top_display <- top_model_data %>%
 
 kable(top_display %>% dplyr::select(-row_type_flag),
       col.names = c("Model / Predictor", "β", "IRR", "% Change", "P-Value", "ΔAICc", "w", "RMSE"),
-      caption = sprintf("Table 2. Competitive Models (ΔAICc < 2). Preferred (lowest AICc, highest weight): %s. Reference: Artificial Refuge, not trail-adjacent, marsh habitat. IRR and %% Change are blank for intercept rows, where exp(β) is the baseline rate rather than a ratio.", best_model_name),
+      caption = sprintf("Table 2. Competitive Models (ΔAICc < 2). Preferred (lowest AICc, highest weight): %s. Reference: Artificial Refuge, not trail-adjacent, grassland habitat. IRR and %% Change are blank for intercept rows, where exp(β) is the baseline rate rather than a ratio.", best_model_name),
       align = c("l", rep("r", 7)),
       digits = 3) %>%
   kable_styling(full_width = FALSE, position = "left",
@@ -782,7 +786,7 @@ if (length(top_idx) > 1) {
     "feature_type_methodology_recodedBoulder",
     "feature_type_methodology_recodedLog",
     "trailyes",
-    "habitat_typeGrassland",
+    "habitat_typeMarsh",
     "habitat_typeScrub"
   )
 
@@ -815,7 +819,7 @@ if (length(top_idx) > 1) {
         Predictor == "feature_type_methodology_recodedBoulder" ~ "Boulder",
         Predictor == "feature_type_methodology_recodedLog" ~ "Log",
         Predictor == "trailyes" ~ "Adjacent to Trail",
-        Predictor == "habitat_typeGrassland" ~ "Grassland Habitat",
+        Predictor == "habitat_typeMarsh" ~ "Marsh Habitat",
         Predictor == "habitat_typeScrub" ~ "Scrub Habitat",
         TRUE ~ Predictor
       ))
@@ -827,24 +831,30 @@ if (length(top_idx) > 1) {
 }
 ```
 
-### DHARMa Diagnostics for Competitive Models
+### DHARMa Diagnostics for All Candidate Models
 ```{r}
 #| echo: false
 #| fig-width: 10
 #| fig-height: 4
 library(DHARMa)
 
-cat("=== DHARMa Residual Diagnostics for All Models with ΔAICc < 2 ===\n\n")
+# Diagnostics are assessed BEFORE model selection, so they run over the whole
+# candidate set. Restricting them to the ΔAICc < 2 subset would be circular:
+# which models are "competitive" is only known after selection.
+cat("=== DHARMa Residual Diagnostics for All Candidate Models ===\n\n")
 
-for (i in seq_along(top_models)) {
-  mod_name <- names(top_models)[i]
-  mod <- top_models[[i]]
+dharma_summary <- data.frame()
 
-  cat(sprintf("--- %s (ΔAICc = %.2f, w = %.3f, df = %d) ---\n",
+for (i in seq_along(sorted_models)) {
+  mod_name <- names(sorted_models)[i]
+  mod <- sorted_models[[i]]
+
+  cat(sprintf("--- %s (ΔAICc = %.2f, w = %.3f, df = %d)%s ---\n",
               mod_name,
-              sorted_delta_aicc[top_idx[i]],
-              sorted_weights[top_idx[i]],
-              attr(logLik(mod), "df")))
+              sorted_delta_aicc[i],
+              sorted_weights[i],
+              attr(logLik(mod), "df"),
+              ifelse(sorted_delta_aicc[i] < 2, "  [competitive]", "")))
 
   sim_out <- tryCatch(
     simulateResiduals(fittedModel = mod, plot = FALSE, n = 1000),
@@ -867,10 +877,22 @@ for (i in seq_along(top_models)) {
       } else {
         cat("  >> All diagnostics pass.\n")
       }
+
+      dharma_summary <- rbind(dharma_summary, data.frame(
+        Model = mod_name, delta_AICc = round(sorted_delta_aicc[i], 2),
+        KS = round(ks_p, 4), Dispersion = round(disp_p, 4), Outlier = round(outlier_p, 4),
+        Pass = !any(c(ks_p, disp_p, outlier_p) < 0.05), stringsAsFactors = FALSE))
     }
     cat("\n")
   }
 }
+
+cat("=== Summary across all candidate models ===\n")
+print(dharma_summary, row.names = FALSE)
+cat(sprintf("\nModels passing all three tests: %d of %d\n",
+            sum(dharma_summary$Pass), nrow(dharma_summary)))
+cat(sprintf("Minimum p-value observed across all tests and models: %.4f\n",
+            min(c(dharma_summary$KS, dharma_summary$Dispersion, dharma_summary$Outlier))))
 ```
 
 ```{r}
@@ -1007,7 +1029,7 @@ int_display <- int_table_data %>%
 
 kable(int_display %>% dplyr::select(-row_type_flag),
       col.names = c("Model / Predictor", "β", "IRR", "% Change", "P-Value", "ΔAICc", "w", "RMSE"),
-      caption = sprintf("Table 3. Interior Sites Only (n=%d). Models ranked by ΔAICc. Reference: Artificial Refuge, marsh habitat. IRR and %% Change are blank for intercept rows, where exp(β) is the baseline rate rather than a ratio.", nrow(interior_data)),
+      caption = sprintf("Table 3. Interior Sites Only (n=%d). Models ranked by ΔAICc. Reference: Artificial Refuge, grassland habitat. IRR and %% Change are blank for intercept rows, where exp(β) is the baseline rate rather than a ratio.", nrow(interior_data)),
       align = c("l", rep("r", 7)),
       digits = 3) %>%
   kable_styling(full_width = FALSE, position = "left",
@@ -3054,11 +3076,11 @@ readr::write_csv(display_tbl, here("misc","species_table_hourly_pt_1_and_2_separ
 
 Publication-ready versions of manuscript figures and tables, incorporating reviewer feedback.
 
-## Figure 1. Camera Station Map
+## Figure 2. Camera Station Map
 
-```{r fig-final-1-map}
+```{r fig-final-2-map}
 #| echo: false
-#| fig-cap: "**Figure 1. Camera station map.** Spatial distribution of camera trap stations during (A) the winter study and (B) the spring study. Point shape indicates feature type: square = artificial refuge, triangle = boulder, circle = log. Filled squares indicate artificial refuges sampled in both study periods; open squares were sampled in only one. Landscape shade indicates habitat type. Inset shows the study's location within California. Satellite imagery does not depict the site at the time of study."
+#| fig-cap: "**Figure 2. Camera station map.** Spatial distribution of camera trap stations during (A) the winter study and (B) the spring study. Point shape indicates feature type: square = artificial refuge, triangle = boulder, circle = log. Filled squares indicate artificial refuges sampled in both study periods; open squares were sampled in only one. Landscape shade indicates habitat type. Inset shows the study's location within California. Satellite imagery does not depict the site at the time of study."
 #| fig-width: 10
 #| fig-height: 10.7
 
@@ -3233,23 +3255,90 @@ final_shared_legend <- cowplot::get_legend(final_legend_plot)
 # The map has a 2:1 aspect, so each panel is sized to roughly title + map height;
 # any extra allotted height would render as dead space beneath the map. The
 # single-row legend needs only a thin strip.
-fig_final_1 <- plot_grid(
+fig_final_2 <- plot_grid(
   plot_grid(panel_a_with_inset, panel_b, ncol = 1, rel_heights = c(1, 1)),
   final_shared_legend,
   ncol = 1, rel_heights = c(1, 0.06)
 )
 
-fig_final_1
+fig_final_2
 
-ggsave(here("figures", "FINAL_fig1_camera_station_map.png"), plot = fig_final_1,
+ggsave(here("figures", "FINAL_fig2_camera_station_map.png"), plot = fig_final_2,
        width = 10, height = 10.7, dpi = 300, bg = "white")
 ```
 
-## Figure 3. Detection Rates by Feature Type
+## Figure 4. Model-Averaged Effect Sizes
 
-```{r fig-final-3-detection-rates}
+```{r fig-final-4-coefplot}
 #| echo: false
-#| fig-cap: "**Figure 3. Detection rates by feature type.** Average number of wildlife detections per camera trap day across the three feature types in the spring study. Open points denote trail-adjacent (edge) features; filled points denote interior features. Black diamonds indicate mean values and vertical lines show 95% confidence intervals."
+#| fig-cap: "**Figure 4. Model-averaged effect sizes.** Incidence rate ratios (points) with 95% confidence intervals (bars) for each predictor, averaged across the models within ΔAICc < 2 and weighted by Akaike weights. The dashed line at IRR = 1 marks no difference from the reference condition (artificial refuge, not trail-adjacent, grassland habitat); intervals spanning it are consistent with no effect. Values below 1 indicate fewer detections than the reference, values above 1 more. The intercept is omitted because it is a baseline rate rather than a ratio. Note the log-scaled x-axis."
+#| fig-width: 8
+#| fig-height: 5
+
+if (exists("avg_display")) {
+
+  coef_plot_data <- avg_display %>%
+    # The intercept is a baseline rate, not a ratio, so it has no place on an
+    # IRR axis; drop it and keep only the contrast terms.
+    filter(!grepl("^Intercept", Predictor)) %>%
+    mutate(
+      group = case_when(
+        Predictor %in% c("Boulder", "Log")     ~ "Feature type\n(vs. artificial refuge)",
+        Predictor == "Trail-adjacent"          ~ "Trail adjacency\n(vs. interior)",
+        Predictor %in% c("Marsh", "Scrub") ~ "Habitat\n(vs. grassland)",
+        TRUE                                   ~ "Other"
+      ),
+      # Order predictors so related terms sit together on the axis
+      Predictor = factor(Predictor,
+                         levels = rev(c("Boulder", "Log", "Trail-adjacent",
+                                        "Marsh", "Scrub"))),
+      # Flag whether the interval excludes 1 (i.e. is distinguishable from null)
+      excludes_one = (CI_Lower > 1) | (CI_Upper < 1)
+    )
+
+  fig_final_4 <- ggplot(coef_plot_data,
+                        aes(x = IRR, y = Predictor)) +
+    geom_vline(xintercept = 1, linetype = "dashed", color = "grey40", linewidth = 0.7) +
+    geom_errorbarh(aes(xmin = CI_Lower, xmax = CI_Upper),
+                   height = 0.18, linewidth = 0.8, color = "grey20") +
+    geom_point(aes(fill = excludes_one), shape = 21, size = 4.2,
+               color = "black", stroke = 1.0) +
+    scale_fill_manual(values = c("TRUE" = "black", "FALSE" = "white"), guide = "none") +
+    # IRRs are multiplicative, so a log axis puts "half as many" and "twice as
+    # many" at equal visual distance from the null line.
+    scale_x_continuous(
+      trans  = "log",
+      breaks = c(0.125, 0.25, 0.5, 1, 2, 4),
+      labels = c("0.125", "0.25", "0.5", "1", "2", "4")
+    ) +
+    facet_grid(group ~ ., scales = "free_y", space = "free_y", switch = "y") +
+    labs(x = "Incidence rate ratio (log scale)", y = NULL) +
+    theme_cowplot() +
+    theme(
+      panel.border     = element_rect(color = "black", fill = NA, linewidth = 0.7),
+      strip.background = element_rect(color = "black", fill = "grey88", linewidth = 0.7),
+      strip.text.y.left = element_text(angle = 0, size = 10, margin = margin(5, 5, 5, 5)),
+      strip.placement  = "outside",
+      axis.line        = element_blank(),
+      panel.spacing    = unit(0.4, "lines"),
+      axis.text        = element_text(size = 12),
+      axis.title       = element_text(size = 13)
+    )
+
+  ggsave(here("figures", "FINAL_fig4_model_averaged_effects.png"),
+         plot = fig_final_4, width = 8, height = 5, dpi = 300, bg = "white")
+
+  # Explicit print(): inside an if() block these are not top-level expressions,
+  # so knitr will not auto-print the plot the way it does elsewhere.
+  print(fig_final_4)
+}
+```
+
+## Figure 5. Detection Rates by Feature Type
+
+```{r fig-final-5-detection-rates}
+#| echo: false
+#| fig-cap: "**Figure 5. Detection rates by feature type.** Average number of wildlife detections per camera trap day across the three feature types in the spring study. Open points denote trail-adjacent (edge) features; filled points denote interior features. Black diamonds indicate mean values and vertical lines show 95% confidence intervals."
 #| fig-width: 8
 #| fig-height: 6
 
@@ -3257,11 +3346,11 @@ ggsave(here("figures", "FINAL_fig1_camera_station_map.png"), plot = fig_final_1,
 #  - panel title removed
 #  - edge (trail-adjacent) features distinguished by open symbols
 
-fig3_data <- placename_summary_pt_2 %>%
+fig5_data <- placename_summary_pt_2 %>%
   mutate(site_position = factor(site_position,
                                 levels = c("Interior", "Edge (trail-adjacent)")))
 
-fig3_summary <- fig3_data %>%
+fig5_summary <- fig5_data %>%
   group_by(feature_type_methodology_recoded) %>%
   summarise(
     mean = mean(detections_per_camera_day, na.rm = TRUE),
@@ -3274,14 +3363,14 @@ fig3_summary <- fig3_data %>%
     upper = mean + qt(0.975, df = n - 1) * se
   )
 
-fig_final_3 <- ggplot(fig3_data,
+fig_final_5 <- ggplot(fig5_data,
                       aes(x = feature_type_methodology_recoded, y = detections_per_camera_day)) +
   geom_jitter(aes(color = feature_type_methodology_recoded, shape = site_position),
               width = 0.22, alpha = 0.85, size = 3.8, stroke = 1.2) +
-  geom_errorbar(data = fig3_summary,
+  geom_errorbar(data = fig5_summary,
                 aes(x = feature_type_methodology_recoded, y = mean, ymin = lower, ymax = upper),
                 width = 0.15, color = "black", linewidth = 1, inherit.aes = FALSE) +
-  geom_point(data = fig3_summary,
+  geom_point(data = fig5_summary,
              aes(x = feature_type_methodology_recoded, y = mean),
              shape = 23, size = 6, fill = "black", color = "black", stroke = 1.5,
              inherit.aes = FALSE) +
@@ -3303,17 +3392,17 @@ fig_final_3 <- ggplot(fig3_data,
     legend.text  = element_text(size = 11)
   )
 
-fig_final_3
+fig_final_5
 
-ggsave(here("figures", "FINAL_fig3_detection_rates_by_feature_type.png"),
-       plot = fig_final_3, width = 8, height = 6, dpi = 300, bg = "white")
+ggsave(here("figures", "FINAL_fig5_detection_rates_by_feature_type.png"),
+       plot = fig_final_5, width = 8, height = 6, dpi = 300, bg = "white")
 ```
 
-## Figure 4. Species Detection Rates by Habitat Type
+## Figure 6. Species Detection Rates by Habitat Type
 
-```{r fig-final-4-species-habitat}
+```{r fig-final-6-species-habitat}
 #| echo: false
-#| fig-cap: "**Figure 4. Spring study species detection rates per camera day by habitat type.** Species with more than 50 detections in the study period are displayed individually. All panels share a common y-axis scale."
+#| fig-cap: "**Figure 6. Spring study species detection rates per camera day by habitat type.** Species with more than 50 detections in the study period are displayed individually. All panels share a common y-axis scale."
 #| fig-width: 7
 #| fig-height: 12
 
@@ -3323,7 +3412,7 @@ ggsave(here("figures", "FINAL_fig3_detection_rates_by_feature_type.png"),
 #  - facet strip labels no longer italicised
 #  - habitat legend dropped (habitats are labelled directly on the x-axis)
 
-fig_final_4 <- ggplot(resident_habitat_data,
+fig_final_6 <- ggplot(resident_habitat_data,
                       aes(x = habitat_type, y = detections_per_camera_day, fill = habitat_type)) +
   geom_col(width = 0.7) +
   facet_wrap(~ common_name, ncol = 1) +
@@ -3331,24 +3420,36 @@ fig_final_4 <- ggplot(resident_habitat_data,
   scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
   labs(x = "Habitat Type", y = "Detections per Camera Day") +
   theme_cowplot() +
+  # Box each panel together with its strip so the species label reads as
+  # belonging to the plot beneath it rather than floating between panels.
   theme(
-    strip.text   = element_text(size = 13, face = "plain"),
-    axis.text    = element_text(size = 12),
-    axis.title   = element_text(size = 14),
-    legend.position = "none"
+    panel.border     = element_rect(color = "black", fill = NA, linewidth = 0.7),
+    strip.background = element_rect(color = "black", fill = "grey88", linewidth = 0.7),
+    strip.text       = element_text(size = 13, face = "plain",
+                                    margin = margin(5, 5, 5, 5)),
+    # theme_cowplot draws its own left/bottom axis lines; the border replaces them.
+    # Ticks are matched to the border weight so the y = 0 tick reads flush with
+    # the panel edge it abuts (a heavier tick against a thin border makes the
+    # sub-pixel rasterisation offset look like a misalignment).
+    axis.line        = element_blank(),
+    axis.ticks       = element_line(color = "black", linewidth = 0.7),
+    panel.spacing    = unit(0.9, "lines"),
+    axis.text        = element_text(size = 12),
+    axis.title       = element_text(size = 14),
+    legend.position  = "none"
   )
 
-fig_final_4
+fig_final_6
 
-ggsave(here("figures", "FINAL_fig4_species_by_habitat.png"),
-       plot = fig_final_4, width = 7, height = 12, dpi = 300, bg = "white")
+ggsave(here("figures", "FINAL_fig6_species_by_habitat.png"),
+       plot = fig_final_6, width = 7, height = 12, dpi = 300, bg = "white")
 ```
 
-## Figure 5. Species Residency Status by Feature Type
+## Figure 7. Species Residency Status by Feature Type
 
-```{r fig-final-5-residency}
+```{r fig-final-7-residency}
 #| echo: false
-#| fig-cap: "**Figure 5. Species residency status by feature type.** Number of hours (per camera day) in which each species was detected at least once, for resident and transient species across feature types in both the winter and spring studies. Points represent individual species. Species with detection rates below 0.25 hours per camera day are classified as transient. The four resident species are coloured individually; all other species are shown in light blue. Black diamonds show mean detection rates with 95% confidence intervals."
+#| fig-cap: "**Figure 7. Species residency status by feature type.** Number of hours (per camera day) in which each species was detected at least once, for resident and transient species across feature types in both the winter and spring studies. Points represent individual species. Species with detection rates below 0.25 hours per camera day are classified as transient. The four resident species are coloured individually; all other species are shown in light blue. Black diamonds show mean detection rates with 95% confidence intervals."
 #| fig-width: 13
 #| fig-height: 7
 
@@ -3397,7 +3498,7 @@ final_residency_plots <- lapply(seq_along(feature_types), function(i) {
   p
 })
 
-fig_final_5 <- wrap_plots(final_residency_plots, guides = "collect") &
+fig_final_7 <- wrap_plots(final_residency_plots, guides = "collect") &
   theme_minimal(base_size = 15) &
   theme(
     axis.text.x  = element_text(size = 16, angle = 0, vjust = 0.5),
@@ -3414,10 +3515,10 @@ fig_final_5 <- wrap_plots(final_residency_plots, guides = "collect") &
   guides(fill  = guide_legend(nrow = 2, byrow = TRUE),
          shape = guide_legend(nrow = 2, byrow = TRUE))
 
-fig_final_5
+fig_final_7
 
-ggsave(here("figures", "FINAL_fig5_species_residency_by_feature_type.png"),
-       plot = fig_final_5, width = 13, height = 7, dpi = 300, bg = "white")
+ggsave(here("figures", "FINAL_fig7_species_residency_by_feature_type.png"),
+       plot = fig_final_7, width = 13, height = 7, dpi = 300, bg = "white")
 ```
 
 ## Table 1. Competitive Models (ΔAICc < 2)
@@ -3437,7 +3538,7 @@ top_display %>%
   kable(
     col.names = c("Model / Predictor", "β", "IRR", "% Change", "P-Value", "ΔAICc", "w", "RMSE"),
     digits = 3,
-    caption = sprintf("Table 1. Negative binomial models within ΔAICc < 2 of the top-ranked model (n = %d camera stations). Models are ranked by ΔAICc; Akaike weights (w) give the relative probability that each model is the best approximating model in the candidate set. Coefficients are shown as β, incidence rate ratios (IRR), and %% change relative to the reference condition. All models include log(camera hours) as an offset. Reference conditions: artificial refuge, not trail-adjacent, marsh habitat. IRR and %% change are blank for intercept rows, where exp(β) is the baseline detection rate per camera hour rather than a ratio.", nrow(placename_summary_pt_2)),
+    caption = sprintf("Table 1. Negative binomial models within ΔAICc < 2 of the top-ranked model (n = %d camera stations). Models are ranked by ΔAICc; Akaike weights (w) give the relative probability that each model is the best approximating model in the candidate set. Coefficients are shown as β, incidence rate ratios (IRR), and %% change relative to the reference condition. All models include log(camera hours) as an offset. Reference conditions: artificial refuge, not trail-adjacent, grassland habitat. IRR and %% change are blank for intercept rows, where exp(β) is the baseline detection rate per camera hour rather than a ratio.", nrow(placename_summary_pt_2)),
     align = c("l", "r", "r", "r", "r", "r", "r", "r")
   ) %>%
   kable_styling(full_width = FALSE,
@@ -3465,7 +3566,7 @@ if (exists("avg_display")) {
     kable(
       col.names = c("Predictor", "β", "SE", "IRR", "% Change", "IRR 95% CI Lower", "IRR 95% CI Upper"),
       digits = 3,
-      caption = sprintf("Table 2. Model-averaged coefficients across the %d models within ΔAICc < 2, weighted by Akaike weights (conditional averaging, MuMIn). Standard errors are unconditional and incorporate model selection uncertainty. Reference conditions: artificial refuge, not trail-adjacent, marsh habitat.", length(top_models)),
+      caption = sprintf("Table 2. Model-averaged coefficients across the %d models within ΔAICc < 2, weighted by Akaike weights (conditional averaging, MuMIn). Standard errors are unconditional and incorporate model selection uncertainty. Reference conditions: artificial refuge, not trail-adjacent, grassland habitat.", length(top_models)),
       align = c("l", "r", "r", "r", "r", "r", "r")
     ) %>%
     kable_styling(full_width = FALSE,

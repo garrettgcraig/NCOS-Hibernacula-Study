@@ -1,0 +1,2088 @@
+station_id,study_part,feature_type,habitat_type,common_name,obs_day,obs_hour
+B11,spring,Boulder,Marsh,Striped Skunk,2021-04-29,20
+B11,spring,Boulder,Marsh,Striped Skunk,2021-04-29,21
+B11,spring,Boulder,Marsh,California Ground Squirrel,2021-04-30,9
+B11,spring,Boulder,Marsh,California Ground Squirrel,2021-04-30,10
+B11,spring,Boulder,Marsh,Western fence lizard,2021-04-30,12
+B11,spring,Boulder,Marsh,California Ground Squirrel,2021-04-30,14
+B11,spring,Boulder,Marsh,American Crow,2021-04-30,15
+B11,spring,Boulder,Marsh,Great White Egret,2021-04-30,15
+B11,spring,Boulder,Marsh,American Crow,2021-04-30,17
+B11,spring,Boulder,Marsh,Brush Rabbit,2021-04-30,19
+B11,spring,Boulder,Marsh,Brush Rabbit,2021-04-30,20
+B11,spring,Boulder,Marsh,Striped Skunk,2021-05-01,0
+B11,spring,Boulder,Marsh,Virginia Opossum,2021-05-01,0
+B11,spring,Boulder,Marsh,California Ground Squirrel,2021-05-01,9
+B11,spring,Boulder,Marsh,Western fence lizard,2021-05-01,9
+B11,spring,Boulder,Marsh,American Crow,2021-05-01,13
+B11,spring,Boulder,Marsh,American Crow,2021-05-01,16
+B11,spring,Boulder,Marsh,Killdeer,2021-05-02,13
+B11,spring,Boulder,Marsh,Killdeer,2021-05-02,16
+B11,spring,Boulder,Marsh,North American Deermouse,2021-05-03,2
+B11,spring,Boulder,Marsh,Brush Rabbit,2021-05-03,3
+B11,spring,Boulder,Marsh,Killdeer,2021-05-03,8
+B11,spring,Boulder,Marsh,Killdeer,2021-05-03,9
+B11,spring,Boulder,Marsh,Killdeer,2021-05-03,10
+B11,spring,Boulder,Marsh,Common Starling,2021-05-03,11
+B11,spring,Boulder,Marsh,Killdeer,2021-05-03,11
+B11,spring,Boulder,Marsh,Killdeer,2021-05-03,12
+B11,spring,Boulder,Marsh,Killdeer,2021-05-03,13
+B11,spring,Boulder,Marsh,North American Deermouse,2021-05-03,22
+B11,spring,Boulder,Marsh,Northern Raccoon,2021-05-03,23
+B11,spring,Boulder,Marsh,Brush Rabbit,2021-05-04,4
+B11,spring,Boulder,Marsh,Brush Rabbit,2021-05-04,5
+B12,spring,Boulder,Marsh,Western fence lizard,2021-05-15,12
+B12,spring,Boulder,Marsh,North American Deermouse,2021-05-15,21
+B12,spring,Boulder,Marsh,North American Deermouse,2021-05-15,22
+B12,spring,Boulder,Marsh,North American Deermouse,2021-05-15,23
+B12,spring,Boulder,Marsh,North American Deermouse,2021-05-16,21
+B12,spring,Boulder,Marsh,North American Deermouse,2021-05-16,22
+B12,spring,Boulder,Marsh,North American Deermouse,2021-05-16,23
+B12,spring,Boulder,Marsh,North American Deermouse,2021-05-17,0
+B12,spring,Boulder,Marsh,North American Deermouse,2021-05-17,2
+B12,spring,Boulder,Marsh,North American Deermouse,2021-05-17,4
+B12,spring,Boulder,Marsh,California Ground Squirrel,2021-05-17,12
+B12,spring,Boulder,Marsh,North American Deermouse,2021-05-17,22
+B12,spring,Boulder,Marsh,Virginia Opossum,2021-05-17,23
+B12,spring,Boulder,Marsh,North American Deermouse,2021-05-18,0
+B12,spring,Boulder,Marsh,North American Deermouse,2021-05-18,2
+B12,spring,Boulder,Marsh,Western fence lizard,2021-05-18,11
+B2,spring,Boulder,Grassland,Western fence lizard,2021-04-22,11
+B2,spring,Boulder,Grassland,California Ground Squirrel,2021-04-22,15
+B2,spring,Boulder,Grassland,California Ground Squirrel,2021-04-22,15
+B2,spring,Boulder,Grassland,Western fence lizard,2021-04-22,15
+B2,spring,Boulder,Grassland,California Ground Squirrel,2021-04-23,10
+B2,spring,Boulder,Grassland,American Crow,2021-04-23,11
+B2,spring,Boulder,Grassland,American Crow,2021-04-23,11
+B2,spring,Boulder,Grassland,Western fence lizard,2021-04-23,13
+B2,spring,Boulder,Grassland,Western fence lizard,2021-04-23,14
+B2,spring,Boulder,Grassland,California Ground Squirrel,2021-04-23,16
+B2,spring,Boulder,Grassland,North American Deermouse,2021-04-24,3
+B2,spring,Boulder,Grassland,Western fence lizard,2021-04-24,10
+B2,spring,Boulder,Grassland,Western fence lizard,2021-04-24,11
+B2,spring,Boulder,Grassland,California Ground Squirrel,2021-04-24,14
+B2,spring,Boulder,Grassland,California Ground Squirrel,2021-04-24,15
+B2,spring,Boulder,Grassland,California Ground Squirrel,2021-04-24,16
+B2,spring,Boulder,Grassland,California Ground Squirrel,2021-04-24,17
+B2,spring,Boulder,Grassland,California Ground Squirrel,2021-04-24,19
+B2,spring,Boulder,Grassland,California Ground Squirrel,2021-04-25,12
+B2,spring,Boulder,Grassland,Killdeer,2021-04-25,23
+B2,spring,Boulder,Grassland,Striped Skunk,2021-04-26,5
+B2,spring,Boulder,Grassland,Striped Skunk,2021-04-26,5
+B23,spring,Boulder,Scrub,North American Deermouse,2021-05-07,1
+B23,spring,Boulder,Scrub,Killdeer,2021-05-07,2
+B23,spring,Boulder,Scrub,California Ground Squirrel,2021-05-07,10
+B23,spring,Boulder,Scrub,Western fence lizard,2021-05-07,14
+B23,spring,Boulder,Scrub,Western fence lizard,2021-05-07,15
+B23,spring,Boulder,Scrub,California Ground Squirrel,2021-05-07,16
+B23,spring,Boulder,Scrub,North American Deermouse,2021-05-07,22
+B23,spring,Boulder,Scrub,Striped Skunk,2021-05-07,23
+B23,spring,Boulder,Scrub,Brush Rabbit,2021-05-08,3
+B23,spring,Boulder,Scrub,Brush Rabbit,2021-05-08,4
+B23,spring,Boulder,Scrub,California Ground Squirrel,2021-05-08,9
+B23,spring,Boulder,Scrub,Western fence lizard,2021-05-08,10
+B23,spring,Boulder,Scrub,California Ground Squirrel,2021-05-08,11
+B23,spring,Boulder,Scrub,Western fence lizard,2021-05-08,11
+B23,spring,Boulder,Scrub,California Ground Squirrel,2021-05-08,12
+B23,spring,Boulder,Scrub,California Ground Squirrel,2021-05-08,15
+B23,spring,Boulder,Scrub,California Ground Squirrel,2021-05-08,16
+B23,spring,Boulder,Scrub,California Ground Squirrel,2021-05-08,17
+B23,spring,Boulder,Scrub,Bobcat,2021-05-08,21
+B23,spring,Boulder,Scrub,Striped Skunk,2021-05-08,21
+B23,spring,Boulder,Scrub,Brush Rabbit,2021-05-08,23
+B23,spring,Boulder,Scrub,Brush Rabbit,2021-05-09,1
+B23,spring,Boulder,Scrub,Brush Rabbit,2021-05-09,4
+B23,spring,Boulder,Scrub,California Ground Squirrel,2021-05-09,8
+B23,spring,Boulder,Scrub,Brush Rabbit,2021-05-09,10
+B23,spring,Boulder,Scrub,California Ground Squirrel,2021-05-09,11
+B23,spring,Boulder,Scrub,California Ground Squirrel,2021-05-09,14
+B23,spring,Boulder,Scrub,Western fence lizard,2021-05-09,15
+B23,spring,Boulder,Scrub,California Ground Squirrel,2021-05-09,16
+B23,spring,Boulder,Scrub,Western fence lizard,2021-05-09,16
+B23,spring,Boulder,Scrub,Virginia Opossum,2021-05-10,5
+B23,spring,Boulder,Scrub,California Ground Squirrel,2021-05-10,8
+B23,spring,Boulder,Scrub,California Ground Squirrel,2021-05-10,9
+B23,spring,Boulder,Scrub,California Ground Squirrel,2021-05-10,15
+B23,spring,Boulder,Scrub,Killdeer,2021-05-11,4
+B23,spring,Boulder,Scrub,North American Deermouse,2021-05-11,4
+B23,spring,Boulder,Scrub,Brush Rabbit,2021-05-11,5
+B29,spring,Boulder,Scrub,North American Deermouse,2021-05-20,20
+B29,spring,Boulder,Scrub,Virginia Opossum,2021-05-20,22
+B29,spring,Boulder,Scrub,North American Deermouse,2021-05-21,0
+B29,spring,Boulder,Scrub,North American Deermouse,2021-05-21,20
+B29,spring,Boulder,Scrub,North American Deermouse,2021-05-22,23
+B29,spring,Boulder,Scrub,Western fence lizard,2021-05-23,15
+B29,spring,Boulder,Scrub,Brush Rabbit,2021-05-24,3
+H13,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-06,19
+H13,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-06,23
+H13,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-07,1
+H13,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-07,3
+H13,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-07,5
+H13,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-07,6
+H13,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-07,7
+H13,spring,Artificial Refuge,Marsh,Western fence lizard,2021-05-07,13
+H13,spring,Artificial Refuge,Marsh,Western fence lizard,2021-05-07,16
+H13,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-07,17
+H13,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-07,18
+H13,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-07,20
+H13,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-08,1
+H13,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-08,8
+H13,spring,Artificial Refuge,Marsh,Western fence lizard,2021-05-08,10
+H17,spring,Artificial Refuge,Marsh,Killdeer,2021-04-22,14
+H17,spring,Artificial Refuge,Marsh,Say's Phoebe,2021-04-22,14
+H17,spring,Artificial Refuge,Marsh,Burrowing Owl,2021-04-22,20
+H17,spring,Artificial Refuge,Marsh,North American Deermouse,2021-04-22,21
+H17,spring,Artificial Refuge,Marsh,North American Deermouse,2021-04-22,23
+H17,spring,Artificial Refuge,Marsh,North American Deermouse,2021-04-23,0
+H17,spring,Artificial Refuge,Marsh,North American Deermouse,2021-04-23,1
+H17,spring,Artificial Refuge,Marsh,Virginia Opossum,2021-04-23,1
+H17,spring,Artificial Refuge,Marsh,North American Deermouse,2021-04-23,2
+H17,spring,Artificial Refuge,Marsh,North American Deermouse,2021-04-23,3
+H17,spring,Artificial Refuge,Marsh,North American Deermouse,2021-04-23,4
+H17,spring,Artificial Refuge,Marsh,North American Deermouse,2021-04-23,19
+H17,spring,Artificial Refuge,Marsh,Burrowing Owl,2021-04-23,20
+H17,spring,Artificial Refuge,Marsh,North American Deermouse,2021-04-23,20
+H17,spring,Artificial Refuge,Marsh,North American Deermouse,2021-04-23,21
+H17,spring,Artificial Refuge,Marsh,North American Deermouse,2021-04-23,22
+H17,spring,Artificial Refuge,Marsh,North American Deermouse,2021-04-24,0
+H17,spring,Artificial Refuge,Marsh,North American Deermouse,2021-04-24,1
+H17,spring,Artificial Refuge,Marsh,Great Horned Owl,2021-04-24,2
+H17,spring,Artificial Refuge,Marsh,North American Deermouse,2021-04-24,2
+H17,spring,Artificial Refuge,Marsh,Great Horned Owl,2021-04-24,3
+H17,spring,Artificial Refuge,Marsh,North American Deermouse,2021-04-24,3
+H17,spring,Artificial Refuge,Marsh,North American Deermouse,2021-04-24,4
+H17,spring,Artificial Refuge,Marsh,North American Deermouse,2021-04-24,5
+H17,spring,Artificial Refuge,Marsh,Killdeer,2021-04-24,7
+H17,spring,Artificial Refuge,Marsh,Common Starling,2021-04-24,13
+H17,spring,Artificial Refuge,Marsh,Common Starling,2021-04-24,14
+H17,spring,Artificial Refuge,Marsh,North American Deermouse,2021-04-24,22
+H17,spring,Artificial Refuge,Marsh,North American Deermouse,2021-04-25,0
+H17,spring,Artificial Refuge,Marsh,North American Deermouse,2021-04-25,1
+H17,spring,Artificial Refuge,Marsh,North American Deermouse,2021-04-25,4
+H17,spring,Artificial Refuge,Marsh,Killdeer,2021-04-25,13
+H17,spring,Artificial Refuge,Marsh,Western Bluebird,2021-04-25,13
+H17,spring,Artificial Refuge,Marsh,Western Bluebird,2021-04-25,14
+H17,spring,Artificial Refuge,Marsh,Killdeer,2021-04-25,16
+H17,spring,Artificial Refuge,Marsh,North American Deermouse,2021-04-25,20
+H17,spring,Artificial Refuge,Marsh,North American Deermouse,2021-04-25,22
+H17,spring,Artificial Refuge,Marsh,North American Deermouse,2021-04-26,2
+H17,spring,Artificial Refuge,Marsh,North American Deermouse,2021-04-26,4
+H17,spring,Artificial Refuge,Marsh,American Crow,2021-04-26,18
+H17,spring,Artificial Refuge,Marsh,California Ground Squirrel,2021-04-27,11
+H2,spring,Artificial Refuge,Marsh,California Ground Squirrel,2021-05-14,9
+H2,spring,Artificial Refuge,Marsh,California Ground Squirrel,2021-05-15,16
+H2,spring,Artificial Refuge,Marsh,Western fence lizard,2021-05-16,13
+H2,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-16,23
+H2,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-17,0
+H21,spring,Artificial Refuge,Marsh,California Ground Squirrel,2021-05-20,18
+H21,spring,Artificial Refuge,Marsh,California Ground Squirrel,2021-05-21,7
+H21,spring,Artificial Refuge,Marsh,California Ground Squirrel,2021-05-21,8
+H21,spring,Artificial Refuge,Marsh,California Ground Squirrel,2021-05-21,17
+H21,spring,Artificial Refuge,Marsh,California Ground Squirrel,2021-05-21,18
+H21,spring,Artificial Refuge,Marsh,California Ground Squirrel,2021-05-22,7
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-13,13
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-13,15
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-13,15
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-13,17
+H35,spring,Artificial Refuge,Grassland,Brush Rabbit,2021-05-13,19
+H35,spring,Artificial Refuge,Grassland,Brush Rabbit,2021-05-13,19
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-14,8
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-14,15
+H35,spring,Artificial Refuge,Grassland,Brush Rabbit,2021-05-14,20
+H35,spring,Artificial Refuge,Grassland,Brush Rabbit,2021-05-15,7
+H35,spring,Artificial Refuge,Grassland,Brush Rabbit,2021-05-15,7
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-15,8
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-15,9
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-15,9
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-15,12
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-15,13
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-15,14
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-15,16
+H35,spring,Artificial Refuge,Grassland,Brush Rabbit,2021-05-15,20
+H35,spring,Artificial Refuge,Grassland,Brush Rabbit,2021-05-15,23
+H35,spring,Artificial Refuge,Grassland,Brush Rabbit,2021-05-16,5
+H35,spring,Artificial Refuge,Grassland,Brush Rabbit,2021-05-16,6
+H35,spring,Artificial Refuge,Grassland,Brush Rabbit,2021-05-16,7
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-16,7
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-16,8
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-16,9
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-16,10
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-16,11
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-16,12
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-16,13
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-16,14
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-16,15
+H35,spring,Artificial Refuge,Grassland,North American Deermouse,2021-05-16,20
+H35,spring,Artificial Refuge,Grassland,North American Deermouse,2021-05-16,22
+H35,spring,Artificial Refuge,Grassland,Virginia Opossum,2021-05-16,22
+H35,spring,Artificial Refuge,Grassland,Brush Rabbit,2021-05-16,23
+H35,spring,Artificial Refuge,Grassland,North American Deermouse,2021-05-17,3
+H35,spring,Artificial Refuge,Grassland,Brush Rabbit,2021-05-17,5
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-17,7
+H35,spring,Artificial Refuge,Grassland,Brush Rabbit,2021-05-17,8
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-17,9
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-17,10
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-17,11
+H35,spring,Artificial Refuge,Grassland,Lark Sparrow,2021-05-17,15
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-17,16
+H35,spring,Artificial Refuge,Grassland,North American Deermouse,2021-05-17,22
+H35,spring,Artificial Refuge,Grassland,Brush Rabbit,2021-05-18,0
+H35,spring,Artificial Refuge,Grassland,Brush Rabbit,2021-05-18,1
+H35,spring,Artificial Refuge,Grassland,Brush Rabbit,2021-05-18,3
+H35,spring,Artificial Refuge,Grassland,Brush Rabbit,2021-05-18,6
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-18,8
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-18,9
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-18,10
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-18,11
+H35,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-18,12
+H36,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-20,13
+H36,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-20,15
+H36,spring,Artificial Refuge,Scrub,Virginia Opossum,2021-05-20,20
+H36,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-05-21,2
+H36,spring,Artificial Refuge,Scrub,North American Deermouse,2021-05-21,2
+H36,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-21,8
+H36,spring,Artificial Refuge,Scrub,California Ground Squirrel,2021-05-21,9
+H36,spring,Artificial Refuge,Scrub,California Ground Squirrel,2021-05-21,13
+H36,spring,Artificial Refuge,Scrub,California Ground Squirrel,2021-05-21,15
+H36,spring,Artificial Refuge,Scrub,California Ground Squirrel,2021-05-21,18
+H36,spring,Artificial Refuge,Scrub,North American Deermouse,2021-05-22,2
+H36,spring,Artificial Refuge,Scrub,North American Deermouse,2021-05-22,3
+H36,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-22,7
+H36,spring,Artificial Refuge,Scrub,California Ground Squirrel,2021-05-22,8
+H36,spring,Artificial Refuge,Scrub,California Ground Squirrel,2021-05-22,10
+H36,spring,Artificial Refuge,Scrub,California Ground Squirrel,2021-05-22,11
+H36,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-22,13
+H36,spring,Artificial Refuge,Scrub,California Ground Squirrel,2021-05-22,15
+H36,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-22,16
+H36,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-23,9
+H36,spring,Artificial Refuge,Scrub,California Ground Squirrel,2021-05-23,11
+H36,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-23,14
+H36,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-23,15
+H36,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-05-23,19
+H36,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-05-23,20
+H36,spring,Artificial Refuge,Scrub,Virginia Opossum,2021-05-23,21
+H36,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-05-24,7
+H36,spring,Artificial Refuge,Scrub,California Ground Squirrel,2021-05-24,13
+H36,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-05-24,18
+H36,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-05-24,19
+H36,spring,Artificial Refuge,Scrub,Virginia Opossum,2021-05-24,22
+H39,spring,Artificial Refuge,Scrub,California Ground Squirrel,2021-04-29,18
+H39,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-04-29,22
+H39,spring,Artificial Refuge,Scrub,American Crow,2021-04-30,9
+H39,spring,Artificial Refuge,Scrub,California Ground Squirrel,2021-04-30,16
+H39,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-04-30,20
+H39,spring,Artificial Refuge,Scrub,Virginia Opossum,2021-04-30,22
+H39,spring,Artificial Refuge,Scrub,Virginia Opossum,2021-05-01,0
+H39,spring,Artificial Refuge,Scrub,California Ground Squirrel,2021-05-01,9
+H39,spring,Artificial Refuge,Scrub,California Ground Squirrel,2021-05-01,11
+H39,spring,Artificial Refuge,Scrub,California Ground Squirrel,2021-05-01,18
+H39,spring,Artificial Refuge,Scrub,North American Deermouse,2021-05-02,0
+H39,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-02,11
+H39,spring,Artificial Refuge,Scrub,California Ground Squirrel,2021-05-02,14
+H39,spring,Artificial Refuge,Scrub,North American Deermouse,2021-05-02,21
+H39,spring,Artificial Refuge,Scrub,Virginia Opossum,2021-05-02,21
+H39,spring,Artificial Refuge,Scrub,Virginia Opossum,2021-05-02,22
+H39,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-05-03,1
+H39,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-05-03,2
+H39,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-05-03,3
+H39,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-05-04,0
+H39,spring,Artificial Refuge,Scrub,North American Deermouse,2021-05-04,0
+H4,spring,Artificial Refuge,Marsh,American Crow,2021-05-20,17
+H4,spring,Artificial Refuge,Marsh,Canada Goose,2021-05-24,14
+H40,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-13,17
+H40,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-13,18
+H40,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-13,19
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-13,20
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-13,21
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-13,22
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-13,23
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-14,0
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-14,1
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-14,2
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-14,3
+H40,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-14,5
+H40,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-14,7
+H40,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-14,8
+H40,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-14,9
+H40,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-14,10
+H40,spring,Artificial Refuge,Marsh,California Ground Squirrel,2021-05-14,11
+H40,spring,Artificial Refuge,Marsh,California Ground Squirrel,2021-05-14,12
+H40,spring,Artificial Refuge,Marsh,California Ground Squirrel,2021-05-14,14
+H40,spring,Artificial Refuge,Marsh,California Ground Squirrel,2021-05-14,17
+H40,spring,Artificial Refuge,Marsh,California Ground Squirrel,2021-05-14,18
+H40,spring,Artificial Refuge,Marsh,California Ground Squirrel,2021-05-14,19
+H40,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-14,20
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-14,21
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-14,22
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-15,0
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-15,2
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-15,3
+H40,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-15,5
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-15,5
+H40,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-15,6
+H40,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-15,7
+H40,spring,Artificial Refuge,Marsh,California Ground Squirrel,2021-05-15,8
+H40,spring,Artificial Refuge,Marsh,California Ground Squirrel,2021-05-15,9
+H40,spring,Artificial Refuge,Marsh,Western fence lizard,2021-05-15,14
+H40,spring,Artificial Refuge,Marsh,Western fence lizard,2021-05-15,15
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-15,21
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-15,23
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-16,0
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-16,1
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-16,2
+H40,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-16,5
+H40,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-16,6
+H40,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-16,8
+H40,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-16,9
+H40,spring,Artificial Refuge,Marsh,California Ground Squirrel,2021-05-16,10
+H40,spring,Artificial Refuge,Marsh,California Ground Squirrel,2021-05-16,12
+H40,spring,Artificial Refuge,Marsh,Western fence lizard,2021-05-16,15
+H40,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-16,18
+H40,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-16,19
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-16,21
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-16,22
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-16,23
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-17,0
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-17,1
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-17,2
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-17,3
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-17,4
+H40,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-17,5
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-17,5
+H40,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-17,6
+H40,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-17,7
+H40,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-17,8
+H40,spring,Artificial Refuge,Marsh,California Ground Squirrel,2021-05-17,9
+H40,spring,Artificial Refuge,Marsh,California Ground Squirrel,2021-05-17,10
+H40,spring,Artificial Refuge,Marsh,California Ground Squirrel,2021-05-17,12
+H40,spring,Artificial Refuge,Marsh,Western fence lizard,2021-05-17,15
+H40,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-17,18
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-17,21
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-18,0
+H40,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-18,1
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-18,1
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-18,3
+H40,spring,Artificial Refuge,Marsh,North American Deermouse,2021-05-18,4
+H40,spring,Artificial Refuge,Marsh,Brush Rabbit,2021-05-18,8
+H40,spring,Artificial Refuge,Marsh,Western fence lizard,2021-05-18,10
+H42,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-05-06,23
+H42,spring,Artificial Refuge,Scrub,California Ground Squirrel,2021-05-07,10
+H42,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-07,11
+H42,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-07,13
+H42,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-07,14
+H42,spring,Artificial Refuge,Scrub,California Ground Squirrel,2021-05-07,15
+H42,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-07,15
+H42,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-07,16
+H42,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-07,17
+H42,spring,Artificial Refuge,Scrub,North American Deermouse,2021-05-07,21
+H42,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-05-07,23
+H42,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-05-08,0
+H42,spring,Artificial Refuge,Scrub,California Ground Squirrel,2021-05-08,9
+H42,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-08,9
+H42,spring,Artificial Refuge,Scrub,California Ground Squirrel,2021-05-08,10
+H42,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-08,10
+H42,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-08,11
+H42,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-08,12
+H42,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-08,13
+H42,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-08,14
+H42,spring,Artificial Refuge,Scrub,House Sparrow,2021-05-08,17
+H42,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-09,10
+H42,spring,Artificial Refuge,Scrub,California Ground Squirrel,2021-05-09,11
+H42,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-09,12
+H42,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-09,13
+H42,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-09,14
+H42,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-09,15
+H42,spring,Artificial Refuge,Scrub,California Ground Squirrel,2021-05-09,16
+H42,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-09,16
+H42,spring,Artificial Refuge,Scrub,California Ground Squirrel,2021-05-10,10
+H42,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-10,11
+H42,spring,Artificial Refuge,Scrub,California Ground Squirrel,2021-05-10,15
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-04-29,17
+H46,spring,Artificial Refuge,Scrub,North American Deermouse,2021-04-29,20
+H46,spring,Artificial Refuge,Scrub,North American Deermouse,2021-04-29,21
+H46,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-04-29,22
+H46,spring,Artificial Refuge,Scrub,North American Deermouse,2021-04-29,22
+H46,spring,Artificial Refuge,Scrub,North American Deermouse,2021-04-29,23
+H46,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-04-30,0
+H46,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-04-30,0
+H46,spring,Artificial Refuge,Scrub,California Ground Squirrel,2021-04-30,9
+H46,spring,Artificial Refuge,Scrub,California Ground Squirrel,2021-04-30,9
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-04-30,9
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-04-30,10
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-04-30,11
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-04-30,12
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-04-30,12
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-04-30,13
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-04-30,14
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-04-30,15
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-04-30,15
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-04-30,16
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-04-30,17
+H46,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-04-30,23
+H46,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-04-30,23
+H46,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-05-01,0
+H46,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-05-01,0
+H46,spring,Artificial Refuge,Scrub,North American Deermouse,2021-05-01,0
+H46,spring,Artificial Refuge,Scrub,North American Deermouse,2021-05-01,1
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-01,10
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-01,11
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-01,12
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-01,13
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-01,14
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-01,14
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-01,15
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-01,16
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-01,17
+H46,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-05-01,20
+H46,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-05-02,1
+H46,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-05-02,1
+H46,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-05-02,2
+H46,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-05-02,2
+H46,spring,Artificial Refuge,Scrub,North American Deermouse,2021-05-02,2
+H46,spring,Artificial Refuge,Scrub,North American Deermouse,2021-05-02,5
+H46,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-05-02,6
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-02,8
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-02,12
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-02,13
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-02,14
+H46,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-05-02,21
+H46,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-05-02,22
+H46,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-05-03,0
+H46,spring,Artificial Refuge,Scrub,North American Deermouse,2021-05-03,0
+H46,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-05-03,1
+H46,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-05-03,2
+H46,spring,Artificial Refuge,Scrub,Brush Rabbit,2021-05-03,4
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-03,12
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-03,13
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-03,14
+H46,spring,Artificial Refuge,Scrub,Common Starling,2021-05-03,15
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-03,15
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-03,16
+H46,spring,Artificial Refuge,Scrub,Western fence lizard,2021-05-03,17
+H46,spring,Artificial Refuge,Scrub,North American Deermouse,2021-05-03,21
+H46,spring,Artificial Refuge,Scrub,North American Deermouse,2021-05-03,22
+H46,spring,Artificial Refuge,Scrub,Virginia Opossum,2021-05-03,22
+H46,spring,Artificial Refuge,Scrub,Virginia Opossum,2021-05-04,0
+H7,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-06,9
+H7,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-06,10
+H7,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-06,10
+H7,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-06,11
+H7,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-06,11
+H7,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-06,14
+H7,spring,Artificial Refuge,Grassland,Western fence lizard,2021-05-07,15
+H7,spring,Artificial Refuge,Grassland,Western fence lizard,2021-05-07,16
+H7,spring,Artificial Refuge,Grassland,Western fence lizard,2021-05-08,12
+H7,spring,Artificial Refuge,Grassland,Western fence lizard,2021-05-08,14
+H7,spring,Artificial Refuge,Grassland,Western fence lizard,2021-05-08,16
+H7,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-09,9
+H7,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-09,12
+H7,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-09,13
+H7,spring,Artificial Refuge,Grassland,Brush Rabbit,2021-05-09,14
+H7,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-09,15
+H7,spring,Artificial Refuge,Grassland,Striped Skunk,2021-05-10,3
+H7,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-10,12
+H7,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-10,13
+H7,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-10,14
+H7,spring,Artificial Refuge,Grassland,Striped Skunk,2021-05-10,21
+H7,spring,Artificial Refuge,Grassland,Striped Skunk,2021-05-11,2
+H7,spring,Artificial Refuge,Grassland,Striped Skunk,2021-05-11,4
+H7,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-05-11,7
+H8,spring,Artificial Refuge,Grassland,Canada Goose,2021-04-30,17
+H8,spring,Artificial Refuge,Grassland,American Crow,2021-05-01,15
+H8,spring,Artificial Refuge,Grassland,Canada Goose,2021-05-02,16
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-22,11
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-22,13
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-22,14
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-22,15
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-22,16
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-22,17
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-22,18
+H9,spring,Artificial Refuge,Grassland,Striped Skunk,2021-04-23,0
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-23,7
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-23,8
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-23,9
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-23,10
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-23,11
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-23,12
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-23,13
+H9,spring,Artificial Refuge,Grassland,Western fence lizard,2021-04-23,13
+H9,spring,Artificial Refuge,Grassland,American Crow,2021-04-23,14
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-23,14
+H9,spring,Artificial Refuge,Grassland,American Crow,2021-04-23,15
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-23,15
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-23,16
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-23,17
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-24,7
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-24,8
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-24,9
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-24,10
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-24,11
+H9,spring,Artificial Refuge,Grassland,Western fence lizard,2021-04-24,11
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-24,12
+H9,spring,Artificial Refuge,Grassland,Western fence lizard,2021-04-24,12
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-24,13
+H9,spring,Artificial Refuge,Grassland,Western fence lizard,2021-04-24,13
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-24,14
+H9,spring,Artificial Refuge,Grassland,Western fence lizard,2021-04-24,14
+H9,spring,Artificial Refuge,Grassland,American Crow,2021-04-24,15
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-24,16
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-24,17
+H9,spring,Artificial Refuge,Grassland,Virginia Opossum,2021-04-24,20
+H9,spring,Artificial Refuge,Grassland,Virginia Opossum,2021-04-24,21
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-25,7
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-25,8
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-25,9
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-25,10
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-25,11
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-25,12
+H9,spring,Artificial Refuge,Grassland,American Crow,2021-04-25,13
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-25,14
+H9,spring,Artificial Refuge,Grassland,Striped Skunk,2021-04-25,23
+H9,spring,Artificial Refuge,Grassland,Western fence lizard,2021-04-26,10
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-26,12
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-26,13
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-26,15
+H9,spring,Artificial Refuge,Grassland,California Ground Squirrel,2021-04-26,17
+H9,spring,Artificial Refuge,Grassland,Western fence lizard,2021-04-27,9
+H9,spring,Artificial Refuge,Grassland,Western fence lizard,2021-04-27,10
+H9,spring,Artificial Refuge,Grassland,Western fence lizard,2021-04-27,11
+L26,spring,Log,Scrub,Western fence lizard,2021-05-20,13
+L26,spring,Log,Scrub,Western fence lizard,2021-05-20,14
+L26,spring,Log,Scrub,Western fence lizard,2021-05-20,15
+L26,spring,Log,Scrub,California Ground Squirrel,2021-05-20,16
+L26,spring,Log,Scrub,Western fence lizard,2021-05-20,16
+L26,spring,Log,Scrub,North American Deermouse,2021-05-20,23
+L26,spring,Log,Scrub,North American Deermouse,2021-05-21,0
+L26,spring,Log,Scrub,Brush Rabbit,2021-05-21,3
+L26,spring,Log,Scrub,Brush Rabbit,2021-05-21,4
+L26,spring,Log,Scrub,Brush Rabbit,2021-05-21,6
+L26,spring,Log,Scrub,California Ground Squirrel,2021-05-21,8
+L26,spring,Log,Scrub,Western fence lizard,2021-05-21,8
+L26,spring,Log,Scrub,Western fence lizard,2021-05-21,9
+L26,spring,Log,Scrub,Western fence lizard,2021-05-21,11
+L26,spring,Log,Scrub,Western fence lizard,2021-05-21,13
+L26,spring,Log,Scrub,North American Deermouse,2021-05-21,21
+L26,spring,Log,Scrub,Striped Skunk,2021-05-21,22
+L26,spring,Log,Scrub,Brush Rabbit,2021-05-22,4
+L26,spring,Log,Scrub,Brush Rabbit,2021-05-22,5
+L26,spring,Log,Scrub,Western fence lizard,2021-05-22,9
+L26,spring,Log,Scrub,California Ground Squirrel,2021-05-22,15
+L26,spring,Log,Scrub,Brush Rabbit,2021-05-23,0
+L26,spring,Log,Scrub,North American Deermouse,2021-05-23,1
+L26,spring,Log,Scrub,North American Deermouse,2021-05-23,2
+L26,spring,Log,Scrub,Brush Rabbit,2021-05-23,3
+L26,spring,Log,Scrub,North American Deermouse,2021-05-23,23
+L26,spring,Log,Scrub,Western fence lizard,2021-05-24,9
+L26,spring,Log,Scrub,Western fence lizard,2021-05-24,10
+L26,spring,Log,Scrub,Western skink,2021-05-24,12
+L26,spring,Log,Scrub,California Ground Squirrel,2021-05-24,13
+L26,spring,Log,Scrub,Brush Rabbit,2021-05-24,19
+L26,spring,Log,Scrub,North American Deermouse,2021-05-24,22
+L26,spring,Log,Scrub,Virginia Opossum,2021-05-25,3
+L26,spring,Log,Scrub,Virginia Opossum,2021-05-25,4
+L26,spring,Log,Scrub,Western fence lizard,2021-05-25,12
+L28,spring,Log,Marsh,Western fence lizard,2021-05-06,12
+L28,spring,Log,Marsh,Common Starling,2021-05-06,13
+L28,spring,Log,Marsh,Brush Rabbit,2021-05-07,19
+L28,spring,Log,Marsh,Brush Rabbit,2021-05-08,8
+L28,spring,Log,Marsh,Long-tailed Weasel,2021-05-08,9
+L28,spring,Log,Marsh,Long-tailed Weasel,2021-05-08,10
+L28,spring,Log,Marsh,Brush Rabbit,2021-05-08,19
+L28,spring,Log,Marsh,North American Deermouse,2021-05-08,23
+L28,spring,Log,Marsh,Brush Rabbit,2021-05-09,7
+L28,spring,Log,Marsh,California Ground Squirrel,2021-05-09,11
+L28,spring,Log,Marsh,Brush Rabbit,2021-05-09,17
+L28,spring,Log,Marsh,North American Deermouse,2021-05-10,4
+L28,spring,Log,Marsh,California Ground Squirrel,2021-05-10,13
+L28,spring,Log,Marsh,Brush Rabbit,2021-05-10,19
+L28,spring,Log,Marsh,North American Deermouse,2021-05-10,21
+L28,spring,Log,Marsh,North American Deermouse,2021-05-10,22
+L28,spring,Log,Marsh,Brush Rabbit,2021-05-11,6
+L28,spring,Log,Marsh,Brush Rabbit,2021-05-11,7
+L28,spring,Log,Marsh,Brush Rabbit,2021-05-11,8
+L30,spring,Log,Marsh,Striped Skunk,2021-05-14,1
+L30,spring,Log,Marsh,North American Deermouse,2021-05-15,4
+L30,spring,Log,Marsh,Black Phoebe,2021-05-15,10
+L30,spring,Log,Marsh,Buff-bellied Pipit,2021-05-15,10
+L30,spring,Log,Marsh,Hermit Thrush,2021-05-15,10
+L30,spring,Log,Marsh,Western Bluebird,2021-05-15,10
+L30,spring,Log,Marsh,Western fence lizard,2021-05-15,11
+L30,spring,Log,Marsh,Black Phoebe,2021-05-15,12
+L30,spring,Log,Marsh,Song Sparrow,2021-05-15,12
+L30,spring,Log,Marsh,Western fence lizard,2021-05-15,12
+L30,spring,Log,Marsh,American Crow,2021-05-15,13
+L30,spring,Log,Marsh,House Sparrow,2021-05-15,13
+L30,spring,Log,Marsh,Western fence lizard,2021-05-15,13
+L30,spring,Log,Marsh,Western fence lizard,2021-05-15,14
+L30,spring,Log,Marsh,American Crow,2021-05-15,15
+L30,spring,Log,Marsh,Killdeer,2021-05-15,15
+L30,spring,Log,Marsh,Western fence lizard,2021-05-15,15
+L30,spring,Log,Marsh,American Crow,2021-05-15,17
+L30,spring,Log,Marsh,North American Deermouse,2021-05-15,22
+L30,spring,Log,Marsh,California Scrub-Jay,2021-05-16,12
+L30,spring,Log,Marsh,Cassin's Kingbird,2021-05-16,12
+L30,spring,Log,Marsh,House Finch,2021-05-16,12
+L30,spring,Log,Marsh,Western fence lizard,2021-05-16,12
+L30,spring,Log,Marsh,Black Phoebe,2021-05-16,13
+L30,spring,Log,Marsh,California Ground Squirrel,2021-05-16,13
+L30,spring,Log,Marsh,Cassin's Kingbird,2021-05-16,15
+L30,spring,Log,Marsh,North American Deermouse,2021-05-16,21
+L30,spring,Log,Marsh,North American Deermouse,2021-05-17,2
+L30,spring,Log,Marsh,Common Starling,2021-05-17,8
+L30,spring,Log,Marsh,Western Bluebird,2021-05-17,12
+L30,spring,Log,Marsh,Western Bluebird,2021-05-17,13
+L30,spring,Log,Marsh,House Sparrow,2021-05-17,14
+L30,spring,Log,Marsh,Common Starling,2021-05-17,15
+L30,spring,Log,Marsh,Western Bluebird,2021-05-17,15
+L30,spring,Log,Marsh,House Finch,2021-05-17,16
+L30,spring,Log,Marsh,North American Deermouse,2021-05-17,21
+L30,spring,Log,Marsh,North American Deermouse,2021-05-18,1
+L30,spring,Log,Marsh,Song Sparrow,2021-05-18,9
+L30,spring,Log,Marsh,Western fence lizard,2021-05-18,9
+L30,spring,Log,Marsh,Western fence lizard,2021-05-18,10
+L34,spring,Log,Marsh,California Ground Squirrel,2021-05-06,11
+L34,spring,Log,Marsh,California Ground Squirrel,2021-05-06,12
+L34,spring,Log,Marsh,American Crow,2021-05-06,14
+L34,spring,Log,Marsh,California Ground Squirrel,2021-05-06,14
+L34,spring,Log,Marsh,California Ground Squirrel,2021-05-06,15
+L34,spring,Log,Marsh,Virginia Opossum,2021-05-06,22
+L34,spring,Log,Marsh,Virginia Opossum,2021-05-07,3
+L34,spring,Log,Marsh,American Crow,2021-05-07,10
+L34,spring,Log,Marsh,Black Phoebe,2021-05-07,14
+L34,spring,Log,Marsh,California Ground Squirrel,2021-05-07,16
+L34,spring,Log,Marsh,Black Phoebe,2021-05-08,13
+L34,spring,Log,Marsh,Say's Phoebe,2021-05-08,13
+L34,spring,Log,Marsh,American Crow,2021-05-08,14
+L34,spring,Log,Marsh,American Crow,2021-05-08,15
+L34,spring,Log,Marsh,California Ground Squirrel,2021-05-08,15
+L34,spring,Log,Marsh,North American Deermouse,2021-05-08,21
+L34,spring,Log,Marsh,Virginia Opossum,2021-05-09,1
+L34,spring,Log,Marsh,Striped Skunk,2021-05-09,3
+L34,spring,Log,Marsh,California Ground Squirrel,2021-05-09,11
+L34,spring,Log,Marsh,California Ground Squirrel,2021-05-09,15
+L34,spring,Log,Marsh,American Crow,2021-05-09,18
+L34,spring,Log,Marsh,Virginia Opossum,2021-05-09,23
+L34,spring,Log,Marsh,Virginia Opossum,2021-05-10,23
+L34,spring,Log,Marsh,Virginia Opossum,2021-05-11,0
+L34,spring,Log,Marsh,Striped Skunk,2021-05-11,1
+L45,spring,Log,Scrub,Western fence lizard,2021-04-22,11
+L45,spring,Log,Scrub,Western fence lizard,2021-04-22,14
+L45,spring,Log,Scrub,California Ground Squirrel,2021-04-22,16
+L45,spring,Log,Scrub,Brush Rabbit,2021-04-23,5
+L45,spring,Log,Scrub,Brush Rabbit,2021-04-23,6
+L45,spring,Log,Scrub,California Ground Squirrel,2021-04-23,8
+L45,spring,Log,Scrub,California Ground Squirrel,2021-04-23,10
+L45,spring,Log,Scrub,California Ground Squirrel,2021-04-23,12
+L45,spring,Log,Scrub,California Ground Squirrel,2021-04-23,17
+L45,spring,Log,Scrub,Brush Rabbit,2021-04-23,19
+L45,spring,Log,Scrub,Virginia Opossum,2021-04-23,20
+L45,spring,Log,Scrub,Brush Rabbit,2021-04-24,3
+L45,spring,Log,Scrub,Brush Rabbit,2021-04-24,4
+L45,spring,Log,Scrub,Brush Rabbit,2021-04-24,5
+L45,spring,Log,Scrub,California Ground Squirrel,2021-04-24,15
+L45,spring,Log,Scrub,Brush Rabbit,2021-04-24,16
+L45,spring,Log,Scrub,Brush Rabbit,2021-04-24,17
+L45,spring,Log,Scrub,California Ground Squirrel,2021-04-25,9
+L45,spring,Log,Scrub,California Ground Squirrel,2021-04-25,14
+L45,spring,Log,Scrub,California Ground Squirrel,2021-04-26,11
+L45,spring,Log,Scrub,Brush Rabbit,2021-04-26,19
+L45,spring,Log,Scrub,Brush Rabbit,2021-04-27,1
+L45,spring,Log,Scrub,Brush Rabbit,2021-04-27,3
+L45,spring,Log,Scrub,Brush Rabbit,2021-04-27,7
+L45,spring,Log,Scrub,California Ground Squirrel,2021-04-27,7
+L49,spring,Log,Scrub,California Ground Squirrel,2021-05-13,12
+L49,spring,Log,Scrub,Killdeer,2021-05-13,23
+L49,spring,Log,Scrub,Killdeer,2021-05-14,1
+L49,spring,Log,Scrub,North American Deermouse,2021-05-14,2
+L49,spring,Log,Scrub,North American Deermouse,2021-05-14,3
+L49,spring,Log,Scrub,North American Deermouse,2021-05-14,21
+L49,spring,Log,Scrub,Killdeer,2021-05-14,23
+L49,spring,Log,Scrub,North American Deermouse,2021-05-15,1
+L49,spring,Log,Scrub,California Ground Squirrel,2021-05-15,8
+L49,spring,Log,Scrub,California Ground Squirrel,2021-05-15,9
+L49,spring,Log,Scrub,Black Phoebe,2021-05-15,10
+L49,spring,Log,Scrub,Western fence lizard,2021-05-15,10
+L49,spring,Log,Scrub,Western fence lizard,2021-05-15,11
+L49,spring,Log,Scrub,California Ground Squirrel,2021-05-15,12
+L49,spring,Log,Scrub,California Ground Squirrel,2021-05-15,13
+L49,spring,Log,Scrub,Western fence lizard,2021-05-15,13
+L49,spring,Log,Scrub,California Ground Squirrel,2021-05-15,14
+L49,spring,Log,Scrub,Western fence lizard,2021-05-15,14
+L49,spring,Log,Scrub,California Ground Squirrel,2021-05-15,15
+L49,spring,Log,Scrub,California Ground Squirrel,2021-05-15,16
+L49,spring,Log,Scrub,North American Deermouse,2021-05-15,20
+L49,spring,Log,Scrub,Killdeer,2021-05-16,0
+L49,spring,Log,Scrub,Killdeer,2021-05-16,1
+L49,spring,Log,Scrub,California Ground Squirrel,2021-05-16,10
+L49,spring,Log,Scrub,California Ground Squirrel,2021-05-16,11
+L49,spring,Log,Scrub,California Ground Squirrel,2021-05-16,12
+L49,spring,Log,Scrub,California Ground Squirrel,2021-05-16,13
+L49,spring,Log,Scrub,California Ground Squirrel,2021-05-16,14
+L49,spring,Log,Scrub,California Ground Squirrel,2021-05-16,15
+L49,spring,Log,Scrub,California Ground Squirrel,2021-05-16,16
+L49,spring,Log,Scrub,Killdeer,2021-05-16,20
+L49,spring,Log,Scrub,Killdeer,2021-05-16,23
+L49,spring,Log,Scrub,California Ground Squirrel,2021-05-17,8
+L49,spring,Log,Scrub,California Ground Squirrel,2021-05-17,9
+L49,spring,Log,Scrub,Western fence lizard,2021-05-17,15
+L49,spring,Log,Scrub,California Ground Squirrel,2021-05-18,11
+L49,spring,Log,Scrub,Western fence lizard,2021-05-18,11
+L49,spring,Log,Scrub,Western fence lizard,2021-05-18,12
+L58,spring,Log,Scrub,Western fence lizard,2021-04-30,8
+L58,spring,Log,Scrub,Western fence lizard,2021-04-30,9
+L58,spring,Log,Scrub,Western fence lizard,2021-04-30,10
+L58,spring,Log,Scrub,Western fence lizard,2021-04-30,11
+L58,spring,Log,Scrub,Western fence lizard,2021-04-30,12
+L59,spring,Log,Grassland,Canada Goose,2021-05-20,16
+L59,spring,Log,Grassland,California Ground Squirrel,2021-05-20,17
+L59,spring,Log,Grassland,California Ground Squirrel,2021-05-21,7
+L59,spring,Log,Grassland,California Ground Squirrel,2021-05-21,8
+L59,spring,Log,Grassland,California Ground Squirrel,2021-05-21,10
+L59,spring,Log,Grassland,Western fence lizard,2021-05-21,10
+L59,spring,Log,Grassland,California Ground Squirrel,2021-05-21,18
+L59,spring,Log,Grassland,Striped Skunk,2021-05-22,0
+L59,spring,Log,Grassland,Western fence lizard,2021-05-22,9
+L59,spring,Log,Grassland,Western fence lizard,2021-05-22,11
+L59,spring,Log,Grassland,Lark Sparrow,2021-05-22,12
+L59,spring,Log,Grassland,Western fence lizard,2021-05-22,12
+L59,spring,Log,Grassland,Western fence lizard,2021-05-22,16
+L59,spring,Log,Grassland,Striped Skunk,2021-05-22,22
+L59,spring,Log,Grassland,Striped Skunk,2021-05-23,1
+L59,spring,Log,Grassland,California Ground Squirrel,2021-05-23,14
+L59,spring,Log,Grassland,Western fence lizard,2021-05-23,15
+L59,spring,Log,Grassland,Western fence lizard,2021-05-24,10
+L59,spring,Log,Grassland,California Ground Squirrel,2021-05-24,15
+L59,spring,Log,Grassland,Western fence lizard,2021-05-24,17
+L59,spring,Log,Grassland,North American Deermouse,2021-05-24,21
+L59,spring,Log,Grassland,North American Deermouse,2021-05-25,1
+L59,spring,Log,Grassland,North American Deermouse,2021-05-25,2
+H11,winter,Artificial Refuge,Marsh,Western Spotted Skunk,2021-02-04,21
+H11,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-06,17
+H11,winter,Artificial Refuge,Marsh,Striped Skunk,2021-02-06,18
+H11,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-07,18
+H11,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-08,5
+H11,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-08,18
+H11,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-08,18
+H11,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-08,21
+H11,winter,Artificial Refuge,Marsh,Western Meadowlark,2021-02-09,11
+H12,winter,Artificial Refuge,Scrub,Western fence lizard,2021-03-04,12
+H12,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-04,19
+H12,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-04,20
+H12,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-04,21
+H12,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-03-05,11
+H12,winter,Artificial Refuge,Scrub,Western fence lizard,2021-03-05,11
+H12,winter,Artificial Refuge,Scrub,Western fence lizard,2021-03-05,13
+H12,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-05,18
+H12,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-05,19
+H12,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-03-06,1
+H12,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-06,1
+H12,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-06,2
+H12,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-06,3
+H12,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-03-06,5
+H12,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-06,5
+H12,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-03-06,8
+H12,winter,Artificial Refuge,Scrub,Western fence lizard,2021-03-06,9
+H12,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-03-06,10
+H12,winter,Artificial Refuge,Scrub,Western fence lizard,2021-03-06,10
+H12,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-03-06,11
+H12,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-03-06,12
+H12,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-03-06,13
+H12,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-03-06,14
+H12,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-03-06,15
+H12,winter,Artificial Refuge,Scrub,California Towhee,2021-03-06,15
+H12,winter,Artificial Refuge,Scrub,Song Sparrow,2021-03-06,15
+H12,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-03-06,16
+H12,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-06,19
+H12,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-03-06,20
+H12,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-06,20
+H12,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-06,21
+H12,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-06,22
+H12,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-06,23
+H12,winter,Artificial Refuge,Scrub,Virginia Opossum,2021-03-06,23
+H12,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-03-07,0
+H12,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-07,0
+H12,winter,Artificial Refuge,Scrub,Virginia Opossum,2021-03-07,0
+H12,winter,Artificial Refuge,Scrub,Virginia Opossum,2021-03-07,1
+H12,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-07,2
+H12,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-03-07,4
+H12,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-03-07,9
+H12,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-03-07,11
+H12,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-03-07,12
+H12,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-03-07,13
+H12,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-03-07,14
+H12,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-03-07,14
+H12,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-03-07,15
+H12,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-03-07,16
+H12,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-03-07,18
+H12,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-07,19
+H12,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-07,20
+H12,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-07,21
+H12,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-07,23
+H12,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-03-08,0
+H12,winter,Artificial Refuge,Scrub,Virginia Opossum,2021-03-08,0
+H12,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-08,1
+H12,winter,Artificial Refuge,Scrub,Virginia Opossum,2021-03-08,1
+H12,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-08,2
+H12,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-08,3
+H12,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-03-08,11
+H13,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-11,17
+H13,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-11,18
+H13,winter,Artificial Refuge,Marsh,Virginia Opossum,2021-02-11,18
+H13,winter,Artificial Refuge,Marsh,Striped Skunk,2021-02-11,20
+H13,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-12,18
+H13,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-12,20
+H13,winter,Artificial Refuge,Marsh,Virginia Opossum,2021-02-12,20
+H13,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-12,21
+H13,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-12,22
+H13,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-15,4
+H13,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-15,5
+H13,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-15,6
+H13,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-15,18
+H15,winter,Artificial Refuge,Marsh,American Crow,2021-02-11,13
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-11,16
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-11,17
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-11,18
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-11,18
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-11,19
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-11,20
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-11,20
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-11,21
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-11,22
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-12,0
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-12,1
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-12,5
+H15,winter,Artificial Refuge,Marsh,Hermit Thrush,2021-02-12,6
+H15,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-12,12
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-12,17
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-12,18
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-12,18
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-12,19
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-12,19
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-12,20
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-12,20
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-12,21
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-12,21
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-12,22
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-12,22
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-12,23
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-13,0
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-13,1
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-13,2
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-13,2
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-13,4
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-13,5
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-13,5
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-13,6
+H15,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-13,9
+H15,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-13,10
+H15,winter,Artificial Refuge,Marsh,Common Garter Snake,2021-02-13,14
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-13,18
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-13,19
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-13,20
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-13,21
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-13,21
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-14,0
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-14,1
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-14,2
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-14,3
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-14,4
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-14,4
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-14,5
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-14,6
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-14,18
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-14,20
+H15,winter,Artificial Refuge,Marsh,Western Spotted Skunk,2021-02-14,20
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-14,21
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-14,21
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-14,22
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-14,22
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-14,23
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-14,23
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-15,0
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-15,1
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-15,3
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-15,3
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-15,5
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-15,5
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-15,6
+H15,winter,Artificial Refuge,Marsh,Hermit Thrush,2021-02-15,7
+H15,winter,Artificial Refuge,Marsh,Song Sparrow,2021-02-15,11
+H15,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-15,12
+H15,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-15,13
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-15,19
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-15,20
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-15,21
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-15,22
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-15,23
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-15,23
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-16,1
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-16,3
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-16,4
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-16,5
+H15,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-16,5
+H15,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-16,6
+H15,winter,Artificial Refuge,Marsh,Hermit Thrush,2021-02-16,7
+H16,winter,Artificial Refuge,Marsh,Western fence lizard,2021-03-04,11
+H16,winter,Artificial Refuge,Marsh,Western fence lizard,2021-03-04,12
+H16,winter,Artificial Refuge,Marsh,Western fence lizard,2021-03-04,13
+H16,winter,Artificial Refuge,Marsh,Song Sparrow,2021-03-04,14
+H16,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-04,18
+H16,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-04,19
+H16,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-04,20
+H16,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-04,22
+H16,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-04,23
+H16,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-05,0
+H16,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-05,2
+H16,winter,Artificial Refuge,Marsh,Western fence lizard,2021-03-05,10
+H16,winter,Artificial Refuge,Marsh,Western fence lizard,2021-03-05,11
+H16,winter,Artificial Refuge,Marsh,Killdeer,2021-03-05,14
+H16,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-05,18
+H16,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-05,19
+H16,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-05,23
+H16,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-06,0
+H16,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-06,1
+H16,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-03-06,11
+H16,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-06,19
+H16,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-06,21
+H16,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-07,0
+H16,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-07,1
+H16,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-07,3
+H16,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-08,0
+H16,winter,Artificial Refuge,Marsh,Virginia Opossum,2021-03-08,2
+H16,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-08,4
+H16,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-08,5
+H16,winter,Artificial Refuge,Marsh,Buff-bellied Pipit,2021-03-08,8
+H16,winter,Artificial Refuge,Marsh,Western fence lizard,2021-03-08,10
+H16,winter,Artificial Refuge,Marsh,Western fence lizard,2021-03-08,15
+H16,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-08,20
+H16,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-08,21
+H16,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-09,1
+H16,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-09,4
+H16,winter,Artificial Refuge,Marsh,Killdeer,2021-03-09,5
+H16,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-09,5
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-18,18
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-18,19
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-18,20
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-18,21
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-19,0
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-19,0
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-19,1
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-19,2
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-19,3
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-19,4
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-19,5
+H19,winter,Artificial Refuge,Marsh,Western fence lizard,2021-02-19,11
+H19,winter,Artificial Refuge,Marsh,Western fence lizard,2021-02-19,12
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-19,22
+H19,winter,Artificial Refuge,Marsh,Northern Raccoon,2021-02-19,22
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-19,23
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-20,0
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-20,1
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-20,3
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-20,5
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-20,11
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-20,12
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-20,13
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-20,19
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-21,0
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-21,1
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-21,2
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-21,3
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-21,4
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-21,5
+H19,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-21,7
+H19,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-21,10
+H19,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-21,10
+H19,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-21,10
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-21,13
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-21,14
+H19,winter,Artificial Refuge,Marsh,Striped Skunk,2021-02-21,18
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-22,3
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-22,5
+H19,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-22,12
+H19,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-22,14
+H19,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-22,14
+H19,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-22,15
+H19,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-22,18
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-23,2
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-23,3
+H19,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-23,5
+H19,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-23,8
+H20,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-25,10
+H20,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-25,13
+H20,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-25,14
+H20,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-26,5
+H20,winter,Artificial Refuge,Marsh,Western Meadowlark,2021-02-26,10
+H20,winter,Artificial Refuge,Marsh,American Crow,2021-02-26,17
+H20,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-27,11
+H20,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-27,13
+H20,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-28,11
+H20,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-28,12
+H20,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-28,13
+H20,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-28,15
+H20,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-28,16
+H20,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-28,19
+H20,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-03-01,11
+H20,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-01,11
+H20,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-03-01,13
+H20,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-03-01,14
+H20,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-03-01,16
+H20,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-01,23
+H20,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-03-02,8
+H20,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-02,18
+H20,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-02,19
+H21,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-19,2
+H21,winter,Artificial Refuge,Marsh,American Crow,2021-02-19,9
+H21,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-20,13
+H21,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-21,13
+H22,winter,Artificial Refuge,Marsh,Western fence lizard,2021-02-25,13
+H22,winter,Artificial Refuge,Marsh,Western fence lizard,2021-02-25,14
+H22,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-25,18
+H22,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-25,18
+H22,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-25,18
+H22,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-25,20
+H22,winter,Artificial Refuge,Marsh,Virginia Opossum,2021-02-26,0
+H22,winter,Artificial Refuge,Marsh,American Crow,2021-02-26,8
+H22,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-26,9
+H22,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-26,10
+H22,winter,Artificial Refuge,Marsh,Western fence lizard,2021-02-26,11
+H22,winter,Artificial Refuge,Marsh,Western fence lizard,2021-02-26,12
+H22,winter,Artificial Refuge,Marsh,Western fence lizard,2021-02-26,13
+H22,winter,Artificial Refuge,Marsh,Western fence lizard,2021-02-26,14
+H22,winter,Artificial Refuge,Marsh,Western fence lizard,2021-02-26,15
+H22,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-26,21
+H22,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-26,21
+H22,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-27,2
+H22,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-27,2
+H22,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-27,5
+H22,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-27,5
+H22,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-27,10
+H22,winter,Artificial Refuge,Marsh,Western fence lizard,2021-02-27,10
+H22,winter,Artificial Refuge,Marsh,Western fence lizard,2021-02-27,11
+H22,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-27,12
+H22,winter,Artificial Refuge,Marsh,Western fence lizard,2021-02-27,12
+H22,winter,Artificial Refuge,Marsh,Western fence lizard,2021-02-27,13
+H22,winter,Artificial Refuge,Marsh,Western fence lizard,2021-02-27,14
+H22,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-27,18
+H22,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-28,0
+H22,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-28,1
+H22,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-28,1
+H22,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-28,2
+H22,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-28,5
+H22,winter,Artificial Refuge,Marsh,Western fence lizard,2021-02-28,12
+H22,winter,Artificial Refuge,Marsh,Western skink,2021-02-28,12
+H22,winter,Artificial Refuge,Marsh,Western fence lizard,2021-02-28,13
+H22,winter,Artificial Refuge,Marsh,Western fence lizard,2021-02-28,14
+H22,winter,Artificial Refuge,Marsh,Western fence lizard,2021-02-28,15
+H22,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-28,16
+H22,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-28,21
+H22,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-02-28,22
+H22,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-01,0
+H22,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-01,5
+H22,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-01,7
+H22,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-01,8
+H22,winter,Artificial Refuge,Marsh,Western fence lizard,2021-03-01,10
+H22,winter,Artificial Refuge,Marsh,Western fence lizard,2021-03-01,11
+H22,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-03-01,12
+H22,winter,Artificial Refuge,Marsh,Western fence lizard,2021-03-01,12
+H22,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-03-01,13
+H22,winter,Artificial Refuge,Marsh,Western fence lizard,2021-03-01,13
+H22,winter,Artificial Refuge,Marsh,Western fence lizard,2021-03-01,14
+H22,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-01,15
+H22,winter,Artificial Refuge,Marsh,Western fence lizard,2021-03-01,15
+H22,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-01,18
+H22,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-02,2
+H22,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-02,5
+H22,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-02,6
+H23,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-04,18
+H23,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-06,11
+H23,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-06,12
+H23,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-02-06,12
+H23,winter,Artificial Refuge,Marsh,Song Sparrow,2021-02-06,16
+H23,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-06,19
+H23,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-06,21
+H23,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-07,19
+H23,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-08,18
+H23,winter,Artificial Refuge,Marsh,North American Deermouse,2021-02-09,1
+H24,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-18,9
+H24,winter,Artificial Refuge,Grassland,Western fence lizard,2021-02-18,10
+H24,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-18,14
+H24,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-18,18
+H24,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-18,18
+H24,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-18,20
+H24,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-18,21
+H24,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-18,22
+H24,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-19,0
+H24,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-19,2
+H24,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-19,3
+H24,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-19,4
+H24,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-19,4
+H24,winter,Artificial Refuge,Grassland,Western Meadowlark,2021-02-19,7
+H24,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-19,8
+H24,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-19,10
+H24,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-19,11
+H24,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-19,12
+H24,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-19,13
+H24,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-19,14
+H24,winter,Artificial Refuge,Grassland,American Crow,2021-02-19,16
+H24,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-19,16
+H24,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-19,21
+H24,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-19,23
+H24,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-20,0
+H24,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-20,9
+H24,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-20,12
+H24,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-20,13
+H24,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-20,14
+H24,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-20,21
+H24,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-21,1
+H24,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-21,1
+H24,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-21,2
+H24,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-21,4
+H24,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-21,4
+H24,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-21,8
+H24,winter,Artificial Refuge,Grassland,Western Meadowlark,2021-02-21,8
+H24,winter,Artificial Refuge,Grassland,Western fence lizard,2021-02-21,12
+H24,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-21,18
+H24,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-22,2
+H24,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-22,2
+H24,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-22,3
+H24,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-22,4
+H24,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-22,4
+H24,winter,Artificial Refuge,Grassland,Western fence lizard,2021-02-22,10
+H24,winter,Artificial Refuge,Grassland,Western fence lizard,2021-02-22,11
+H24,winter,Artificial Refuge,Grassland,Western fence lizard,2021-02-22,12
+H24,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-23,1
+H24,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-23,2
+H24,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-23,5
+H24,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-23,9
+H24,winter,Artificial Refuge,Grassland,Western fence lizard,2021-02-23,9
+H24,winter,Artificial Refuge,Grassland,Western fence lizard,2021-02-23,10
+H25,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-05,0
+H25,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-05,2
+H25,winter,Artificial Refuge,Grassland,Western fence lizard,2021-02-05,12
+H25,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-06,1
+H25,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-06,3
+H25,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-06,10
+H25,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-06,11
+H25,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-06,14
+H25,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-07,1
+H25,winter,Artificial Refuge,Grassland,Striped Skunk,2021-02-07,19
+H25,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-07,21
+H25,winter,Artificial Refuge,Grassland,Virginia Opossum,2021-02-07,23
+H25,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-08,3
+H25,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-08,4
+H25,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-08,15
+H25,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-08,19
+H25,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-08,23
+H33,winter,Artificial Refuge,Grassland,Buff-bellied Pipit,2021-02-04,12
+H33,winter,Artificial Refuge,Grassland,Say's Phoebe,2021-02-04,13
+H33,winter,Artificial Refuge,Grassland,Say's Phoebe,2021-02-04,14
+H33,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-04,19
+H33,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-04,20
+H33,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-04,21
+H33,winter,Artificial Refuge,Grassland,Western Meadowlark,2021-02-05,13
+H33,winter,Artificial Refuge,Grassland,Striped Skunk,2021-02-06,3
+H33,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-07,18
+H33,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-07,19
+H33,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-07,19
+H33,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-08,2
+H33,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-08,3
+H33,winter,Artificial Refuge,Grassland,Western Meadowlark,2021-02-08,8
+H34,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-04,19
+H34,winter,Artificial Refuge,Grassland,Buff-bellied Pipit,2021-02-05,11
+H34,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-05,11
+H34,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-05,12
+H34,winter,Artificial Refuge,Grassland,Buff-bellied Pipit,2021-02-05,13
+H34,winter,Artificial Refuge,Grassland,Buff-bellied Pipit,2021-02-05,14
+H34,winter,Artificial Refuge,Grassland,Burrowing Owl,2021-02-06,6
+H34,winter,Artificial Refuge,Grassland,Buff-bellied Pipit,2021-02-06,12
+H34,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-06,15
+H34,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-07,8
+H34,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-07,8
+H34,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-07,15
+H34,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-07,19
+H34,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-07,19
+H34,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-07,23
+H34,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-08,1
+H34,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-08,2
+H34,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-08,8
+H34,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-08,13
+H34,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-08,13
+H34,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-08,18
+H34,winter,Artificial Refuge,Grassland,Killdeer,2021-02-09,1
+H34,winter,Artificial Refuge,Grassland,Killdeer,2021-02-09,2
+H34,winter,Artificial Refuge,Grassland,Killdeer,2021-02-09,3
+H34,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-09,8
+H34,winter,Artificial Refuge,Grassland,American Crow,2021-02-09,10
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-18,10
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-18,11
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-18,14
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-18,15
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-18,16
+H35,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-18,23
+H35,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-19,0
+H35,winter,Artificial Refuge,Grassland,Burrowing Owl,2021-02-19,5
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-19,8
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-19,9
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-19,11
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-19,12
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-19,13
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-19,15
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-20,8
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-20,15
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-20,16
+H35,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-21,0
+H35,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-21,5
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-21,7
+H35,winter,Artificial Refuge,Grassland,Western Meadowlark,2021-02-21,7
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-21,8
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-21,9
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-21,14
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-21,16
+H35,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-21,18
+H35,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-22,2
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-22,7
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-22,8
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-22,9
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-22,11
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-22,12
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-22,13
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-22,14
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-22,15
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-22,16
+H35,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-22,23
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-23,7
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-23,8
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-23,9
+H35,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-23,10
+H36,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-11,13
+H36,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-11,17
+H36,winter,Artificial Refuge,Scrub,Cooper's Hawk,2021-02-11,17
+H36,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-11,18
+H36,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-11,21
+H36,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-11,22
+H36,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-12,6
+H36,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-12,10
+H36,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-12,11
+H36,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-12,12
+H36,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-12,13
+H36,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-12,14
+H36,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-12,15
+H36,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-12,19
+H36,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-12,21
+H36,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-13,5
+H36,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-13,6
+H36,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-02-13,10
+H36,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-13,13
+H36,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-13,14
+H36,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-13,15
+H36,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-13,19
+H36,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-13,20
+H36,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-14,4
+H36,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-14,5
+H36,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-14,6
+H36,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-14,10
+H36,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-14,11
+H36,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-14,12
+H36,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-14,14
+H36,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-14,15
+H36,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-14,18
+H36,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-14,20
+H36,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-14,22
+H36,winter,Artificial Refuge,Scrub,Grey Fox,2021-02-14,23
+H36,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-15,2
+H36,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-15,4
+H36,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-15,5
+H36,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-02-15,11
+H36,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-02-15,12
+H36,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-15,12
+H36,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-02-15,13
+H36,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-02-15,15
+H36,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-02-15,16
+H36,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-15,22
+H36,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-02-16,4
+H36,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-02-16,9
+H36,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-02-16,10
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-25,10
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-25,10
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-25,11
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-25,11
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-25,12
+H37,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-02-25,13
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-25,13
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-25,14
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-25,15
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-25,17
+H37,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-25,18
+H37,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-25,19
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-25,20
+H37,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-25,20
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-25,23
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-26,0
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-26,1
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-26,2
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-26,3
+H37,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-26,3
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-26,4
+H37,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-26,4
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-26,6
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-26,8
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-26,9
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-26,10
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-26,11
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-26,12
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-26,13
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-26,14
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-26,18
+H37,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-26,18
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-26,21
+H37,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-27,1
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-27,2
+H37,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-27,2
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-27,5
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-27,6
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-27,8
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-27,9
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-27,10
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-27,11
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-27,12
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-27,13
+H37,winter,Artificial Refuge,Scrub,Song Sparrow,2021-02-27,16
+H37,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-27,19
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-27,20
+H37,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-27,20
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-27,21
+H37,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-27,21
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-28,2
+H37,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-28,3
+H37,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-28,5
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-28,6
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-28,7
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-28,9
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-28,10
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-28,12
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-28,13
+H37,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-02-28,14
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-28,14
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-28,18
+H37,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-28,18
+H37,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-28,19
+H37,winter,Artificial Refuge,Scrub,Virginia Opossum,2021-02-28,19
+H37,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-28,20
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-28,21
+H37,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-28,21
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-28,22
+H37,winter,Artificial Refuge,Scrub,Grey Fox,2021-02-28,23
+H37,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-01,3
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-03-01,4
+H37,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-01,4
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-03-01,5
+H37,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-01,5
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-03-01,6
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-03-01,8
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-03-01,10
+H37,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-03-01,11
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-03-01,11
+H37,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-03-01,12
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-03-01,17
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-03-01,18
+H37,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-01,19
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-03-01,20
+H37,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-01,20
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-03-01,21
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-03-02,1
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-03-02,2
+H37,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-03-02,6
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-03-02,8
+H37,winter,Artificial Refuge,Scrub,Western fence lizard,2021-03-02,9
+H38,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-18,17
+H38,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-18,20
+H38,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-18,21
+H38,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-18,22
+H38,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-18,23
+H38,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-19,1
+H38,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-19,4
+H38,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-19,5
+H38,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-20,0
+H38,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-20,4
+H38,winter,Artificial Refuge,Scrub,Virginia Opossum,2021-02-20,21
+H38,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-21,0
+H38,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-21,2
+H38,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-21,4
+H38,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-21,5
+H38,winter,Artificial Refuge,Scrub,Striped Skunk,2021-02-21,20
+H38,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-22,3
+H38,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-22,4
+H38,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-22,5
+H38,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-23,1
+H38,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-23,3
+H38,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-23,4
+H38,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-23,8
+H38,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-23,10
+H40,winter,Artificial Refuge,Marsh,Wren,2021-03-04,10
+H40,winter,Artificial Refuge,Marsh,Wren,2021-03-04,12
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-04,17
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-04,17
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-04,18
+H40,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-04,18
+H40,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-04,18
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-04,19
+H40,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-04,19
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-04,20
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-04,20
+H40,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-04,20
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-04,21
+H40,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-04,21
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-04,22
+H40,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-04,22
+H40,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-04,23
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-05,0
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-05,0
+H40,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-05,0
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-05,2
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-05,3
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-05,4
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-05,5
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-05,6
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-05,9
+H40,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-03-05,13
+H40,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-03-05,13
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-05,17
+H40,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-05,19
+H40,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-05,21
+H40,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-05,22
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-06,0
+H40,winter,Artificial Refuge,Marsh,Virginia Opossum,2021-03-06,0
+H40,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-06,1
+H40,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-06,2
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-06,3
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-06,4
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-06,4
+H40,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-06,4
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-06,5
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-06,5
+H40,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-06,5
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-06,6
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-06,7
+H40,winter,Artificial Refuge,Marsh,California Ground Squirrel,2021-03-06,9
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-06,17
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-06,18
+H40,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-06,20
+H40,winter,Artificial Refuge,Marsh,Striped Skunk,2021-03-06,20
+H40,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-06,21
+H40,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-06,22
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-06,23
+H40,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-06,23
+H40,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-07,0
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-07,1
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-07,2
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-07,3
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-07,4
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-07,5
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-07,11
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-07,15
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-07,18
+H40,winter,Artificial Refuge,Marsh,Striped Skunk,2021-03-07,20
+H40,winter,Artificial Refuge,Marsh,Northern Raccoon,2021-03-07,21
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-08,2
+H40,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-08,3
+H40,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-08,3
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-08,6
+H40,winter,Artificial Refuge,Marsh,Striped Skunk,2021-03-08,21
+H40,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-08,22
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-08,23
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-09,1
+H40,winter,Artificial Refuge,Marsh,North American Deermouse,2021-03-09,2
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-09,4
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-09,5
+H40,winter,Artificial Refuge,Marsh,Brush Rabbit,2021-03-09,6
+H41,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-11,18
+H41,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-11,18
+H41,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-11,20
+H41,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-11,21
+H41,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-11,21
+H41,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-11,22
+H41,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-11,23
+H41,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-12,0
+H41,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-12,5
+H41,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-12,18
+H41,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-12,18
+H41,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-12,19
+H41,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-12,20
+H41,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-12,22
+H41,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-12,23
+H41,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-13,2
+H41,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-13,3
+H41,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-13,4
+H41,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-13,4
+H41,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-13,5
+H41,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-13,6
+H41,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-13,19
+H41,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-14,1
+H41,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-14,2
+H41,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-14,3
+H41,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-14,4
+H41,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-14,13
+H41,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-14,18
+H41,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-14,20
+H41,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-14,22
+H41,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-15,0
+H41,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-15,0
+H41,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-15,1
+H41,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-15,2
+H41,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-15,3
+H41,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-15,4
+H41,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-15,5
+H41,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-15,6
+H41,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-15,19
+H41,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-15,20
+H41,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-16,4
+H41,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-16,5
+H42,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-25,19
+H42,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-25,21
+H42,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-25,21
+H42,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-26,1
+H42,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-26,5
+H42,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-26,5
+H42,winter,Artificial Refuge,Scrub,American Crow,2021-02-26,8
+H42,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-27,2
+H42,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-28,3
+H42,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-28,5
+H42,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-28,20
+H42,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-28,20
+H42,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-28,21
+H42,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-03-01,0
+H42,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-03-01,5
+H42,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-03-01,19
+H42,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-01,20
+H42,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-03-01,21
+H42,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-03-01,22
+H42,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-03-02,2
+H43,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-02-18,14
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-18,18
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-18,18
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-18,19
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-18,20
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-18,20
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-18,20
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-18,21
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-18,21
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-18,21
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-18,22
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-18,23
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-18,23
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-19,0
+H43,winter,Artificial Refuge,Scrub,California Ground Squirrel,2021-02-19,0
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-19,0
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-19,1
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-19,2
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-19,3
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-19,3
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-19,4
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-19,4
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-19,5
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-19,5
+H43,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-19,9
+H43,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-19,14
+H43,winter,Artificial Refuge,Scrub,Western Meadowlark,2021-02-19,16
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-19,19
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-19,20
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-19,21
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-19,21
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-19,22
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-19,22
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-19,23
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-20,0
+H43,winter,Artificial Refuge,Scrub,Western Meadowlark,2021-02-20,3
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-20,4
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-20,5
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-20,6
+H43,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-20,10
+H43,winter,Artificial Refuge,Scrub,Western Meadowlark,2021-02-20,15
+H43,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-20,15
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-20,19
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-20,20
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-20,21
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-20,22
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-21,0
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-21,0
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-21,1
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-21,1
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-21,2
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-21,3
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-21,4
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-21,5
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-21,6
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-21,7
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-21,8
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-21,9
+H43,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-21,9
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-21,18
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-21,19
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-21,20
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-21,21
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-22,1
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-22,1
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-22,2
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-22,2
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-22,3
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-22,3
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-22,4
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-22,5
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-22,5
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-22,6
+H43,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-22,8
+H43,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-22,9
+H43,winter,Artificial Refuge,Scrub,Wren,2021-02-22,9
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-22,18
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-22,18
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-22,19
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-22,20
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-22,21
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-22,21
+H43,winter,Artificial Refuge,Scrub,Virginia Opossum,2021-02-22,21
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-22,22
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-22,23
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-22,23
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-23,0
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-23,1
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-23,2
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-23,3
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-23,3
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-23,4
+H43,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-23,4
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-23,5
+H43,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-23,6
+H43,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-23,10
+H43,winter,Artificial Refuge,Scrub,California Ground Squirrel,NA,14
+H47,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-25,14
+H47,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-25,15
+H47,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-25,15
+H47,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-25,18
+H47,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-25,18
+H47,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-25,19
+H47,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-26,2
+H47,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-26,3
+H47,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-26,4
+H47,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-26,4
+H47,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-26,4
+H47,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-26,4
+H47,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-26,5
+H47,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-26,5
+H47,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-27,4
+H47,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-27,8
+H47,winter,Artificial Refuge,Grassland,Western fence lizard,2021-02-27,8
+H47,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-27,18
+H47,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-27,18
+H47,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-27,19
+H47,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-27,19
+H47,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-28,3
+H47,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-28,4
+H47,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-28,4
+H47,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-28,5
+H47,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-28,5
+H47,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-28,9
+H47,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-28,10
+H47,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-28,10
+H47,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-28,11
+H47,winter,Artificial Refuge,Grassland,Western fence lizard,2021-02-28,13
+H47,winter,Artificial Refuge,Grassland,Western fence lizard,2021-02-28,14
+H47,winter,Artificial Refuge,Grassland,Western fence lizard,2021-02-28,15
+H47,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-28,18
+H47,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-28,18
+H47,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-28,19
+H47,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-28,19
+H47,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-28,20
+H47,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-28,20
+H47,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-03-01,1
+H47,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-03-01,4
+H47,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-01,18
+H47,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-03-01,19
+H47,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-03-01,19
+H47,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-01,19
+H47,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-03-01,20
+H47,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-03-01,20
+H47,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-01,20
+H47,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-03-01,21
+H47,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-01,21
+H47,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-02,2
+H47,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-03-02,5
+H48,winter,Artificial Refuge,Grassland,Striped Skunk,2021-02-12,17
+H48,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-12,18
+H48,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-12,22
+H48,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-12,23
+H48,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-13,2
+H48,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-13,4
+H48,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-13,5
+H48,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-13,19
+H48,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-13,20
+H48,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-13,21
+H48,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-13,23
+H48,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-14,1
+H48,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-14,4
+H48,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-14,8
+H48,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-14,21
+H48,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-14,23
+H48,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-15,0
+H48,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-15,1
+H48,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-15,3
+H48,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-15,5
+H48,winter,Artificial Refuge,Grassland,Western Meadowlark,2021-02-15,9
+H48,winter,Artificial Refuge,Grassland,Western Meadowlark,2021-02-15,14
+H48,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-15,20
+H48,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-15,23
+H48,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-16,1
+H48,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-16,4
+H48,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-02-16,5
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-04,10
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-04,11
+H49,winter,Artificial Refuge,Grassland,Song Sparrow,2021-03-04,11
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-04,12
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-04,13
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-04,15
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-04,16
+H49,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-04,19
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-05,10
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-05,11
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-05,12
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-05,14
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-05,16
+H49,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-05,19
+H49,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-06,0
+H49,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-06,1
+H49,winter,Artificial Refuge,Grassland,Killdeer,2021-03-06,2
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-06,7
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-06,8
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-06,9
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-06,12
+H49,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-06,18
+H49,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-06,19
+H49,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-06,21
+H49,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-06,23
+H49,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-03-07,3
+H49,winter,Artificial Refuge,Grassland,American Crow,2021-03-07,8
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-07,8
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-07,10
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-07,11
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-07,14
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-07,15
+H49,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-07,19
+H49,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-07,20
+H49,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-07,23
+H49,winter,Artificial Refuge,Grassland,Killdeer,2021-03-08,2
+H49,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-08,2
+H49,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-08,3
+H49,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-03-08,4
+H49,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-08,4
+H49,winter,Artificial Refuge,Grassland,Song Sparrow,2021-03-08,8
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-08,10
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-08,14
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-08,15
+H49,winter,Artificial Refuge,Grassland,Western Meadowlark,2021-03-08,15
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-08,16
+H49,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-08,19
+H49,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-08,20
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-08,21
+H49,winter,Artificial Refuge,Grassland,Killdeer,2021-03-08,21
+H49,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-08,21
+H49,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-03-08,22
+H49,winter,Artificial Refuge,Grassland,Killdeer,2021-03-08,22
+H49,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-08,22
+H49,winter,Artificial Refuge,Grassland,Brush Rabbit,2021-03-09,1
+H49,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-09,1
+H49,winter,Artificial Refuge,Grassland,Killdeer,2021-03-09,2
+H49,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-09,2
+H49,winter,Artificial Refuge,Grassland,Killdeer,2021-03-09,3
+H49,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-09,3
+H49,winter,Artificial Refuge,Grassland,Killdeer,2021-03-09,4
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-09,8
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-09,9
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-09,10
+H49,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-09,11
+H58,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-04,18
+H58,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-04,19
+H58,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-04,20
+H58,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-05,10
+H58,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-05,11
+H58,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-05,12
+H58,winter,Artificial Refuge,Grassland,Western Meadowlark,2021-02-05,16
+H58,winter,Artificial Refuge,Grassland,Western Meadowlark,2021-02-06,10
+H58,winter,Artificial Refuge,Grassland,Western Meadowlark,2021-02-06,10
+H58,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-06,11
+H58,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-06,18
+H58,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-07,9
+H58,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-07,11
+H58,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-07,15
+H58,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-07,15
+H58,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-07,20
+H58,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-07,21
+H58,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-07,23
+H58,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-08,0
+H58,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-08,1
+H58,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-08,4
+H58,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-08,5
+H58,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-08,8
+H58,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-08,8
+H58,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-08,9
+H58,winter,Artificial Refuge,Grassland,American Crow,2021-02-08,10
+H58,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-08,13
+H58,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-08,14
+H58,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-08,22
+H58,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-09,1
+H58,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-09,4
+H58,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-09,5
+H58,winter,Artificial Refuge,Grassland,Western Meadowlark,2021-02-09,10
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-11,12
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-11,12
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-11,13
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-11,13
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-11,14
+H59,winter,Artificial Refuge,Grassland,Western Meadowlark,2021-02-11,14
+H59,winter,Artificial Refuge,Grassland,Western Meadowlark,2021-02-11,16
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-12,11
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-12,11
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-12,12
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-12,12
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-12,13
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-12,13
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-12,14
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-12,14
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-12,15
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-12,15
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-12,16
+H59,winter,Artificial Refuge,Grassland,Striped Skunk,2021-02-12,18
+H59,winter,Artificial Refuge,Grassland,Striped Skunk,2021-02-12,20
+H59,winter,Artificial Refuge,Grassland,Striped Skunk,2021-02-12,21
+H59,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-12,23
+H59,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-13,0
+H59,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-13,5
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-13,12
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-13,12
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-13,13
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-13,13
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-13,14
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-13,14
+H59,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-14,3
+H59,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-14,4
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-14,9
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-14,9
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-14,10
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-14,10
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-14,11
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-14,11
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-14,12
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-14,12
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-14,13
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-14,13
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-14,14
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-14,15
+H59,winter,Artificial Refuge,Grassland,Canada Goose,2021-02-14,15
+H59,winter,Artificial Refuge,Grassland,Canada Goose,2021-02-14,15
+H59,winter,Artificial Refuge,Grassland,Canada Goose,2021-02-14,16
+H59,winter,Artificial Refuge,Grassland,Canada Goose,2021-02-14,16
+H59,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-14,23
+H59,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-15,2
+H59,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-15,4
+H59,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-15,5
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-15,9
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-15,9
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-15,10
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-15,10
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-15,11
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-15,12
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-15,12
+H59,winter,Artificial Refuge,Grassland,Canada Goose,2021-02-15,12
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-15,13
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-15,13
+H59,winter,Artificial Refuge,Grassland,Canada Goose,2021-02-15,13
+H59,winter,Artificial Refuge,Grassland,Canada Goose,2021-02-15,13
+H59,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-02-15,14
+H59,winter,Artificial Refuge,Grassland,North American Deermouse,2021-02-16,3
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-04,11
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-04,11
+H60,winter,Artificial Refuge,Grassland,Western fence lizard,2021-03-04,11
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-04,12
+H60,winter,Artificial Refuge,Grassland,Western Meadowlark,2021-03-04,12
+H60,winter,Artificial Refuge,Grassland,Western fence lizard,2021-03-04,12
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-04,13
+H60,winter,Artificial Refuge,Grassland,Western fence lizard,2021-03-04,13
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-04,14
+H60,winter,Artificial Refuge,Grassland,Western fence lizard,2021-03-04,14
+H60,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-04,19
+H60,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-04,20
+H60,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-05,0
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-05,7
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-05,8
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-05,9
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-05,10
+H60,winter,Artificial Refuge,Grassland,Western fence lizard,2021-03-05,10
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-05,11
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-05,11
+H60,winter,Artificial Refuge,Grassland,Western fence lizard,2021-03-05,11
+H60,winter,Artificial Refuge,Grassland,Western fence lizard,2021-03-05,11
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-05,12
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-05,12
+H60,winter,Artificial Refuge,Grassland,Western fence lizard,2021-03-05,12
+H60,winter,Artificial Refuge,Grassland,Western fence lizard,2021-03-05,12
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-05,13
+H60,winter,Artificial Refuge,Grassland,Western fence lizard,2021-03-05,13
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-05,14
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-05,15
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-05,16
+H60,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-05,19
+H60,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-06,1
+H60,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-06,3
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-06,7
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-06,8
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-06,10
+H60,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-06,10
+H60,winter,Artificial Refuge,Grassland,Western fence lizard,2021-03-06,10
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-06,11
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-06,11
+H60,winter,Artificial Refuge,Grassland,Western fence lizard,2021-03-06,11
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-06,12
+H60,winter,Artificial Refuge,Grassland,Western fence lizard,2021-03-06,12
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-06,13
+H60,winter,Artificial Refuge,Grassland,Western fence lizard,2021-03-06,13
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-06,14
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-06,14
+H60,winter,Artificial Refuge,Grassland,Western fence lizard,2021-03-06,14
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-06,15
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-06,16
+H60,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-06,19
+H60,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-06,20
+H60,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-06,21
+H60,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-06,22
+H60,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-06,23
+H60,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-07,0
+H60,winter,Artificial Refuge,Grassland,Virginia Opossum,2021-03-07,0
+H60,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-07,1
+H60,winter,Artificial Refuge,Grassland,Striped Skunk,2021-03-07,4
+H60,winter,Artificial Refuge,Grassland,Burrowing Owl,2021-03-07,10
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-07,10
+H60,winter,Artificial Refuge,Grassland,Burrowing Owl,2021-03-07,11
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-07,11
+H60,winter,Artificial Refuge,Grassland,Burrowing Owl,2021-03-07,12
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-07,12
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-07,13
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-07,14
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-07,15
+H60,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-07,22
+H60,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-07,23
+H60,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-08,3
+H60,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-08,4
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-08,8
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-08,9
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-08,10
+H60,winter,Artificial Refuge,Grassland,Western fence lizard,2021-03-08,10
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-08,11
+H60,winter,Artificial Refuge,Grassland,Western fence lizard,2021-03-08,11
+H60,winter,Artificial Refuge,Grassland,Burrowing Owl,2021-03-08,12
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-08,12
+H60,winter,Artificial Refuge,Grassland,Western fence lizard,2021-03-08,12
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-08,13
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-08,13
+H60,winter,Artificial Refuge,Grassland,Western fence lizard,2021-03-08,13
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-08,14
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-08,14
+H60,winter,Artificial Refuge,Grassland,Western fence lizard,2021-03-08,14
+H60,winter,Artificial Refuge,Grassland,Burrowing Owl,2021-03-08,15
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-08,15
+H60,winter,Artificial Refuge,Grassland,Burrowing Owl,2021-03-08,16
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-08,16
+H60,winter,Artificial Refuge,Grassland,Burrowing Owl,2021-03-08,17
+H60,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-08,19
+H60,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-08,20
+H60,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-08,21
+H60,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-08,22
+H60,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-08,23
+H60,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-09,1
+H60,winter,Artificial Refuge,Grassland,North American Deermouse,2021-03-09,2
+H60,winter,Artificial Refuge,Grassland,Burrowing Owl,2021-03-09,5
+H60,winter,Artificial Refuge,Grassland,Burrowing Owl,2021-03-09,7
+H60,winter,Artificial Refuge,Grassland,Burrowing Owl,2021-03-09,8
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-09,8
+H60,winter,Artificial Refuge,Grassland,Burrowing Owl,2021-03-09,9
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-09,9
+H60,winter,Artificial Refuge,Grassland,Burrowing Owl,2021-03-09,10
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-09,10
+H60,winter,Artificial Refuge,Grassland,California Ground Squirrel,2021-03-09,11
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-25,16
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-25,17
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-25,18
+H64,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-25,18
+H64,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-25,19
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-25,20
+H64,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-25,20
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-25,21
+H64,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-25,21
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-26,0
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-26,1
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-26,2
+H64,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-26,2
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-26,3
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-26,4
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-26,5
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-26,6
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-26,7
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-26,8
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-26,9
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-26,10
+H64,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-26,10
+H64,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-26,12
+H64,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-26,14
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-26,16
+H64,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-26,20
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-26,21
+H64,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-26,23
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-27,0
+H64,winter,Artificial Refuge,Scrub,Virginia Opossum,2021-02-27,1
+H64,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-27,2
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-27,5
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-27,6
+H64,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-27,10
+H64,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-27,12
+H64,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-27,13
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-27,17
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-27,18
+H64,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-27,18
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-27,19
+H64,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-27,19
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-27,20
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-27,21
+H64,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-27,22
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-27,23
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-28,0
+H64,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-28,1
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-28,2
+H64,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-28,2
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-28,3
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-28,4
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-28,5
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-28,7
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-28,8
+H64,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-28,9
+H64,winter,Artificial Refuge,Scrub,Western fence lizard,2021-02-28,10
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-28,13
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-28,14
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-28,16
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-28,17
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-28,18
+H64,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-28,18
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-28,19
+H64,winter,Artificial Refuge,Scrub,North American Deermouse,2021-02-28,19
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-28,20
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-28,21
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-28,22
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-02-28,23
+H64,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-01,0
+H64,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-01,2
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-03-01,4
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-03-01,5
+H64,winter,Artificial Refuge,Scrub,Western fence lizard,2021-03-01,9
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-03-01,17
+H64,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-01,18
+H64,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-01,19
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-03-01,20
+H64,winter,Artificial Refuge,Scrub,North American Deermouse,2021-03-01,20
+H64,winter,Artificial Refuge,Scrub,Brush Rabbit,2021-03-01,21
